@@ -1,6 +1,8 @@
 ### FCC3 controller board
 This Arduino Based project, is meant to allow FCC3 force sensing mod for Cougar, to be used with Thrustmaster warthog without the need to use the old TM Cougar Electronics
 
+**This software is distributed under LUFA modified MIT license, and is provided as is and without any warranty what so ever. Further information can be found in "license.txt"**
+
 ##### Features:
   * 11 bit output on Pitch and Roll
   * Support for both Cougar and Warthog grips
