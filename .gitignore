@@ -1,3 +1,5 @@
-src/Fcc3/Debug
-src/Fcc3/Release
+src/Controller/.vc/
+src/Controller/Fcc3/Debug
+src/Controller/Fcc3/Release
 docs/datasheets/
+*.*~
