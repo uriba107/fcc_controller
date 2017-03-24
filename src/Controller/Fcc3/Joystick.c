@@ -198,6 +198,8 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 		ReportData->Hat = Buffer >> 20;
 	}
 
+	ReportData->CurrentOptions = gOptions;
+	ReportData->CurrentUserDef=gUserDefinedForce;
 	/* Return whether the new report is different to the previous report or not */
 	return true;
 }
@@ -223,7 +225,10 @@ void HID_Task(void)
 
 		/* Write Joystick Report Data */
 		Endpoint_Write_Stream_LE(&JoystickReportData, sizeof(JoystickReportData), NULL);
-
+//
+				//// Send Config options
+				//Endpoint_Write_8(gOptions);
+				//Endpoint_Write_16_LE(gUserDefinedForce);
 		/* Finalize the stream transfer to send the last packet */
 		Endpoint_ClearIN();
 
@@ -231,6 +236,7 @@ void HID_Task(void)
 		memset(&JoystickReportData, 0, sizeof(JoystickReportData));
 	}
 
+	// Now read config options from the system, if any.
 	/* Select the Joystick Report Endpoint */
 	Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 

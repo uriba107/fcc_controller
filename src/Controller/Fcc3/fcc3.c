@@ -41,7 +41,7 @@ void InitFCC(void)
 	SetupLeds();
 	// Now enable global interrupts
 	sei();
-	
+
 	ReadStickZero();
 	ReadMem();
 }
@@ -57,9 +57,9 @@ void SetupSPI(void)
 	// ADC CS (PC6 - Arduino Pin5)
 	DDRC |= (1<<DDC6);
 	PORTC |= (1<<PORTC6);
-	
+
 	SPI_Init(SPI_SPEED_FCPU_DIV_4|SPI_MODE_MASTER);
-	
+
 	// Set PF0 and PF1 to output for Axis Zero Led
 	// Done Here because ADC is check is driving those pins..
 	DDRF |= (1<<PORTF0) | (1 << PORTF1);
@@ -82,10 +82,10 @@ void SetupLeds(void)
 
 void setStatusLed(uint8_t power){
 	if (power == 0 ){
-		cbi(TCCR4A, COM4A1); 
+		cbi(TCCR4A, COM4A1);
 		PORTC &= ~(1<<PORTC7);
 	} else if (power == 255) {
-		cbi(TCCR4A, COM4A1); 
+		cbi(TCCR4A, COM4A1);
 		PORTC |= (1<<PORTC7);
 	} else {
 		// set timers. pin is OC4A in PMW
@@ -94,7 +94,7 @@ void setStatusLed(uint8_t power){
 		sbi(TCCR4A, COM4A1);
 		OCR4A = power;
 	}
-	
+
 }
 
 
@@ -171,7 +171,7 @@ void ReadMem(void){
 	VolatileOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
     VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
 
-    
+
 	// Check and place values
 	#define EEPROM_EMPTY_BYTE(b) b == 0xFF
 	#define EEPROM_EMPTY_WORD(w) w == 0xFFFF
@@ -200,7 +200,7 @@ void ChangeSensitivity(uint8_t sensitivity){
 
 	// now load correct config
 	if (gOptions & Force4Kg) {
-		SetCalibratedSensitivity(FORCE_4KGF);	
+		SetCalibratedSensitivity(FORCE_4KGF);
 	} else 	if (gOptions & Force6Kg) {
 		SetCalibratedSensitivity(FORCE_6KGF);
 	} else 	if (gOptions & Force9Kg) {
@@ -256,7 +256,7 @@ void LoadUserSensitivity(){
 		// Read EEPROM
 	VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
 	VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-		
+
 	VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
 	VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
 
@@ -278,7 +278,7 @@ void WipeStoredLimits(void){
 
 	VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
 	VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-		
+
 	VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
 	VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
 
@@ -316,7 +316,7 @@ int16_t readSPIADC(uint8_t adcChannel){
 	{
 		PORTF &= ~(1<<adcChannel);// pull low (led off)
 	}
-	
+
 	return result;
 }
 
@@ -366,7 +366,7 @@ void RotateFlcs(AxisStore* AxisData)
 	static AxisStore InData;
 	InData.X = AxisData->X;
 	InData.Y = AxisData->Y;
-	
+
 	AxisData->X = (int32_t)((((int32_t)InData.X*ROT_COS)-((int32_t)InData.Y*ROT_SIN))/ROT_FACTOR);
 	AxisData->Y = (int32_t)((((int32_t)InData.X*ROT_SIN)+((int32_t)InData.Y*ROT_COS))/ROT_FACTOR);
 }
@@ -497,7 +497,7 @@ void FccSettings(uint32_t Buttons){
 			ChangeSensitivity(gOptions);
 			exitConfig();
 		}
-		
+
 		if (Buttons & GripDmsFwd) {
 			//reset center
 			ReadStickZero();
@@ -595,17 +595,24 @@ void exitConfig(void) {
 void processStickOut(uint8_t inOptions, int16_t inUserForce)
 {
   bool isReboot = (inOptions & RebootDevice)? true:false;
+	bool isCenter = inOptions & CenterStick? true:false;
+
+	inOptions &= ~(CenterStick | RebootDevice); //make sure RebootFlag doesn't carry over)
+
   if (isReboot) {
+		// then reboot.. no need to do anything as ram will be wiped.
 	  RebootToBootloader();
   }
 
-  inOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over)
-  gOptions = inOptions & ~(RebootDevice); //really really make sure that isn't saved
-  if (gUserDefinedForce != inUserForce) {
-  	gUserDefinedForce = inUserForce;
-  }
-  ChangeSensitivity(gOptions);
-  exitConfig();
-  
-
+	if (isCenter) {
+		// if centering, then do just that, don't try and change config
+		ReadStickZero();
+	} else {
+			gOptions = inOptions & ~(RebootDevice | CenterStick); //really really make sure that isn't saved
+		  if (gUserDefinedForce != inUserForce) {
+		  	gUserDefinedForce = inUserForce;
+		  }
+		  ChangeSensitivity(gOptions);
+		  exitConfig();
+	}
 }
