@@ -82,6 +82,8 @@
 			int16_t  Y:11; /**< Current absolute joystick Y position, as a signed 8-bit integer */
 			uint8_t Hat:4; /** <Bit Mast of the currently pressed Hat direction */
 			uint32_t Buttons:19; /**< Bit mask of the currently pressed joystick buttons */
+			uint8_t CurrentOptions;
+			int16_t CurrentUserDef;
 		} USB_JoystickReport_Data_t;
 
 	/* Function Prototypes: */

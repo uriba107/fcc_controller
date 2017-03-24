@@ -45,6 +45,7 @@ typedef struct  {
 enum ConfigOptions {
     RotatedSensors = 0x01,
     ForceMap = 0x02,
+    CenterStick = 0x04,
     RebootDevice = 0x08,
     Force4Kg = 0x10,
     Force6Kg = 0x20,
