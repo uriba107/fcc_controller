@@ -1,5 +1,7 @@
 src/Controller/.vc/
 src/Controller/Fcc3/Debug
 src/Controller/Fcc3/Release
+src/App/Fcc3_configurator/bin/
+src/App/Fcc3_configurator/obj/
 docs/datasheets/
 *.*~
