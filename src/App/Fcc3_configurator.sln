@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fcc3_configurator", "Fcc3_configurator\Fcc3_configurator.csproj", "{A9F58F2C-7D23-493F-A00C-374FD64EF23B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FCC_configurator", "Fcc3_configurator\FCC_configurator.csproj", "{A9F58F2C-7D23-493F-A00C-374FD64EF23B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

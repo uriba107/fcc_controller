@@ -9,7 +9,6 @@
 #include <avr/io.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
-//#include <LUFA/Drivers/Peripheral/ADC.h>
 #include <LUFA/Drivers/Peripheral/SPI.h>
 
 
@@ -116,12 +115,7 @@ enum ConfigOptions {
   #define CmsLeft 0x80
 
 // configure Global EEPROM pointers
-//extern uint16_t EEMEM NonVolatilePitchMin;
-//extern uint16_t EEMEM NonVolatilePitchMax;
-//extern uint16_t EEMEM NonVolatileRollMin;
-//extern uint16_t EEMEM NonVolatileRollMax;
 extern uint16_t EEMEM NonVolatileUserForce;
-
 extern uint8_t EEMEM NonVolatileOptions;
 
 // Global vars to store EEPROM values for runtime
@@ -153,10 +147,6 @@ void ReadStickZero(void);
 void ChangeSensitivity(uint8_t sensitivity);
 void SetCalibratedSensitivity(int16_t OffsetValue);
 void CalcForceMapping (void);
-//void LoadUserSensitivity();
-void WipeStoredLimits(void);
-//void ReadMinMax(void);
-
 
 void ReadStick(AxisStore* AxisData);
 void RotateFlcs(AxisStore* AxisData);

@@ -13,12 +13,8 @@
 
 
 // configure Global EEPROM pointers
-uint16_t EEMEM NonVolatilePitchMin;
-uint16_t EEMEM NonVolatilePitchMax;
-uint16_t EEMEM NonVolatileRollMin;
-uint16_t EEMEM NonVolatileRollMax;
-uint16_t EEMEM NonVolatileUserForce;
 
+uint16_t EEMEM NonVolatileUserForce;
 uint8_t EEMEM NonVolatileOptions;
 
 // Global vars to store EEPROM values for runtime
@@ -101,25 +97,14 @@ void setStatusLed(uint8_t power){
 ///////// EEPROM /////////////////////
 void WriteMem(void){
 	// This function will write to EEPROM any values that had been changed in runtime (to save EEPROM lifetime)
-	//int16_t volatile VolatilePitchMin;
-	//int16_t volatile VolatilePitchMax;
-//
-	//int16_t volatile VolatileRollMin;
-	//int16_t volatile VolatileRollMax;
 
 	uint8_t volatile VolatileOptions;
 
 	int16_t volatile VolatileUserForce;
 
 	// Read EEPROM
-	//VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
-	//VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-//
-	//VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
-	//VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
-
 	VolatileOptions = eeprom_read_byte(&NonVolatileOptions);
-    VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
+  VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
 
 	// Compare values and write back
 	if (VolatileOptions != gOptions) {
@@ -129,47 +114,17 @@ void WriteMem(void){
 	if (gUserDefinedForce != VolatileUserForce) {
 		eeprom_write_word(&NonVolatileUserForce,gUserDefinedForce);
 	}
-
-    //if (gOptions & ForceUserDefined) {
-		//if (VolatileRollMax != gStickLimits.X.max) {
-			//eeprom_write_word(&NonVolatileRollMax,gStickLimits.X.max);
-		//}
-//
-		//if (VolatileRollMin != gStickLimits.X.min) {
-			//eeprom_write_word(&NonVolatileRollMin,gStickLimits.X.min);
-		//}
-//
-		//if (VolatilePitchMax != gStickLimits.Y.max) {
-			//eeprom_write_word(&NonVolatilePitchMax,gStickLimits.Y.max);
-		//}
-//
-		//if (VolatilePitchMin != gStickLimits.Y.min) {
-			//eeprom_write_word(&NonVolatilePitchMin,gStickLimits.Y.min);
-		//}
-	//}
 }
 
 void ReadMem(void){
-	// Read config defaults from EEPROM
-	//int16_t volatile VolatilePitchMin;
-	//int16_t volatile VolatilePitchMax;
-//
-	//int16_t volatile VolatileRollMin;
-	//int16_t volatile VolatileRollMax;
 
 	uint8_t volatile VolatileOptions;
 	int16_t volatile VolatileUserForce;
 
 	// Read EEPROM
-	//VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
-	//VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-//
-	//VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
-	//VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
-
 	VolatileOptions = eeprom_read_byte(&NonVolatileOptions);
 	VolatileOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
-    VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
+  VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
 
 
 	// Check and place values
@@ -207,7 +162,6 @@ void ChangeSensitivity(uint8_t sensitivity){
 		SetCalibratedSensitivity(FORCE_9KGF);
 	} else {
 		SetCalibratedSensitivity(gUserDefinedForce);
-//		LoadUserSensitivity();
 	}
 }
 
@@ -227,78 +181,6 @@ void CalcForceMapping(void) {
 	gStickLimits.N80 = abs(gStickLimits.N180/2.25);
 }
 
-
-void ReadMinMax(void){
-	if (gOptions & ForceUserDefined) {
-		int16_t Roll = ReadRoll - gStickLimits.X.center;
-		int16_t Pitch = ReadPitch - gStickLimits.Y.center;
-
-		gStickLimits.X.max = max(Roll,gStickLimits.X.max);
-		gStickLimits.X.min = min(Roll,gStickLimits.X.min);
-
-		gStickLimits.Y.max = max(Pitch,gStickLimits.Y.max);
-		gStickLimits.Y.min = min(Pitch,gStickLimits.Y.min);
-
-		if (gStickLimits.N180 != gStickLimits.Y.max) {
-			CalcForceMapping();
-		}
-	}
-}
-
-void LoadUserSensitivity(){
-	// Read config defaults from EEPROM
-	int16_t volatile VolatilePitchMin;
-	int16_t volatile VolatilePitchMax;
-
-	int16_t volatile VolatileRollMin;
-	int16_t volatile VolatileRollMax;
-
-		// Read EEPROM
-	VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
-	VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-
-	VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
-	VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
-
-	#define BlankUserDefined STICK_DEADZONE+1
-	gStickLimits.X.max = EEPROM_EMPTY_WORD(VolatileRollMax) ? BlankUserDefined : VolatileRollMax;
-	gStickLimits.X.min = EEPROM_EMPTY_WORD(VolatileRollMin) ? -BlankUserDefined : VolatileRollMin;
-	gStickLimits.Y.max = EEPROM_EMPTY_WORD(VolatilePitchMax) ? BlankUserDefined : VolatilePitchMax;
-	gStickLimits.Y.min = EEPROM_EMPTY_WORD(VolatilePitchMin) ? -BlankUserDefined : VolatilePitchMin;
-
-	CalcForceMapping();
-}
-
-void WipeStoredLimits(void){
-	int16_t volatile VolatilePitchMin;
-	int16_t volatile VolatilePitchMax;
-
-	int16_t volatile VolatileRollMin;
-	int16_t volatile VolatileRollMax;
-
-	VolatileRollMax = eeprom_read_word(&NonVolatileRollMax);
-	VolatileRollMin = eeprom_read_word(&NonVolatileRollMin);
-
-	VolatilePitchMax = eeprom_read_word(&NonVolatilePitchMax);
-	VolatilePitchMin = eeprom_read_word(&NonVolatilePitchMin);
-
-	#define BlankUserDefined STICK_DEADZONE+1
-			if (VolatileRollMax != BlankUserDefined) {
-				eeprom_write_word(&NonVolatileRollMax,BlankUserDefined);
-			}
-
-			if (VolatileRollMin != -BlankUserDefined) {
-				eeprom_write_word(&NonVolatileRollMin,-BlankUserDefined);
-			}
-
-			if (VolatilePitchMax != BlankUserDefined) {
-				eeprom_write_word(&NonVolatilePitchMax,BlankUserDefined);
-			}
-
-			if (VolatilePitchMin != -BlankUserDefined) {
-				eeprom_write_word(&NonVolatilePitchMin,-BlankUserDefined);
-			}
-}
 
 ///////////// Actual Stick stuff ////////
 int16_t readSPIADC(uint8_t adcChannel){
@@ -457,10 +339,10 @@ uint32_t ReadGrip(void) {
 
 	// Reorder bytes to match windows buttons
 	// 19 bits buttons first, 1 bit space, then 4 bits for HAT.
-	if ((SR1 & Blank) != Blank) {
-		buffer = (SR1 & Trigger1st) | ((SR1 >> 3) << 1) | ((uint16_t)(SR2 & TmsAll) << 2) | ((uint32_t)SR3 << 10) | ((uint32_t)(SR1 & CmsPush) << 17) | ((uint32_t)(MapHat(SR2 & TrimAll)) << 20);
-		}else {
+	if ((SR1 & Blank) == Blank) { // Check if the blank bit is high. if it is, then the grip is disconnected, so send no buttons
 		buffer = 0;
+		}else { // grip is mounted, so make it happen
+		buffer = (SR1 & Trigger1st) | ((SR1 >> 3) << 1) | ((uint16_t)(SR2 & TmsAll) << 2) | ((uint32_t)SR3 << 10) | ((uint32_t)(SR1 & CmsPush) << 17) | ((uint32_t)(MapHat(SR2 & TrimAll)) << 20);
 	}
 	return buffer;
 }
@@ -493,7 +375,7 @@ void FccSettings(uint32_t Buttons){
 		//reset to defaults
 		if (Buttons & (GripTriggerFirstDetent | GripTriggerSecondDetent)) {
 			gOptions = Force4Kg;
-			WipeStoredLimits();
+			gUserDefinedForce = FORCE_3KGF;
 			ChangeSensitivity(gOptions);
 			exitConfig();
 		}
@@ -534,15 +416,9 @@ void FccSettings(uint32_t Buttons){
 			exitConfig();
 		}
 
-		// if (Buttons & GripPinkie) {
-		// 	// Set MINS and MAX
-		// 	ReadMinMax();
-		// }
 
 		if (Buttons & GripCmsAft) {
 			// Set user sensitivity
-			// ChangeSensitivity(ForceUserDefined);
-			// 3kg/f
 			ChangeSensitivity(ForceUserDefined);
 			exitConfig();
 		}

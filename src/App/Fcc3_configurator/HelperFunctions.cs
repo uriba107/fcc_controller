@@ -14,7 +14,7 @@ namespace Fcc3_configurator
     public partial class MainForm 
     {
 
-        private HidDevice ConnectUSB(short VID, short PID)
+        private HidDevice ConnectUSB(ushort VID, ushort PID)
         {
             var loader = new HidDeviceLoader();
             try

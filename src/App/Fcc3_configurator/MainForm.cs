@@ -14,8 +14,8 @@ namespace Fcc3_configurator
     {
         const decimal Kg2lb = 2.20462M;
 
-        const short VID = 0x1029;
-        const short PID = 0x2345;
+        const ushort VID = 0x1029;
+        const ushort PID = 0xF16C;
 
         public HidDevice Stick;
 
@@ -207,24 +207,19 @@ namespace Fcc3_configurator
                 if (newUnitKg)
                 {
                     decimal newValue = numericUserDefined.Value / Kg2lb;
+                    numericUserDefined.Maximum = 9.0M;
+                    numericUserDefined.Minimum = 1.5M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
                 else
                 {
                     decimal newValue = numericUserDefined.Value * Kg2lb;
+                    numericUserDefined.Maximum = 20.0M;
+                    numericUserDefined.Minimum = 3.0M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
             }
             isUnitKg = newUnitKg;
-
-            if (isUnitKg)
-            {
-                numericUserDefined.Maximum = 9.0M;
-                numericUserDefined.Minimum = 1.5M;
-            } else {
-                numericUserDefined.Maximum = 20.0M;
-                numericUserDefined.Minimum = 3.0M;
-            }
         }
 
         private void textBoxHexPath_TextChanged(object sender, EventArgs e)
