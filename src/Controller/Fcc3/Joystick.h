@@ -86,6 +86,9 @@
 			int16_t CurrentUserDef;
 		} USB_JoystickReport_Data_t;
 
+    /* Glabal Vars */
+	// extern bool JoystickRunning;
+
 	/* Function Prototypes: */
 		void SetupHardware(void);
 		void HID_Task(void);
@@ -99,4 +102,3 @@
 		bool GetNextReport(USB_JoystickReport_Data_t* const ReportData);
 
 #endif
-

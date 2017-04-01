@@ -6,6 +6,8 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 
+#include <LUFA/Drivers/USB/USB.h>
+
 #ifdef abs
 #undef abs
 #endif

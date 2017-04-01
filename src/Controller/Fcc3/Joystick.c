@@ -36,6 +36,8 @@ this software.
 
 #include "Joystick.h"
 
+// Global bool for task running
+// bool JoystickRunning = true;
 /** Main program entry point. This routine configures the hardware required by the application, then
 *  enters a loop to run the application tasks in sequence.
 */
@@ -75,7 +77,7 @@ void SetupHardware(void)
 
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 	#endif
-
+	//_delay_ms(2000);
 	/* Hardware Initialization */
 	Joystick_Init();
 	LEDs_Init();

@@ -241,8 +241,12 @@ void RotateFlcs(AxisStore* AxisData)
 	// int16_t Y = (fcc.X*-0.21643961393)+(fcc.Y*0.97629600712);
 
 	// And now in integers because ATMEL
-	#define ROT_COS 976
-	#define ROT_SIN -216
+	// -12.5 Deg
+	//#define ROT_COS 976
+	//#define ROT_SIN -216
+	/// -12 Deg
+	#define ROT_COS 978
+	#define ROT_SIN -207
 	#define ROT_FACTOR 1000
 	// Cast everything to 32 bit numbers to avoid overflow on high values (512*)
 	static AxisStore InData;
@@ -478,6 +482,8 @@ void processStickOut(uint8_t inOptions, int16_t inUserForce)
   if (isReboot) {
 		// then reboot.. no need to do anything as ram will be wiped.
 	  RebootToBootloader();
+		// JoystickRunning = false;
+		// return;
   }
 
 	if (isCenter) {
