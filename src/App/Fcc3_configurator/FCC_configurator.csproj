@@ -70,6 +70,19 @@
   <PropertyGroup>
     <ApplicationIcon>Icon_small.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Fcc3_configurator.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Publish|AnyCPU'">
+    <OutputPath>bin\Publish\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HidSharp, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HidSharp.1.5\lib\net35\HidSharp.dll</HintPath>
@@ -89,6 +102,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FccHandeler.cs" />
+    <Compile Include="FormFwUpgrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormFwUpgrade.Designer.cs">
+      <DependentUpon>FormFwUpgrade.cs</DependentUpon>
+    </Compile>
     <Compile Include="HelperFunctions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +120,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FormFwUpgrade.resx">
+      <DependentUpon>FormFwUpgrade.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -112,9 +135,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="Avrdude\avrdude.conf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Fcc3_configurator_TemporaryKey.pfx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -146,13 +166,17 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Avrdude\avrdude.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Avrdude\libusb0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Icon_small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GithubUpdater\GithubUpdater.csproj">
+      <Project>{3bb44f41-0f80-4634-99ce-a7b0ccd629ef}</Project>
+      <Name>GithubUpdater</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HexUploader\HexHelper.csproj">
+      <Project>{f34b6315-316b-4e95-ae62-c7edd3f715a8}</Project>
+      <Name>HexHelper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FCC Configurator")]
+[assembly: AssemblyTitle("GithubUpdater")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Configurator")]
-[assembly: AssemblyCopyright("Copyright © uri_ba  2017")]
+[assembly: AssemblyProduct("GithubUpdater")]
+[assembly: AssemblyCopyright("Copyright © uri_ba 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a9f58f2c-7d23-493f-a00c-374fd64ef23b")]
+[assembly: Guid("3bb44f41-0f80-4634-99ce-a7b0ccd629ef")]
 
 // Version information for an assembly consists of the following four values:
 //

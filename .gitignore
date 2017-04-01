@@ -5,3 +5,9 @@ src/App/Fcc3_configurator/bin/
 src/App/Fcc3_configurator/obj/
 docs/datasheets/
 *.*~
+Debug
+Publish
+Release
+bin
+obj
+.vs

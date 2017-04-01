@@ -58,5 +58,29 @@ namespace Fcc3_configurator.Properties {
                 this["gForceUnitlbf"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool notifyApp {
+            get {
+                return ((bool)(this["notifyApp"]));
+            }
+            set {
+                this["notifyApp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool notifyFirmware {
+            get {
+                return ((bool)(this["notifyFirmware"]));
+            }
+            set {
+                this["notifyFirmware"] = value;
+            }
+        }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
-
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.IO.Ports;
 using HidSharp;
+//using System.IO.Compression;
+
 
 
 
@@ -12,40 +14,28 @@ namespace Fcc3_configurator
 {
     public partial class MainForm : Form
     {
-        const decimal Kg2lb = 2.20462M;
 
         const ushort VID = 0x1029;
         const ushort PID = 0xF16C;
 
-        public HidDevice Stick;
+        private volatile FccHandeler Stick = new FccHandeler();
 
         private System.Windows.Forms.Timer RefreshTimer;
         private System.Windows.Forms.Timer UsbTimer;
+        private System.Windows.Forms.Timer UpdateTimer;
 
-        private bool isUnitKg;
+        private bool useKg;
 
-        [Flags]
-        public enum ConfigOptions
-        {
-            RotatedSensors = 0x01,
-            ForceMap = 0x02,
-            CenterStick = 0x04,
-            RebootDevice = 0x08,
-            Force4Kg = 0x10,
-            Force6Kg = 0x20,
-            Force9Kg = 0x40,
-            ForceUserDefined = 0x80,
-            ForceAll = 0xF0,
-        };
 
 
         public MainForm()
         {
             InitializeComponent();
             this.Text += " - " + Application.ProductVersion;
+            labelAppVersionCurrent.Text = Application.ProductVersion;
             LoadLastSettings();
-            Stick = ConnectUSB(VID, PID);
             InitUsbTimer();
+            InitUpdateTimer();
         }
 
         // Button functions
@@ -54,7 +44,8 @@ namespace Fcc3_configurator
         {
             buttonApply.Enabled = false;
             SaveCurrentSettings();
-            SendToStick(Stick,MakeOptions(), CalcForce());
+            AppendChanges();
+            Stick.ApplyChanges();
             buttonApply.Enabled = true;
         }
 
@@ -63,57 +54,10 @@ namespace Fcc3_configurator
             ResetStickDefaults();
         }
 
-        private void buttonUpdateFw_Click(object sender, EventArgs e)
-        {
-
-            // TODO: Add COM port detection stuff here
-            buttonUpdateFw.Enabled = false;
-
-            //List initial ports
-
-            string HexPath = textBoxHexPath.Text;
-            
-            string[] AvailablePorts = SerialPort.GetPortNames();
-
-            // Trigger reboot for COM port to appear
-            if (Stick != null)
-            {
-                RefreshTimer.Stop();
-                UsbTimer.Stop();
-                SendToStick(Stick, (byte)ConfigOptions.RebootDevice, 0);
-            }
-
-            Stick = null;
-
-            string ProgPort = AutoDetectNewPort(AvailablePorts);
-            if (ProgPort != "")
-            {
-                uploadHex(ProgPort, HexPath);
-            }
-            // TODO: Add once COM port detected, fire AVRdude
-            buttonUpdateFw.Enabled = true;
-
-            InitUsbTimer();
-        }
-
-        private void buttonBrowsHex_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialogFirmWare = new OpenFileDialog();
-            openFileDialogFirmWare.Filter = "HEX Files|*.hex";
-            openFileDialogFirmWare.Title = "Select a HEX File";
-
-            // Show the Dialog.
-            // If the user clicked OK in the dialog and
-            // a .CUR file was selected, open it.
-            if (openFileDialogFirmWare.ShowDialog() == DialogResult.OK)
-            {
-                textBoxHexPath.Text = openFileDialogFirmWare.FileName;
-            }
-        }
-
+     
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-            SendToStick(Stick, (byte)ConfigOptions.CenterStick, 0);
+            Stick.Center();
         }
 
         // Functions
@@ -128,60 +72,78 @@ namespace Fcc3_configurator
 
         private void ResetStickDefaults()
         {
-            Properties.Settings.Default.gOptions = (byte)ConfigOptions.Force4Kg;
+            Properties.Settings.Default.gOptions = (byte)FccHandeler.ConfigOptions.Force4Kg;
             Properties.Settings.Default.gForceUnitlbf = 0;
             Properties.Settings.Default.gUserDefinedForce = 3.0M;
             Properties.Settings.Default.Save();
 
             LoadLastSettings();
-            SendToStick(Stick, MakeOptions(), CalcForce());
+            AppendChanges();
+            Stick.ApplyChanges();
         }
 
+        private void AppendChanges()
+        {
+            bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
+
+            Stick.isForceMapped = checkBoxForceMapping.Checked;
+            Stick.isSensorRotated = checkBoxRotate.Checked;
+
+            Stick.SetCustomForce(numericUserDefined.Value, isKgSelected);
+
+            Stick.Use4KgForce = radioButton4Kg.Checked;
+            Stick.Use6KgForce = radioButton6Kg.Checked;
+            Stick.Use9KgForce = radioButton9Kg.Checked;
+            Stick.UseCustomForce = radioButtonUser.Checked;
+
+        }
         private void LoadLastSettings()
         {
-            isUnitKg = (comboBoxUnit.SelectedIndex == 0) ? true : false;
-
             comboBoxUnit.SelectedIndex = Properties.Settings.Default.gForceUnitlbf;
+            useKg = (comboBoxUnit.SelectedIndex == 0) ? true : false;
 
             numericUserDefined.Value = Properties.Settings.Default.gUserDefinedForce;
 
             byte SavedOptions = Properties.Settings.Default.gOptions;
 
-            checkBoxForceMapping.Checked = ((SavedOptions & (byte)ConfigOptions.ForceMap) != 0) ? true : false;
-            checkBoxRotate.Checked = ((SavedOptions & (byte)ConfigOptions.RotatedSensors) != 0) ? true : false;
-            radioButton4Kg.Checked = ((SavedOptions & (byte)ConfigOptions.Force4Kg) != 0) ? true : false;
-            radioButton6Kg.Checked = ((SavedOptions & (byte)ConfigOptions.Force6Kg) != 0) ? true : false;
-            radioButton9Kg.Checked = ((SavedOptions & (byte)ConfigOptions.Force9Kg) != 0) ? true : false;
-            radioButtonUser.Checked = ((SavedOptions & (byte)ConfigOptions.ForceUserDefined) != 0) ? true : false;
+            checkBoxForceMapping.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.ForceMap) != 0) ? true : false;
+            checkBoxRotate.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.RotatedSensors) != 0) ? true : false;
+            radioButton4Kg.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.Force4Kg) != 0) ? true : false;
+            radioButton6Kg.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.Force6Kg) != 0) ? true : false;
+            radioButton9Kg.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.Force9Kg) != 0) ? true : false;
+            radioButtonUser.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.ForceUserDefined) != 0) ? true : false;
+            checkBoxNotifyApp.Checked = Properties.Settings.Default.notifyApp;
+            checkBoxNotifyFirmware.Checked = Properties.Settings.Default.notifyFirmware;
+
         }
 
         private void ShowCurrentValues()
         {
-            byte[] buff = new byte[3];
-            buff = ReadFromStick(Stick);
-            decimal force = GetForce((Int16)((buff[1] << 8) | buff[2]));
+            bool isUnitKg = (comboBoxUnit.SelectedIndex == 0) ? true : false;
+
             if (isUnitKg)
             {
-                labelCurrentUserDefined.Text = force + " Kg/f";
-            } else
+                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Kg/f";
+            }
+            else
             {
-                labelCurrentUserDefined.Text = Math.Round(force * Kg2lb,2) + " Lb/f";
+                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Lb/f";
             }
 
-            labelVersionDetected.Text = BdcDecode(Stick.ProductVersion);
-                   
-            byte opts = buff[0];
-            if ((opts & (byte)ConfigOptions.ForceMap) != 0 )
+            labelVersionDetected.Text = Stick.FirmwareVersion;
+
+            if (Stick.isForceMapped)
             {
                 labelForceMapping.Text = "ON";
                 labelForceMapping.ForeColor = Color.Green;
-            } else
+            }
+            else
             {
                 labelForceMapping.Text = "OFF";
                 labelForceMapping.ForeColor = Color.Red;
             }
 
-            if ((opts & (byte)ConfigOptions.RotatedSensors) != 0)
+            if (Stick.isSensorRotated)
             {
                 labelSensorRotation.Text = "ON";
                 labelSensorRotation.ForeColor = Color.Green;
@@ -193,39 +155,197 @@ namespace Fcc3_configurator
             }
 
 
-            labelForce4Kg.Visible = ((opts & (byte)ConfigOptions.Force4Kg) != 0) ? true : false;
-            labelForce6kg.Visible = ((opts & (byte)ConfigOptions.Force6Kg) != 0) ? true : false;
-            labelForce9kg.Visible = ((opts & (byte)ConfigOptions.Force9Kg) != 0) ? true : false;
-            labelForceUser.Visible = ((opts & (byte)ConfigOptions.ForceUserDefined) != 0) ? true : false;
+            labelForce4Kg.Visible = Stick.Use4KgForce;
+            labelForce6kg.Visible = Stick.Use6KgForce;
+            labelForce9kg.Visible = Stick.Use9KgForce;
+            labelForceUser.Visible = Stick.UseCustomForce;
+
+            if (Stick.isConnected)
+            {
+                toolStripStatusLabelInfo.Text = "Connected";
+                toolStripStatusLabelColor.ForeColor = Color.Green;
+            }
+            else
+            {
+                toolStripStatusLabelInfo.Text = "No Device Connected";
+                toolStripStatusLabelColor.ForeColor = Color.Red;
+            }
         }
 
         private void comboBoxUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            bool newUnitKg = (comboBoxUnit.SelectedIndex == 0) ? true : false;
-            if (newUnitKg != isUnitKg) //Only do on change
+            bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
+            if (isKgSelected != useKg) //Only do on change
             {
-                if (newUnitKg)
+                if (isKgSelected)
                 {
-                    decimal newValue = numericUserDefined.Value / Kg2lb;
+                    decimal newValue = numericUserDefined.Value / FccHandeler.KgInLb;
                     numericUserDefined.Maximum = 9.0M;
                     numericUserDefined.Minimum = 1.5M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
                 else
                 {
-                    decimal newValue = numericUserDefined.Value * Kg2lb;
+                    decimal newValue = numericUserDefined.Value * FccHandeler.KgInLb;
                     numericUserDefined.Maximum = 20.0M;
                     numericUserDefined.Minimum = 3.0M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
             }
-            isUnitKg = newUnitKg;
+            useKg = isKgSelected;
         }
 
-        private void textBoxHexPath_TextChanged(object sender, EventArgs e)
+
+        private void buttonAutoUpdateFirmware_Click(object sender, EventArgs e)
         {
-            buttonUpdateFw.Enabled = (File.Exists(textBoxHexPath.Text)) ? true : false;
-   
+            buttonAutoUpdateFirmware.Enabled = false;
+
+            string AppDir = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+            string TargetDir = AppDir + @"\firmware";
+            Directory.CreateDirectory(TargetDir);
+            string HexPath = TargetDir + "\\" + updater.FirmwareFileName;
+
+            if (updater.DownloadFirmware(TargetDir))
+            {
+
+                ShowUploadStatus(UpgradeFirmware(HexPath));
+            }
+            RunUpdateManager();
+
+        }
+
+        private void buttonAutoUpdateApp_Click(object sender, EventArgs e)
+        {
+            string UserTempDir = Path.GetTempPath();
+
+            bool isDownloaded = updater.DownloadApp(UserTempDir);
+            if (isDownloaded)
+            {
+                ProcessStartInfo InstallLauncher = new ProcessStartInfo();
+                InstallLauncher.Arguments = "/C ping 127.0.0.1 -n 2 > Nul & " + UserTempDir + @"\" + updater.AppFileName;
+                InstallLauncher.WindowStyle = ProcessWindowStyle.Hidden;
+                InstallLauncher.CreateNoWindow = false;
+                InstallLauncher.FileName = "cmd.exe";
+                Process.Start(InstallLauncher);
+                Application.Exit();
+            }
+        }
+
+        private void RefreshUpdateTab()
+        {
+            linkLabelLatestFirmwareVersion.Text = updater.FirmwareVersion;
+            linkLabelLatestAppVersion.Text = updater.AppVersion;
+
+            labelAppVersionCurrent.Text = Application.ProductVersion;
+            labelVersionDetected.Text = Stick.FirmwareVersion;
+
+            linkLabelLatestFirmwareVersion.Visible = true;
+            linkLabelLatestAppVersion.Visible = true;
+
+
+            if (updater.CheckFirmware(Stick.FirmwareVersion))
+            {
+                labelVersionDetected.ForeColor = Color.Red;
+                linkLabelLatestFirmwareVersion.ForeColor = SystemColors.ControlText;
+                buttonAutoUpdateFirmware.Enabled = true;
+                if (checkBoxNotifyFirmware.Checked)
+                {
+                    if (!isNotified)
+                    {
+                        notifyIconMain.ShowBalloonTip(1000, "FCC update is Available", "There is an update for you. please check the update tab for more details.", ToolTipIcon.Info);
+                    }
+                    isNotified = true;
+                }
+
+            }
+            else
+            {
+                linkLabelLatestFirmwareVersion.ForeColor = Color.Green;
+                labelVersionDetected.ForeColor = Color.Green;
+                buttonAutoUpdateFirmware.Enabled = false;
+
+            }
+            if (updater.CheckApp(Application.ProductVersion))
+            {
+                labelAppVersionCurrent.ForeColor = Color.Red;
+                linkLabelLatestAppVersion.ForeColor = SystemColors.ControlText;
+                buttonAutoUpdateApp.Enabled = true;
+                if (checkBoxNotifyApp.Checked)
+                {
+                    if (!isNotified)
+                    {
+                        notifyIconMain.ShowBalloonTip(15000, "FCC update is Available", "There is an update for you. please check the update tab for more details.", ToolTipIcon.Info);
+                    }
+                    isNotified = true;
+                }
+            }
+            else
+            {
+                labelAppVersionCurrent.ForeColor = Color.Green;
+                linkLabelLatestAppVersion.ForeColor = Color.Green;
+                buttonAutoUpdateApp.Enabled = false;
+            }
+        }
+
+        private void linkLabelLatestAppVersion_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(@updater.Changelog);
+        }
+
+        private void notifyIconMain_BalloonTipClicked(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
+            tabControlMain.SelectedTab = tabPageUpdate;
+        }
+
+        private void checkBoxNotifyFirmware_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.notifyFirmware = checkBoxNotifyFirmware.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+        private void checkBoxNotifyApp_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.notifyApp = checkBoxNotifyApp.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+
+        private void buttonAdvancedFW_Click(object sender, EventArgs e)
+        {
+            var FwUpgradeForm = new FormManualFirmwareUpgrade();
+            FwUpgradeForm.FormClosed += new FormClosedEventHandler(FwUpgradeForm_closed);
+            FwUpgradeForm.Show();
+            this.Hide();
+        }
+
+        private void FwUpgradeForm_closed(object sender, EventArgs e)
+        {
+            this.Show();
+        }
+
+        private void ShowUploadStatus(bool isSuccess)
+        {
+            if (isSuccess)
+            {
+                toolStripLabelUploadStatus.Text = "Upgrade OK";
+                toolStripLabelUploadStatus.ForeColor = Color.Green;
+                toolStripLabelUploadStatus.Visible = true;
+            }
+            else
+            {
+                toolStripLabelUploadStatus.Text = "Upgrade Failed";
+                toolStripLabelUploadStatus.ForeColor = Color.Red;
+                toolStripLabelUploadStatus.Visible = true;
+            }
+        }
+
+        private void buttonCheckUpdates_Click(object sender, EventArgs e)
+        {
+            RunUpdateManager();
         }
     }
 }

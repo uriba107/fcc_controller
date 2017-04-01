@@ -50,36 +50,54 @@
             this.groupBoxFeatures = new System.Windows.Forms.GroupBox();
             this.labelForceMapping = new System.Windows.Forms.Label();
             this.labelSensorRotation = new System.Windows.Forms.Label();
-            this.buttonUpdateFw = new System.Windows.Forms.Button();
+            this.buttonAdvancedFW = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.buttonCenter = new System.Windows.Forms.Button();
-            this.tabPageFirmware = new System.Windows.Forms.TabPage();
-            this.labelVersionDetected = new System.Windows.Forms.Label();
+            this.tabPageUpdate = new System.Windows.Forms.TabPage();
+            this.groupBoxAutoUpdate = new System.Windows.Forms.GroupBox();
+            this.buttonCheckUpdates = new System.Windows.Forms.Button();
+            this.linkLabelLatestAppVersion = new System.Windows.Forms.LinkLabel();
+            this.linkLabelLatestFirmwareVersion = new System.Windows.Forms.LinkLabel();
             this.labelVesrion = new System.Windows.Forms.Label();
-            this.labelPath = new System.Windows.Forms.Label();
-            this.buttonBrowsHex = new System.Windows.Forms.Button();
-            this.textBoxHexPath = new System.Windows.Forms.TextBox();
+            this.labelAppVersionCurrent = new System.Windows.Forms.Label();
+            this.labelVersionDetected = new System.Windows.Forms.Label();
+            this.buttonAutoUpdateApp = new System.Windows.Forms.Button();
+            this.labelAvailableFW = new System.Windows.Forms.Label();
+            this.buttonAutoUpdateFirmware = new System.Windows.Forms.Button();
+            this.labelAvailableApp = new System.Windows.Forms.Label();
+            this.labelAppVersionTitle = new System.Windows.Forms.Label();
+            this.groupBoxManualUpdate = new System.Windows.Forms.GroupBox();
+            this.groupBoxUpdater = new System.Windows.Forms.GroupBox();
+            this.checkBoxNotifyApp = new System.Windows.Forms.CheckBox();
+            this.checkBoxNotifyFirmware = new System.Windows.Forms.CheckBox();
             this.tabPageSettings = new System.Windows.Forms.TabPage();
             this.tabControlMain = new System.Windows.Forms.TabControl();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusStripMain = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelColor = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelInfo = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripLabelUploadStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericUserDefined)).BeginInit();
             this.groupBoxSensitivity.SuspendLayout();
             this.groupBoxFeatures.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.tabPageFirmware.SuspendLayout();
+            this.tabPageUpdate.SuspendLayout();
+            this.groupBoxAutoUpdate.SuspendLayout();
+            this.groupBoxManualUpdate.SuspendLayout();
+            this.groupBoxUpdater.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
             this.tabControlMain.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
+            this.statusStripMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonApply
             // 
+            this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonApply.Location = new System.Drawing.Point(3, 219);
+            this.buttonApply.Location = new System.Drawing.Point(6, 242);
             this.buttonApply.Name = "buttonApply";
-            this.buttonApply.Size = new System.Drawing.Size(224, 43);
+            this.buttonApply.Size = new System.Drawing.Size(245, 43);
             this.buttonApply.TabIndex = 0;
             this.buttonApply.Text = "&Apply Config";
             this.buttonApply.UseVisualStyleBackColor = true;
@@ -178,8 +196,10 @@
             // 
             // buttonDefaults
             // 
+            this.buttonDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDefaults.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonDefaults.Location = new System.Drawing.Point(4, 268);
+            this.buttonDefaults.Location = new System.Drawing.Point(6, 306);
             this.buttonDefaults.Name = "buttonDefaults";
             this.buttonDefaults.Size = new System.Drawing.Size(111, 23);
             this.buttonDefaults.TabIndex = 9;
@@ -189,6 +209,8 @@
             // 
             // groupBoxSensitivity
             // 
+            this.groupBoxSensitivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSensitivity.Controls.Add(this.comboBoxUnit);
             this.groupBoxSensitivity.Controls.Add(this.labelForceUser);
             this.groupBoxSensitivity.Controls.Add(this.labelForce9kg);
@@ -200,9 +222,9 @@
             this.groupBoxSensitivity.Controls.Add(this.radioButtonUser);
             this.groupBoxSensitivity.Controls.Add(this.numericUserDefined);
             this.groupBoxSensitivity.Controls.Add(this.radioButton9Kg);
-            this.groupBoxSensitivity.Location = new System.Drawing.Point(3, 3);
+            this.groupBoxSensitivity.Location = new System.Drawing.Point(6, 3);
             this.groupBoxSensitivity.Name = "groupBoxSensitivity";
-            this.groupBoxSensitivity.Size = new System.Drawing.Size(224, 138);
+            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 147);
             this.groupBoxSensitivity.TabIndex = 12;
             this.groupBoxSensitivity.TabStop = false;
             this.groupBoxSensitivity.Text = "Sensitivity Settings";
@@ -270,7 +292,6 @@
             // 
             // labelCurrentUserDefined
             // 
-            this.labelCurrentUserDefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelCurrentUserDefined.AutoSize = true;
             this.labelCurrentUserDefined.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelCurrentUserDefined.Location = new System.Drawing.Point(157, 113);
@@ -282,13 +303,15 @@
             // 
             // groupBoxFeatures
             // 
+            this.groupBoxFeatures.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxFeatures.Controls.Add(this.labelForceMapping);
             this.groupBoxFeatures.Controls.Add(this.labelSensorRotation);
             this.groupBoxFeatures.Controls.Add(this.checkBoxRotate);
             this.groupBoxFeatures.Controls.Add(this.checkBoxForceMapping);
-            this.groupBoxFeatures.Location = new System.Drawing.Point(3, 147);
+            this.groupBoxFeatures.Location = new System.Drawing.Point(6, 156);
             this.groupBoxFeatures.Name = "groupBoxFeatures";
-            this.groupBoxFeatures.Size = new System.Drawing.Size(224, 66);
+            this.groupBoxFeatures.Size = new System.Drawing.Size(245, 70);
             this.groupBoxFeatures.TabIndex = 13;
             this.groupBoxFeatures.TabStop = false;
             this.groupBoxFeatures.Text = "Special Features";
@@ -315,16 +338,15 @@
             this.labelSensorRotation.TabIndex = 15;
             this.labelSensorRotation.Text = "OFF";
             // 
-            // buttonUpdateFw
+            // buttonAdvancedFW
             // 
-            this.buttonUpdateFw.Enabled = false;
-            this.buttonUpdateFw.Location = new System.Drawing.Point(7, 250);
-            this.buttonUpdateFw.Name = "buttonUpdateFw";
-            this.buttonUpdateFw.Size = new System.Drawing.Size(226, 47);
-            this.buttonUpdateFw.TabIndex = 1;
-            this.buttonUpdateFw.Text = "Upload Firmware";
-            this.buttonUpdateFw.UseVisualStyleBackColor = true;
-            this.buttonUpdateFw.Click += new System.EventHandler(this.buttonUpdateFw_Click);
+            this.buttonAdvancedFW.Location = new System.Drawing.Point(5, 19);
+            this.buttonAdvancedFW.Name = "buttonAdvancedFW";
+            this.buttonAdvancedFW.Size = new System.Drawing.Size(226, 25);
+            this.buttonAdvancedFW.TabIndex = 1;
+            this.buttonAdvancedFW.Text = "Upload Firmware Manually";
+            this.buttonAdvancedFW.UseVisualStyleBackColor = true;
+            this.buttonAdvancedFW.Click += new System.EventHandler(this.buttonAdvancedFW_Click);
             // 
             // panel1
             // 
@@ -336,12 +358,14 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(235, 297);
+            this.panel1.Size = new System.Drawing.Size(256, 335);
             this.panel1.TabIndex = 16;
             // 
             // buttonCenter
             // 
-            this.buttonCenter.Location = new System.Drawing.Point(116, 268);
+            this.buttonCenter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCenter.Location = new System.Drawing.Point(140, 306);
             this.buttonCenter.Name = "buttonCenter";
             this.buttonCenter.Size = new System.Drawing.Size(111, 23);
             this.buttonCenter.TabIndex = 14;
@@ -349,67 +373,195 @@
             this.buttonCenter.UseVisualStyleBackColor = true;
             this.buttonCenter.Click += new System.EventHandler(this.buttonCenter_Click);
             // 
-            // tabPageFirmware
+            // tabPageUpdate
             // 
-            this.tabPageFirmware.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPageFirmware.Controls.Add(this.labelVersionDetected);
-            this.tabPageFirmware.Controls.Add(this.labelVesrion);
-            this.tabPageFirmware.Controls.Add(this.labelPath);
-            this.tabPageFirmware.Controls.Add(this.buttonBrowsHex);
-            this.tabPageFirmware.Controls.Add(this.textBoxHexPath);
-            this.tabPageFirmware.Controls.Add(this.buttonUpdateFw);
-            this.tabPageFirmware.Location = new System.Drawing.Point(4, 22);
-            this.tabPageFirmware.Name = "tabPageFirmware";
-            this.tabPageFirmware.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageFirmware.Size = new System.Drawing.Size(241, 303);
-            this.tabPageFirmware.TabIndex = 1;
-            this.tabPageFirmware.Text = "Firmware Update";
+            this.tabPageUpdate.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPageUpdate.Controls.Add(this.groupBoxAutoUpdate);
+            this.tabPageUpdate.Controls.Add(this.groupBoxManualUpdate);
+            this.tabPageUpdate.Controls.Add(this.groupBoxUpdater);
+            this.tabPageUpdate.Location = new System.Drawing.Point(4, 22);
+            this.tabPageUpdate.Name = "tabPageUpdate";
+            this.tabPageUpdate.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageUpdate.Size = new System.Drawing.Size(262, 341);
+            this.tabPageUpdate.TabIndex = 1;
+            this.tabPageUpdate.Text = "Updates";
+            // 
+            // groupBoxAutoUpdate
+            // 
+            this.groupBoxAutoUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxAutoUpdate.Controls.Add(this.buttonCheckUpdates);
+            this.groupBoxAutoUpdate.Controls.Add(this.linkLabelLatestAppVersion);
+            this.groupBoxAutoUpdate.Controls.Add(this.linkLabelLatestFirmwareVersion);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelVesrion);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelAppVersionCurrent);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelVersionDetected);
+            this.groupBoxAutoUpdate.Controls.Add(this.buttonAutoUpdateApp);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelAvailableFW);
+            this.groupBoxAutoUpdate.Controls.Add(this.buttonAutoUpdateFirmware);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelAvailableApp);
+            this.groupBoxAutoUpdate.Controls.Add(this.labelAppVersionTitle);
+            this.groupBoxAutoUpdate.Location = new System.Drawing.Point(10, 12);
+            this.groupBoxAutoUpdate.Name = "groupBoxAutoUpdate";
+            this.groupBoxAutoUpdate.Size = new System.Drawing.Size(243, 187);
+            this.groupBoxAutoUpdate.TabIndex = 16;
+            this.groupBoxAutoUpdate.TabStop = false;
+            this.groupBoxAutoUpdate.Text = "Update Manager";
+            // 
+            // buttonCheckUpdates
+            // 
+            this.buttonCheckUpdates.Location = new System.Drawing.Point(5, 145);
+            this.buttonCheckUpdates.Name = "buttonCheckUpdates";
+            this.buttonCheckUpdates.Size = new System.Drawing.Size(226, 23);
+            this.buttonCheckUpdates.TabIndex = 18;
+            this.buttonCheckUpdates.Text = "Check for updates";
+            this.buttonCheckUpdates.UseVisualStyleBackColor = true;
+            this.buttonCheckUpdates.Click += new System.EventHandler(this.buttonCheckUpdates_Click);
+            // 
+            // linkLabelLatestAppVersion
+            // 
+            this.linkLabelLatestAppVersion.AutoSize = true;
+            this.linkLabelLatestAppVersion.Location = new System.Drawing.Point(172, 97);
+            this.linkLabelLatestAppVersion.Name = "linkLabelLatestAppVersion";
+            this.linkLabelLatestAppVersion.Size = new System.Drawing.Size(40, 13);
+            this.linkLabelLatestAppVersion.TabIndex = 16;
+            this.linkLabelLatestAppVersion.TabStop = true;
+            this.linkLabelLatestAppVersion.Text = "0.0.0.0";
+            this.linkLabelLatestAppVersion.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelLatestAppVersion_LinkClicked);
+            // 
+            // linkLabelLatestFirmwareVersion
+            // 
+            this.linkLabelLatestFirmwareVersion.AutoSize = true;
+            this.linkLabelLatestFirmwareVersion.Location = new System.Drawing.Point(181, 29);
+            this.linkLabelLatestFirmwareVersion.Name = "linkLabelLatestFirmwareVersion";
+            this.linkLabelLatestFirmwareVersion.Size = new System.Drawing.Size(31, 13);
+            this.linkLabelLatestFirmwareVersion.TabIndex = 17;
+            this.linkLabelLatestFirmwareVersion.TabStop = true;
+            this.linkLabelLatestFirmwareVersion.Text = "0.0.0";
+            this.linkLabelLatestFirmwareVersion.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelLatestAppVersion_LinkClicked);
+            // 
+            // labelVesrion
+            // 
+            this.labelVesrion.AutoSize = true;
+            this.labelVesrion.Location = new System.Drawing.Point(3, 16);
+            this.labelVesrion.Name = "labelVesrion";
+            this.labelVesrion.Size = new System.Drawing.Size(142, 13);
+            this.labelVesrion.TabIndex = 9;
+            this.labelVesrion.Text = "Firmware version on device: ";
+            // 
+            // labelAppVersionCurrent
+            // 
+            this.labelAppVersionCurrent.AutoSize = true;
+            this.labelAppVersionCurrent.Location = new System.Drawing.Point(172, 84);
+            this.labelAppVersionCurrent.Name = "labelAppVersionCurrent";
+            this.labelAppVersionCurrent.Size = new System.Drawing.Size(40, 13);
+            this.labelAppVersionCurrent.TabIndex = 14;
+            this.labelAppVersionCurrent.Text = "0.0.0.0";
             // 
             // labelVersionDetected
             // 
             this.labelVersionDetected.AutoSize = true;
-            this.labelVersionDetected.Location = new System.Drawing.Point(114, 69);
+            this.labelVersionDetected.Location = new System.Drawing.Point(181, 16);
             this.labelVersionDetected.Name = "labelVersionDetected";
             this.labelVersionDetected.Size = new System.Drawing.Size(31, 13);
             this.labelVersionDetected.TabIndex = 10;
             this.labelVersionDetected.Text = "0.0.0";
             // 
-            // labelVesrion
+            // buttonAutoUpdateApp
             // 
-            this.labelVesrion.AutoSize = true;
-            this.labelVesrion.Location = new System.Drawing.Point(10, 69);
-            this.labelVesrion.Name = "labelVesrion";
-            this.labelVesrion.Size = new System.Drawing.Size(98, 13);
-            this.labelVesrion.TabIndex = 9;
-            this.labelVesrion.Text = "Version on device: ";
+            this.buttonAutoUpdateApp.Enabled = false;
+            this.buttonAutoUpdateApp.Location = new System.Drawing.Point(5, 114);
+            this.buttonAutoUpdateApp.Name = "buttonAutoUpdateApp";
+            this.buttonAutoUpdateApp.Size = new System.Drawing.Size(226, 25);
+            this.buttonAutoUpdateApp.TabIndex = 15;
+            this.buttonAutoUpdateApp.Text = "Update Software";
+            this.buttonAutoUpdateApp.UseVisualStyleBackColor = true;
+            this.buttonAutoUpdateApp.Click += new System.EventHandler(this.buttonAutoUpdateApp_Click);
             // 
-            // labelPath
+            // labelAvailableFW
             // 
-            this.labelPath.AutoSize = true;
-            this.labelPath.Location = new System.Drawing.Point(7, 16);
-            this.labelPath.Name = "labelPath";
-            this.labelPath.Size = new System.Drawing.Size(109, 13);
-            this.labelPath.TabIndex = 8;
-            this.labelPath.Text = "Select HEX to upload";
+            this.labelAvailableFW.AutoSize = true;
+            this.labelAvailableFW.Location = new System.Drawing.Point(3, 29);
+            this.labelAvailableFW.Name = "labelAvailableFW";
+            this.labelAvailableFW.Size = new System.Drawing.Size(122, 13);
+            this.labelAvailableFW.TabIndex = 1;
+            this.labelAvailableFW.Text = "Latest Firmware Version:";
             // 
-            // buttonBrowsHex
+            // buttonAutoUpdateFirmware
             // 
-            this.buttonBrowsHex.Location = new System.Drawing.Point(208, 30);
-            this.buttonBrowsHex.Name = "buttonBrowsHex";
-            this.buttonBrowsHex.Size = new System.Drawing.Size(25, 23);
-            this.buttonBrowsHex.TabIndex = 7;
-            this.buttonBrowsHex.Text = "...";
-            this.buttonBrowsHex.UseVisualStyleBackColor = true;
-            this.buttonBrowsHex.Click += new System.EventHandler(this.buttonBrowsHex_Click);
+            this.buttonAutoUpdateFirmware.Enabled = false;
+            this.buttonAutoUpdateFirmware.Location = new System.Drawing.Point(5, 44);
+            this.buttonAutoUpdateFirmware.Name = "buttonAutoUpdateFirmware";
+            this.buttonAutoUpdateFirmware.Size = new System.Drawing.Size(226, 25);
+            this.buttonAutoUpdateFirmware.TabIndex = 12;
+            this.buttonAutoUpdateFirmware.Text = "Update Firmware";
+            this.buttonAutoUpdateFirmware.UseVisualStyleBackColor = true;
+            this.buttonAutoUpdateFirmware.Click += new System.EventHandler(this.buttonAutoUpdateFirmware_Click);
             // 
-            // textBoxHexPath
+            // labelAvailableApp
             // 
-            this.textBoxHexPath.AllowDrop = true;
-            this.textBoxHexPath.Location = new System.Drawing.Point(7, 32);
-            this.textBoxHexPath.Name = "textBoxHexPath";
-            this.textBoxHexPath.Size = new System.Drawing.Size(195, 20);
-            this.textBoxHexPath.TabIndex = 6;
-            this.textBoxHexPath.TextChanged += new System.EventHandler(this.textBoxHexPath_TextChanged);
+            this.labelAvailableApp.AutoSize = true;
+            this.labelAvailableApp.Location = new System.Drawing.Point(3, 97);
+            this.labelAvailableApp.Name = "labelAvailableApp";
+            this.labelAvailableApp.Size = new System.Drawing.Size(122, 13);
+            this.labelAvailableApp.TabIndex = 0;
+            this.labelAvailableApp.Text = "Latest Software Version:";
+            // 
+            // labelAppVersionTitle
+            // 
+            this.labelAppVersionTitle.AutoSize = true;
+            this.labelAppVersionTitle.Location = new System.Drawing.Point(3, 84);
+            this.labelAppVersionTitle.Name = "labelAppVersionTitle";
+            this.labelAppVersionTitle.Size = new System.Drawing.Size(126, 13);
+            this.labelAppVersionTitle.TabIndex = 13;
+            this.labelAppVersionTitle.Text = "Control Software Version:";
+            // 
+            // groupBoxManualUpdate
+            // 
+            this.groupBoxManualUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxManualUpdate.Controls.Add(this.buttonAdvancedFW);
+            this.groupBoxManualUpdate.Location = new System.Drawing.Point(10, 274);
+            this.groupBoxManualUpdate.Name = "groupBoxManualUpdate";
+            this.groupBoxManualUpdate.Size = new System.Drawing.Size(243, 61);
+            this.groupBoxManualUpdate.TabIndex = 13;
+            this.groupBoxManualUpdate.TabStop = false;
+            this.groupBoxManualUpdate.Text = "Manual Update";
+            // 
+            // groupBoxUpdater
+            // 
+            this.groupBoxUpdater.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyApp);
+            this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyFirmware);
+            this.groupBoxUpdater.Location = new System.Drawing.Point(10, 204);
+            this.groupBoxUpdater.Name = "groupBoxUpdater";
+            this.groupBoxUpdater.Size = new System.Drawing.Size(243, 64);
+            this.groupBoxUpdater.TabIndex = 12;
+            this.groupBoxUpdater.TabStop = false;
+            this.groupBoxUpdater.Text = "Update Notifications";
+            // 
+            // checkBoxNotifyApp
+            // 
+            this.checkBoxNotifyApp.AutoSize = true;
+            this.checkBoxNotifyApp.Location = new System.Drawing.Point(6, 39);
+            this.checkBoxNotifyApp.Name = "checkBoxNotifyApp";
+            this.checkBoxNotifyApp.Size = new System.Drawing.Size(225, 17);
+            this.checkBoxNotifyApp.TabIndex = 2;
+            this.checkBoxNotifyApp.Text = "Notify when a software update is available";
+            this.checkBoxNotifyApp.UseVisualStyleBackColor = true;
+            this.checkBoxNotifyApp.CheckedChanged += new System.EventHandler(this.checkBoxNotifyApp_CheckedChanged);
+            // 
+            // checkBoxNotifyFirmware
+            // 
+            this.checkBoxNotifyFirmware.AutoSize = true;
+            this.checkBoxNotifyFirmware.Location = new System.Drawing.Point(6, 19);
+            this.checkBoxNotifyFirmware.Name = "checkBoxNotifyFirmware";
+            this.checkBoxNotifyFirmware.Size = new System.Drawing.Size(227, 17);
+            this.checkBoxNotifyFirmware.TabIndex = 0;
+            this.checkBoxNotifyFirmware.Text = "Notify when a Firmware update is available";
+            this.checkBoxNotifyFirmware.UseVisualStyleBackColor = true;
+            this.checkBoxNotifyFirmware.CheckedChanged += new System.EventHandler(this.checkBoxNotifyFirmware_CheckedChanged);
             // 
             // tabPageSettings
             // 
@@ -418,31 +570,34 @@
             this.tabPageSettings.Location = new System.Drawing.Point(4, 22);
             this.tabPageSettings.Name = "tabPageSettings";
             this.tabPageSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings.Size = new System.Drawing.Size(241, 303);
+            this.tabPageSettings.Size = new System.Drawing.Size(262, 341);
             this.tabPageSettings.TabIndex = 0;
             this.tabPageSettings.Text = "Settings";
             // 
             // tabControlMain
             // 
             this.tabControlMain.AllowDrop = true;
+            this.tabControlMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControlMain.Controls.Add(this.tabPageSettings);
-            this.tabControlMain.Controls.Add(this.tabPageFirmware);
-            this.tabControlMain.Location = new System.Drawing.Point(1, 2);
+            this.tabControlMain.Controls.Add(this.tabPageUpdate);
+            this.tabControlMain.Location = new System.Drawing.Point(2, 12);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(249, 329);
+            this.tabControlMain.Size = new System.Drawing.Size(270, 367);
             this.tabControlMain.TabIndex = 14;
             // 
-            // statusStrip1
+            // statusStripMain
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabelColor,
-            this.toolStripStatusLabelInfo});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 332);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(250, 24);
-            this.statusStrip1.TabIndex = 15;
-            this.statusStrip1.Text = "statusStrip1";
+            this.toolStripStatusLabelInfo,
+            this.toolStripLabelUploadStatus});
+            this.statusStripMain.Location = new System.Drawing.Point(0, 383);
+            this.statusStripMain.Name = "statusStripMain";
+            this.statusStripMain.Size = new System.Drawing.Size(272, 24);
+            this.statusStripMain.TabIndex = 15;
+            this.statusStripMain.Text = "statusStrip1";
             // 
             // toolStripStatusLabelColor
             // 
@@ -456,16 +611,32 @@
             // toolStripStatusLabelInfo
             // 
             this.toolStripStatusLabelInfo.Name = "toolStripStatusLabelInfo";
-            this.toolStripStatusLabelInfo.Size = new System.Drawing.Size(122, 19);
+            this.toolStripStatusLabelInfo.Size = new System.Drawing.Size(240, 19);
+            this.toolStripStatusLabelInfo.Spring = true;
             this.toolStripStatusLabelInfo.Text = "No Device Connected";
+            this.toolStripStatusLabelInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripLabelUploadStatus
+            // 
+            this.toolStripLabelUploadStatus.Name = "toolStripLabelUploadStatus";
+            this.toolStripLabelUploadStatus.Size = new System.Drawing.Size(24, 19);
+            this.toolStripLabelUploadStatus.Text = "NA";
+            this.toolStripLabelUploadStatus.Visible = false;
+            // 
+            // notifyIconMain
+            // 
+            this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
+            this.notifyIconMain.Text = "FCC Controller";
+            this.notifyIconMain.Visible = true;
+            this.notifyIconMain.BalloonTipClicked += new System.EventHandler(this.notifyIconMain_BalloonTipClicked);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(250, 356);
-            this.Controls.Add(this.statusStrip1);
+            this.ClientSize = new System.Drawing.Size(272, 407);
+            this.Controls.Add(this.statusStripMain);
             this.Controls.Add(this.tabControlMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -480,12 +651,16 @@
             this.groupBoxFeatures.ResumeLayout(false);
             this.groupBoxFeatures.PerformLayout();
             this.panel1.ResumeLayout(false);
-            this.tabPageFirmware.ResumeLayout(false);
-            this.tabPageFirmware.PerformLayout();
+            this.tabPageUpdate.ResumeLayout(false);
+            this.groupBoxAutoUpdate.ResumeLayout(false);
+            this.groupBoxAutoUpdate.PerformLayout();
+            this.groupBoxManualUpdate.ResumeLayout(false);
+            this.groupBoxUpdater.ResumeLayout(false);
+            this.groupBoxUpdater.PerformLayout();
             this.tabPageSettings.ResumeLayout(false);
             this.tabControlMain.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.statusStripMain.ResumeLayout(false);
+            this.statusStripMain.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -505,9 +680,9 @@
         private System.Windows.Forms.ToolTip toolTipMainForm;
         private System.Windows.Forms.GroupBox groupBoxSensitivity;
         private System.Windows.Forms.GroupBox groupBoxFeatures;
-        private System.Windows.Forms.Button buttonUpdateFw;
+        private System.Windows.Forms.Button buttonAdvancedFW;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TabPage tabPageFirmware;
+        private System.Windows.Forms.TabPage tabPageUpdate;
         private System.Windows.Forms.TabPage tabPageSettings;
         private System.Windows.Forms.TabControl tabControlMain;
         private System.Windows.Forms.Label labelForceMapping;
@@ -517,15 +692,28 @@
         private System.Windows.Forms.Label labelForceUser;
         private System.Windows.Forms.Label labelForce9kg;
         private System.Windows.Forms.Label labelForce6kg;
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelInfo;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelColor;
         private System.Windows.Forms.Button buttonCenter;
         private System.Windows.Forms.ComboBox comboBoxUnit;
-        private System.Windows.Forms.Label labelPath;
-        private System.Windows.Forms.Button buttonBrowsHex;
-        private System.Windows.Forms.TextBox textBoxHexPath;
         private System.Windows.Forms.Label labelVersionDetected;
         private System.Windows.Forms.Label labelVesrion;
+        private System.Windows.Forms.GroupBox groupBoxUpdater;
+        private System.Windows.Forms.Label labelAvailableFW;
+        private System.Windows.Forms.Label labelAvailableApp;
+        private System.Windows.Forms.GroupBox groupBoxManualUpdate;
+        private System.Windows.Forms.Label labelAppVersionTitle;
+        private System.Windows.Forms.Label labelAppVersionCurrent;
+        private System.Windows.Forms.CheckBox checkBoxNotifyApp;
+        private System.Windows.Forms.CheckBox checkBoxNotifyFirmware;
+        private System.Windows.Forms.Button buttonAutoUpdateApp;
+        private System.Windows.Forms.Button buttonAutoUpdateFirmware;
+        private System.Windows.Forms.NotifyIcon notifyIconMain;
+        private System.Windows.Forms.LinkLabel linkLabelLatestFirmwareVersion;
+        private System.Windows.Forms.LinkLabel linkLabelLatestAppVersion;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripLabelUploadStatus;
+        private System.Windows.Forms.GroupBox groupBoxAutoUpdate;
+        private System.Windows.Forms.Button buttonCheckUpdates;
     }
 }

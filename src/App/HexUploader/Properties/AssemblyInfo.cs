@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FCC Configurator")]
+[assembly: AssemblyTitle("HexUploader")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Configurator")]
-[assembly: AssemblyCopyright("Copyright © uri_ba  2017")]
+[assembly: AssemblyProduct("HexUploader")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a9f58f2c-7d23-493f-a00c-374fd64ef23b")]
+[assembly: Guid("f34b6315-316b-4e95-ae62-c7edd3f715a8")]
 
 // Version information for an assembly consists of the following four values:
 //
