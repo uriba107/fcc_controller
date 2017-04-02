@@ -31,11 +31,23 @@ namespace GithubHelper
 
         public string FirmwareVersion
             {
-                get { return Firmware.version.ToString(); }
+                get {
+                if (Firmware.version == null) {
+                    return "0.0.0";
+
+                }
+                return Firmware.version.ToString();
+            }
             }
         public string AppVersion
             {
-                get { return App.version.ToString(); }
+                get {
+                if (App.version == null)
+                {
+                    return "0.0.0.0";
+                }
+                return App.version.ToString();
+            }
             }
         public string FirmwareFileName
         {
@@ -48,7 +60,15 @@ namespace GithubHelper
         }
         public string Changelog
         {
-            get { return RepoData[0]["html_url"]; }
+            get
+            {
+                if (RepoData != null)
+                {
+                    return RepoData[0]["html_url"];
+                }
+                return "https://github.com/"+ UserName+"/"+ Repository +"/releases";
+            }
+            
         }
 
         public string CurrentRelease
@@ -89,10 +109,15 @@ namespace GithubHelper
             WebClient wc = new WebClient();
             wc.Headers.Add("user-agent", Repository + "_UpdateClient");
             string URL = String.Join("/", new string[] { @GithubAPI, "repos", @UserName, @Repository, "releases" });
-            var json = wc.DownloadString(@URL);
+            try
+            {
+                var json = wc.DownloadString(@URL);
 
-            var jss = new JavaScriptSerializer();
-            RepoData = jss.Deserialize<dynamic>(json);
+                var jss = new JavaScriptSerializer();
+                RepoData = jss.Deserialize<dynamic>(json);
+            }
+            catch
+            { }
         }
 
 
