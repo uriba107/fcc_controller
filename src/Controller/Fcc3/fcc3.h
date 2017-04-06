@@ -147,6 +147,8 @@ void ReadStickZero(void);
 void ChangeSensitivity(uint8_t sensitivity);
 void SetCalibratedSensitivity(int16_t OffsetValue);
 void CalcForceMapping (void);
+int16_t CalcForceDisplacement(float RequestedForce);
+
 
 void ReadStick(AxisStore* AxisData);
 void RotateFlcs(AxisStore* AxisData);

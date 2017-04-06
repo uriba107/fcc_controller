@@ -1,6 +1,7 @@
 #include "fcc3.h"
 
 #define STICK_DEADZONE 10
+#define NEW_FCC (gUserDefinedForce & 0x8000)
 
 // 9Kg/f
 #define FORCE_9KGF 1638
@@ -21,6 +22,7 @@ uint8_t EEMEM NonVolatileOptions;
 StickLimit gStickLimits;
 uint8_t gOptions;
 int16_t gUserDefinedForce;
+
 
 // Global vars for Config modes
 bool gIsConfig = false;
@@ -155,17 +157,18 @@ void ChangeSensitivity(uint8_t sensitivity){
 
 	// now load correct config
 	if (gOptions & Force4Kg) {
-		SetCalibratedSensitivity(FORCE_4KGF);
+		SetCalibratedSensitivity(CalcForceDisplacement(4.5));
 	} else 	if (gOptions & Force6Kg) {
-		SetCalibratedSensitivity(FORCE_6KGF);
+		SetCalibratedSensitivity(CalcForceDisplacement(6.0));
 	} else 	if (gOptions & Force9Kg) {
-		SetCalibratedSensitivity(FORCE_9KGF);
+		SetCalibratedSensitivity(CalcForceDisplacement(9.0));
 	} else {
 		SetCalibratedSensitivity(gUserDefinedForce);
 	}
 }
 
 void SetCalibratedSensitivity(int16_t OffsetValue){
+	OffsetValue &= ~(0x8000);
 	gStickLimits.X.max = OffsetValue;
 	gStickLimits.X.min = -OffsetValue;
 	gStickLimits.Y.max = OffsetValue;
@@ -181,7 +184,29 @@ void CalcForceMapping(void) {
 	gStickLimits.N80 = abs(gStickLimits.N180/2.25);
 }
 
+int16_t CalcForceDisplacement(float RequestedForce)
+{
+		// Hardware: 9kg/f = 2Volt Delta
+		// ADC: 5V = 4096
+		// Middle Voltage: 2.5V
 
+		float DeltaVol = 1.5;
+		if (NEW_FCC) {
+			DeltaVol = 2.0;
+		}
+		// const float DeltaVol = 2.0F;
+		// const float ForceRef = 9.0F;
+		#define FORCE_REF 9
+		#define ADC_MAX 4095
+		#define VREF 5.0
+		#define BASEVOLTAGE 2.5
+
+		float voltage = ((DeltaVol / FORCE_REF) * RequestedForce) + BASEVOLTAGE;
+
+		float Retval = ((ADC_MAX / VREF) * voltage) - (ADC_MAX / 2);
+
+		return (int16_t)Retval;
+}
 ///////////// Actual Stick stuff ////////
 int16_t readSPIADC(uint8_t adcChannel){
 	PORTC &= ~(1<<PINC6); // Pull shift register CS low
@@ -420,6 +445,17 @@ void FccSettings(uint32_t Buttons){
 			exitConfig();
 		}
 
+		//if (Buttons & GripDmsRight) {
+			//gUserDefinedForce |= (0x8000);
+			//ChangeSensitivity(gOptions);
+			//exitConfig();
+		//}
+//
+		//if (Buttons & GripDmsLeft) {
+			//gUserDefinedForce &= ~(0x8000);
+			//ChangeSensitivity(gOptions);
+			//exitConfig();
+		//}
 
 		if (Buttons & GripCmsAft) {
 			// Set user sensitivity
