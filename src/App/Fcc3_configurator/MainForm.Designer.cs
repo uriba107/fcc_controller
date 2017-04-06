@@ -77,6 +77,7 @@
             this.toolStripStatusLabelInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripLabelUploadStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
+            this.buttonInitialSetup = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUserDefined)).BeginInit();
             this.groupBoxSensitivity.SuspendLayout();
             this.groupBoxFeatures.SuspendLayout();
@@ -95,7 +96,7 @@
             this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonApply.Location = new System.Drawing.Point(6, 242);
+            this.buttonApply.Location = new System.Drawing.Point(6, 257);
             this.buttonApply.Name = "buttonApply";
             this.buttonApply.Size = new System.Drawing.Size(245, 43);
             this.buttonApply.TabIndex = 0;
@@ -211,6 +212,7 @@
             // 
             this.groupBoxSensitivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxSensitivity.Controls.Add(this.buttonInitialSetup);
             this.groupBoxSensitivity.Controls.Add(this.comboBoxUnit);
             this.groupBoxSensitivity.Controls.Add(this.labelForceUser);
             this.groupBoxSensitivity.Controls.Add(this.labelForce9kg);
@@ -224,7 +226,7 @@
             this.groupBoxSensitivity.Controls.Add(this.radioButton9Kg);
             this.groupBoxSensitivity.Location = new System.Drawing.Point(6, 3);
             this.groupBoxSensitivity.Name = "groupBoxSensitivity";
-            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 147);
+            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 172);
             this.groupBoxSensitivity.TabIndex = 12;
             this.groupBoxSensitivity.TabStop = false;
             this.groupBoxSensitivity.Text = "Sensitivity Settings";
@@ -309,7 +311,7 @@
             this.groupBoxFeatures.Controls.Add(this.labelSensorRotation);
             this.groupBoxFeatures.Controls.Add(this.checkBoxRotate);
             this.groupBoxFeatures.Controls.Add(this.checkBoxForceMapping);
-            this.groupBoxFeatures.Location = new System.Drawing.Point(6, 156);
+            this.groupBoxFeatures.Location = new System.Drawing.Point(6, 181);
             this.groupBoxFeatures.Name = "groupBoxFeatures";
             this.groupBoxFeatures.Size = new System.Drawing.Size(245, 70);
             this.groupBoxFeatures.TabIndex = 13;
@@ -630,6 +632,16 @@
             this.notifyIconMain.Visible = true;
             this.notifyIconMain.BalloonTipClicked += new System.EventHandler(this.notifyIconMain_BalloonTipClicked);
             // 
+            // buttonInitialSetup
+            // 
+            this.buttonInitialSetup.Location = new System.Drawing.Point(0, 143);
+            this.buttonInitialSetup.Name = "buttonInitialSetup";
+            this.buttonInitialSetup.Size = new System.Drawing.Size(111, 23);
+            this.buttonInitialSetup.TabIndex = 17;
+            this.buttonInitialSetup.Text = "&Initial Config";
+            this.buttonInitialSetup.UseVisualStyleBackColor = true;
+            this.buttonInitialSetup.Click += new System.EventHandler(this.buttonInitialSetup_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -715,5 +727,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripLabelUploadStatus;
         private System.Windows.Forms.GroupBox groupBoxAutoUpdate;
         private System.Windows.Forms.Button buttonCheckUpdates;
+        private System.Windows.Forms.Button buttonInitialSetup;
     }
 }

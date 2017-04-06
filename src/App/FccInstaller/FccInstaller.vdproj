@@ -21,13 +21,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+        "MsmKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
         "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
+        "MsmKey" = "8:_4781B42B71265035D90758A0EC2952EE"
+        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
         "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -63,38 +69,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_FAB26BA16A27D4BFBD9D2135D7491F8B"
-        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FAB26BA16A27D4BFBD9D2135D7491F8B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4781B42B71265035D90758A0EC2952EE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -122,6 +122,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.5"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.5 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.5"
+                    }
+                }
             }
         }
         "Publish"
@@ -236,18 +244,39 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4002CBEE0293F237CE1406EC059FFDA1"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                }
+            "SourcePath" = "8:System.Net.Http.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4781B42B71265035D90758A0EC2952EE"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:HexUploader, Version=0.1.6.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-                    {
-                    "Name" = "8:HexUploader.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:HexUploader.dll"
             "TargetName" = "8:"
@@ -267,20 +296,15 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4002CBEE0293F237CE1406EC059FFDA1"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_66FCF637F9C5B50EDC53C5AED1EF920B"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+            "AssemblyAsmDisplayName" = "8:GithubUpdater, Version=0.1.6.1, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_4002CBEE0293F237CE1406EC059FFDA1"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
-            "SourcePath" = "8:System.Net.Http.dll"
+            "SourcePath" = "8:GithubUpdater.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
@@ -365,44 +389,8 @@
             "AssemblyAsmDisplayName" = "8:HidSharp, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E03EC169B99AB8A461AC56E2CA62DCCC"
-                    {
-                    "Name" = "8:HidSharp.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:HidSharp.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FAB26BA16A27D4BFBD9D2135D7491F8B"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:GithubUpdater, Version=0.1.6.1, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_FAB26BA16A27D4BFBD9D2135D7491F8B"
-                    {
-                    "Name" = "8:GithubUpdater.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:GithubUpdater.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
@@ -487,15 +475,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FCC Controller"
-        "ProductCode" = "8:{65C2D723-0F4C-4D43-A354-11C529ACA33C}"
-        "PackageCode" = "8:{BCAAB41F-A330-4B95-8E54-9F068D4D6865}"
+        "ProductCode" = "8:{7D97FEDB-8B92-4949-AF29-793058806849}"
+        "PackageCode" = "8:{7D1FADCC-952A-47CD-B16F-A76B33828DB6}"
         "UpgradeCode" = "8:{2B1592A2-23E4-493D-90C2-1B6DDADCB221}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.1.6"
+        "ProductVersion" = "8:0.1.8"
         "Manufacturer" = "8:Uri_ba"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

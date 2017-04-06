@@ -64,16 +64,16 @@ namespace GithubHelper
             {
                 if (RepoData != null)
                 {
-                    return RepoData[0]["html_url"];
+                    return RepoData["html_url"];
                 }
-                return "https://github.com/"+ UserName+"/"+ Repository +"/releases";
+                return "https://github.com/"+ UserName+"/"+ Repository +"/releases/latest";
             }
             
         }
 
         public string CurrentRelease
         {
-            get { return RepoData[0]["tag_name"]; }
+            get { return RepoData["tag_name"]; }
         }
 
         public GithubUpdater(string User, string Repo)
@@ -108,7 +108,7 @@ namespace GithubHelper
         {
             WebClient wc = new WebClient();
             wc.Headers.Add("user-agent", Repository + "_UpdateClient");
-            string URL = String.Join("/", new string[] { @GithubAPI, "repos", @UserName, @Repository, "releases" });
+            string URL = String.Join("/", new string[] { @GithubAPI, "repos", @UserName, @Repository, "releases/latest" });
             try
             {
                 var json = wc.DownloadString(@URL);
@@ -124,7 +124,7 @@ namespace GithubHelper
 
         private void GetAssets()
         {
-            foreach (var asset in RepoData[0]["assets"])
+            foreach (var asset in RepoData["assets"])
             {
                 Assets.Add(new Asset() { name = asset["name"], DownloadURL = asset["browser_download_url"], type = asset["content_type"] });
             }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HidSharp;
-//using HidLibrary;
 using HexHelper;
 
 namespace Fcc3_configurator
@@ -18,8 +17,12 @@ namespace Fcc3_configurator
         private volatile HidDevice device;
 
 
-        private Int16 CurrentCustomeForce;
+        private Int16 CurrentCustomForce;
         private Int16 RequestedCustomeForce;
+
+        // FCC model true is new
+        private bool CurrentFccGain;
+        private bool RequestedFccGain;
 
 
         private ConfigOptions RunTimeOptions;
@@ -191,6 +194,16 @@ namespace Fcc3_configurator
                 }
             }
         }
+
+        public bool isUseNewFccGain
+        {
+          get {
+              return CurrentFccGain;
+          }
+          set{
+            RequestedFccGain = value;
+          }
+        }
         #endregion
         [Flags]
         public enum ConfigOptions
@@ -237,7 +250,7 @@ namespace Fcc3_configurator
         {
             device = null;
             return isConnected;
-        
+
         }
         public bool Update()
         {
@@ -250,14 +263,21 @@ namespace Fcc3_configurator
                 {
                     stream.Read(buff);
                     RunTimeOptions = (ConfigOptions)buff[7];
-                    CurrentCustomeForce = (Int16)((buff[8] << 8) | buff[9]);
+                    CurrentCustomForce = (Int16)((buff[9] << 8) | buff[8]);
+                    short test = (short)(CurrentCustomForce & 0x8000);
+                    if ((CurrentCustomForce & 0x8000) != 0) {
+                      CurrentFccGain = true;
+                        unchecked {
+                            CurrentCustomForce &= ~((Int16)0x8000);
+                        }
+                    } else {
+                      CurrentFccGain = false;
+                    }
                     return true;
                 }
                 device = null;
             }
             return false;
-            
-
         }
 
         private bool SendToStick(byte options, Int16 forceSetting)
@@ -272,8 +292,8 @@ namespace Fcc3_configurator
                     byte[] OutData = new byte[device.MaxOutputReportLength];
                     OutData[0] = 0; // Report ID
                     OutData[1] = options;
-                    OutData[2] = upper;
-                    OutData[3] = lower;
+                    OutData[2] = lower;
+                    OutData[3] = upper;
                     HidStream stream;
                     device.TryOpen(out stream);
                     stream.Write(OutData);
@@ -312,7 +332,12 @@ namespace Fcc3_configurator
             // ADC: 5V = 4096
             // Middle Voltage: 2.5V
 
-            const float DeltaVol = 2.0F;
+            float DeltaVol = 1.5F;
+            if (RequestedFccGain)
+            {
+                DeltaVol = 2.0F;
+            }
+            //const float DeltaVol = 2.0F;
             const float ForceRef = 9.0F;
             const float AdcMax = 4095.0F;
             const float Vref = 5.0F;
@@ -327,6 +352,10 @@ namespace Fcc3_configurator
             float Retval = ((AdcMax / Vref) * voltage) - (AdcMax / 2);
 
             RequestedCustomeForce = (Int16)Retval;
+            if (RequestedFccGain) {
+              RequestedCustomeForce = (short)(RequestedCustomeForce | 0x8000);
+            }
+
         }
 
         public decimal GetCurrentForce(bool UseKg = true)
@@ -335,23 +364,26 @@ namespace Fcc3_configurator
             // ADC: 5V = 4096
             // Middle Voltage: 2.5V
 
-            const float DeltaVol = 2.0F;
+
+            float DeltaVol = 1.5F;
+            if (isUseNewFccGain) {
+              DeltaVol = 2.0F;
+            }
             const float ForceRef = 9.0F;
             const float AdcMax = 4095.0F;
             const float Vref = 5.0F;
             const float BaseVoltage = 2.5F;
-
-            float Retval = (((CurrentCustomeForce + (AdcMax / 2)) * (Vref / AdcMax)) - BaseVoltage) * (ForceRef / DeltaVol);
+            float Retval = (((CurrentCustomForce + (AdcMax / 2)) * (Vref / AdcMax)) - BaseVoltage) * (ForceRef / DeltaVol);
             if (!UseKg)
             {
                 Retval *= (float)KgInLb;
             }
-            return (decimal)Math.Round(Retval, 2);
+            return (decimal)Math.Round(Retval, 1);
         }
 
 
 
- 
+
         private string BdcDecode(int VersionBin)
         {
             //#define VERSION_BCD(Major, Minor, Revision) \
@@ -391,7 +423,7 @@ namespace Fcc3_configurator
                 SendToStick((byte)ConfigOptions.RebootDevice, 0);
             }
             device = null;
-            
+
 
             string ProgPort = Uploader.AutoDetectNewPort(AvailablePorts);
             if (ProgPort != "")

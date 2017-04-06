@@ -54,7 +54,7 @@ namespace Fcc3_configurator
             ResetStickDefaults();
         }
 
-     
+
         private void buttonCenter_Click(object sender, EventArgs e)
         {
             Stick.Center();
@@ -88,6 +88,7 @@ namespace Fcc3_configurator
 
             Stick.isForceMapped = checkBoxForceMapping.Checked;
             Stick.isSensorRotated = checkBoxRotate.Checked;
+            Stick.isUseNewFccGain = Properties.Settings.Default.UseNewFccGain;
 
             Stick.SetCustomForce(numericUserDefined.Value, isKgSelected);
 
@@ -114,7 +115,6 @@ namespace Fcc3_configurator
             radioButtonUser.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.ForceUserDefined) != 0) ? true : false;
             checkBoxNotifyApp.Checked = Properties.Settings.Default.notifyApp;
             checkBoxNotifyFirmware.Checked = Properties.Settings.Default.notifyFirmware;
-
         }
 
         private void ShowCurrentValues()
@@ -162,7 +162,10 @@ namespace Fcc3_configurator
 
             if (Stick.isConnected)
             {
-                toolStripStatusLabelInfo.Text = "Connected";
+                string rev = (Stick.isUseNewFccGain)? "Warthog":"Cougar";
+              
+                toolStripStatusLabelInfo.Text = "FCC ("+ rev +") Connected";
+
                 toolStripStatusLabelColor.ForeColor = Color.Green;
             }
             else
@@ -180,15 +183,28 @@ namespace Fcc3_configurator
                 if (isKgSelected)
                 {
                     decimal newValue = numericUserDefined.Value / FccHandeler.KgInLb;
-                    numericUserDefined.Maximum = 9.0M;
+                    if (Stick.isUseNewFccGain)
+                    {
+                        numericUserDefined.Maximum = 9.0M;
+                    } else
+                    {
+                        numericUserDefined.Maximum = 12.0M;
+                    }
                     numericUserDefined.Minimum = 1.5M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
                 else
                 {
                     decimal newValue = numericUserDefined.Value * FccHandeler.KgInLb;
-                    numericUserDefined.Maximum = 20.0M;
-                    numericUserDefined.Minimum = 3.0M;
+                    if (Stick.isUseNewFccGain)
+                    {
+                        numericUserDefined.Maximum = 20.0M;
+                    }
+                    else
+                    {
+                        numericUserDefined.Maximum = 26.5M;
+                    }
+                        numericUserDefined.Minimum = 3.0M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
             }
@@ -346,6 +362,21 @@ namespace Fcc3_configurator
         private void buttonCheckUpdates_Click(object sender, EventArgs e)
         {
             RunUpdateManager();
+        }
+
+        private void buttonInitialSetup_Click(object sender, EventArgs e)
+        {
+            var FormHardware = new FormAdvancedHardware();
+            FormHardware.FormClosed += new FormClosedEventHandler(FormHardware_closed);
+            FormHardware.Show();
+            this.Hide();
+        }
+
+        private void FormHardware_closed(object sender, EventArgs e)
+        {
+            AppendChanges();
+            Stick.ApplyChanges();
+            this.Show();
         }
     }
 }
