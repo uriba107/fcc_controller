@@ -26,8 +26,6 @@ namespace Fcc3_configurator
 
         private bool useKg;
 
-
-
         public MainForm()
         {
             InitializeComponent();
@@ -86,9 +84,24 @@ namespace Fcc3_configurator
         {
             bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
 
-            Stick.isForceMapped = checkBoxForceMapping.Checked;
+            if (checkBoxEmulateFlcs.Checked)
+            {
+                if (radioButtonAnalogFlcs.Checked)
+                {
+                    Stick.isAnalogFlcs = true;
+                }
+                if (radioButtonDigitalFlcs.Checked)
+                {
+                    Stick.isDigitalFlcs = true;
+                }
+            }
+            else
+            {
+                Stick.isAnalogFlcs = false;
+                Stick.isDigitalFlcs = false;
+            }
             Stick.isSensorRotated = checkBoxRotate.Checked;
-            Stick.isUseNewFccGain = Properties.Settings.Default.UseNewFccGain;
+            Stick.isFccWhGains = Properties.Settings.Default.UseNewFccGain;
 
             Stick.SetCustomForce(numericUserDefined.Value, isKgSelected);
 
@@ -107,7 +120,12 @@ namespace Fcc3_configurator
 
             byte SavedOptions = Properties.Settings.Default.gOptions;
 
-            checkBoxForceMapping.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.ForceMap) != 0) ? true : false;
+            bool DigitalFlcs = ((SavedOptions & (byte)FccHandeler.ConfigOptions.DigitalFlcs) != 0) ? true : false;
+            bool AnalogFlcs = ((SavedOptions & (byte)FccHandeler.ConfigOptions.AnaloglFlcs) != 0) ? true : false;
+            checkBoxEmulateFlcs.Checked = (AnalogFlcs || DigitalFlcs);
+            radioButtonAnalogFlcs.Checked = AnalogFlcs;
+            radioButtonDigitalFlcs.Checked = DigitalFlcs;
+
             checkBoxRotate.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.RotatedSensors) != 0) ? true : false;
             radioButton4Kg.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.Force4Kg) != 0) ? true : false;
             radioButton6Kg.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.Force6Kg) != 0) ? true : false;
@@ -123,23 +141,30 @@ namespace Fcc3_configurator
 
             if (isUnitKg)
             {
-                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Kg/f";
+                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Kgf";
             }
             else
             {
-                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Lb/f";
+                labelCurrentUserDefined.Text = Stick.GetCurrentForce(isUnitKg) + " Lbf";
             }
 
             labelVersionDetected.Text = Stick.FirmwareVersion;
 
-            if (Stick.isForceMapped)
+            if (Stick.isEmulatingFlcs)
             {
-                labelForceMapping.Text = "ON";
+                if (Stick.isAnalogFlcs)
+                {
+                    labelForceMapping.Text = "FLCS: Analog";
+                }
+                if (Stick.isDigitalFlcs)
+                {
+                    labelForceMapping.Text = "FLCS: Digital";
+                }
                 labelForceMapping.ForeColor = Color.Green;
             }
             else
             {
-                labelForceMapping.Text = "OFF";
+                labelForceMapping.Text = "FLCS: OFF";
                 labelForceMapping.ForeColor = Color.Red;
             }
 
@@ -162,9 +187,9 @@ namespace Fcc3_configurator
 
             if (Stick.isConnected)
             {
-                string rev = (Stick.isUseNewFccGain)? "Warthog":"Cougar";
-              
-                toolStripStatusLabelInfo.Text = "FCC ("+ rev +") Connected";
+                string rev = (Stick.isFccWhGains) ? "Warthog" : "Cougar";
+
+                toolStripStatusLabelInfo.Text = "FCC (" + rev + ") Connected";
 
                 toolStripStatusLabelColor.ForeColor = Color.Green;
             }
@@ -177,16 +202,18 @@ namespace Fcc3_configurator
 
         private void comboBoxUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
+
             bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
             if (isKgSelected != useKg) //Only do on change
             {
                 if (isKgSelected)
                 {
                     decimal newValue = numericUserDefined.Value / FccHandeler.KgInLb;
-                    if (Stick.isUseNewFccGain)
+                    if (Stick.isFccWhGains)
                     {
                         numericUserDefined.Maximum = 9.0M;
-                    } else
+                    }
+                    else
                     {
                         numericUserDefined.Maximum = 12.0M;
                     }
@@ -196,7 +223,7 @@ namespace Fcc3_configurator
                 else
                 {
                     decimal newValue = numericUserDefined.Value * FccHandeler.KgInLb;
-                    if (Stick.isUseNewFccGain)
+                    if (Stick.isFccWhGains)
                     {
                         numericUserDefined.Maximum = 20.0M;
                     }
@@ -204,13 +231,48 @@ namespace Fcc3_configurator
                     {
                         numericUserDefined.Maximum = 26.5M;
                     }
-                        numericUserDefined.Minimum = 3.0M;
+                    numericUserDefined.Minimum = 3.0M;
                     numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, newValue));
                 }
             }
             useKg = isKgSelected;
         }
 
+        private void numericUserDefined_ValueChanged(object sender, EventArgs e)
+        {
+            bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
+
+            if (isKgSelected)
+            {
+                if (Stick.isFccWhGains)
+                {
+                    numericUserDefined.Maximum = 9.0M;
+                }
+                else
+                {
+                    numericUserDefined.Maximum = 12.0M;
+                }
+                numericUserDefined.Minimum = 1.5M;
+                numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, numericUserDefined.Value));
+            }
+            else
+            {
+                if (Stick.isFccWhGains)
+                {
+                    numericUserDefined.Maximum = 20.0M;
+                }
+                else
+                {
+                    numericUserDefined.Maximum = 26.5M;
+                }
+                numericUserDefined.Minimum = 3.0M;
+                numericUserDefined.Value = Math.Max(numericUserDefined.Minimum, Math.Min(numericUserDefined.Maximum, numericUserDefined.Value));
+            }
+        }
+
+        private void SetCustomForceLimit()
+        {
+        }
 
         private void buttonAutoUpdateFirmware_Click(object sender, EventArgs e)
         {
@@ -227,7 +289,6 @@ namespace Fcc3_configurator
                 ShowUploadStatus(UpgradeFirmware(HexPath));
             }
             RunUpdateManager();
-
         }
 
         private void buttonAutoUpdateApp_Click(object sender, EventArgs e)
@@ -330,18 +391,7 @@ namespace Fcc3_configurator
         }
 
 
-        private void buttonAdvancedFW_Click(object sender, EventArgs e)
-        {
-            var FwUpgradeForm = new FormManualFirmwareUpgrade();
-            FwUpgradeForm.FormClosed += new FormClosedEventHandler(FwUpgradeForm_closed);
-            FwUpgradeForm.Show();
-            this.Hide();
-        }
 
-        private void FwUpgradeForm_closed(object sender, EventArgs e)
-        {
-            this.Show();
-        }
 
         private void ShowUploadStatus(bool isSuccess)
         {
@@ -364,6 +414,40 @@ namespace Fcc3_configurator
             RunUpdateManager();
         }
 
+
+
+        private void checkBoxEmulateFlcs_CheckedChanged(object sender, EventArgs e)
+        {
+            radioButtonAnalogFlcs.Enabled = checkBoxEmulateFlcs.Checked;
+            radioButtonDigitalFlcs.Enabled = checkBoxEmulateFlcs.Checked;
+
+            if (checkBoxEmulateFlcs.Checked)
+            {
+                byte SavedOptions = Properties.Settings.Default.gOptions;
+
+                radioButtonAnalogFlcs.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.AnaloglFlcs) != 0) ? true : false;
+                radioButtonDigitalFlcs.Checked = ((SavedOptions & (byte)FccHandeler.ConfigOptions.DigitalFlcs) != 0) ? true : false;
+
+                if (!radioButtonAnalogFlcs.Checked && !radioButtonDigitalFlcs.Checked)
+                {
+                    radioButtonDigitalFlcs.Checked = true;
+                }
+            }
+        }
+
+        private void buttonAdvancedFW_Click(object sender, EventArgs e)
+        {
+            var FwUpgradeForm = new FormManualFirmwareUpgrade();
+            FwUpgradeForm.FormClosed += new FormClosedEventHandler(FwUpgradeForm_closed);
+            FwUpgradeForm.StartPosition = FormStartPosition.CenterParent;
+            FwUpgradeForm.Show();
+            this.Hide();
+        }
+
+        private void FwUpgradeForm_closed(object sender, EventArgs e)
+        {
+            this.Show();
+        }
         private void buttonInitialSetup_Click(object sender, EventArgs e)
         {
             var FormHardware = new FormAdvancedHardware();
@@ -374,9 +458,11 @@ namespace Fcc3_configurator
 
         private void FormHardware_closed(object sender, EventArgs e)
         {
-            AppendChanges();
-            Stick.ApplyChanges();
+
+            ResetStickDefaults();
             this.Show();
         }
+
+
     }
 }

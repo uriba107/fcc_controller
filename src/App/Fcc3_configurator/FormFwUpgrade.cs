@@ -20,7 +20,8 @@ namespace Fcc3_configurator
         public FormManualFirmwareUpgrade()
         {
             InitializeComponent();
-            
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             if (!Stick.isConnected)
             {
                 Stick.Connect();
@@ -72,10 +73,13 @@ namespace Fcc3_configurator
 
             string HexPath = textBoxHexPath.Text;
 
-            ShowUploadStatus(Stick.UpgradeFirmware(HexPath));
+            bool status = Stick.UpgradeFirmware(HexPath);
+            ShowUploadStatus(status);
 
-            buttonUpdateFw.Enabled = true;
-
+            if (!status)
+            {
+                buttonUpdateFw.Enabled = true;
+            }
         }
 
         private void textBoxHexPath_TextChanged(object sender, EventArgs e)

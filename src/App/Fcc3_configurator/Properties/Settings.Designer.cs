@@ -85,7 +85,7 @@ namespace Fcc3_configurator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool UseNewFccGain {
             get {
                 return ((bool)(this["UseNewFccGain"]));

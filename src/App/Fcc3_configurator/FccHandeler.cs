@@ -20,11 +20,6 @@ namespace Fcc3_configurator
         private Int16 CurrentCustomForce;
         private Int16 RequestedCustomeForce;
 
-        // FCC model true is new
-        private bool CurrentFccGain;
-        private bool RequestedFccGain;
-
-
         private ConfigOptions RunTimeOptions;
         private ConfigOptions RequestedOptions;
 
@@ -47,7 +42,6 @@ namespace Fcc3_configurator
                 if (isConnected)
                 {
                     return BdcDecode(device.ProductVersion);
-                    //return BdcDecode(device.Attributes.Version);
                 }
                 else
                 {
@@ -56,11 +50,61 @@ namespace Fcc3_configurator
             }
         }
 
-        public bool isForceMapped
+        public bool isDigitalFlcs
+        {
+            get {
+                if ((RunTimeOptions & ConfigOptions.DigitalFlcs) == ConfigOptions.DigitalFlcs)
+                {
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                if (value)
+                {
+                    RequestedOptions &= ~(ConfigOptions.MappingAll);
+                    RequestedOptions |= ConfigOptions.DigitalFlcs;
+                }
+                else
+                {
+                    RequestedOptions &= ~(ConfigOptions.MappingAll);
+                }
+            }
+        }
+
+        public bool isAnalogFlcs
+        {
+            get {
+                if ((RunTimeOptions & ConfigOptions.AnaloglFlcs) == ConfigOptions.AnaloglFlcs)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                if (value)
+                {
+                    RequestedOptions &= ~(ConfigOptions.MappingAll);
+                    RequestedOptions |= ConfigOptions.AnaloglFlcs;
+                }
+                else
+                {
+                    RequestedOptions &= ~(ConfigOptions.MappingAll);
+                }
+            }
+        }
+        public bool isEmulatingFlcs
         {
             get
             {
-                if ((RunTimeOptions & ConfigOptions.ForceMap) != 0)
+                if ((isAnalogFlcs) || (isDigitalFlcs))
                 {
                     return true;
                 }
@@ -68,17 +112,6 @@ namespace Fcc3_configurator
                 {
                     return false;
                 };
-            }
-            set
-            {
-                if (value)
-                {
-                    RequestedOptions |= ConfigOptions.ForceMap;
-                }
-                else
-                {
-                    RequestedOptions &= ~(ConfigOptions.ForceMap);
-                }
             }
         }
         public bool isSensorRotated
@@ -195,28 +228,50 @@ namespace Fcc3_configurator
             }
         }
 
-        public bool isUseNewFccGain
+        public bool isFccWhGains
         {
           get {
-              return CurrentFccGain;
+                if ((RunTimeOptions & ConfigOptions.FccWhGains) != 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                };
           }
           set{
-            RequestedFccGain = value;
-          }
+                if (value)
+                {
+                    RequestedOptions |= ConfigOptions.FccWhGains;
+                }
+                else
+                {
+                    RequestedOptions &= ~(ConfigOptions.FccWhGains);
+                }
+            }
         }
         #endregion
         [Flags]
         public enum ConfigOptions
         {
             RotatedSensors = 0x01,
-            ForceMap = 0x02,
-            CenterStick = 0x04,
-            RebootDevice = 0x08,
+            AnaloglFlcs = 0x02,
+            DigitalFlcs = 0x04,
+            MappingAll = 0x06,
+            FccWhGains = 0x08,
             Force4Kg = 0x10,
             Force6Kg = 0x20,
             Force9Kg = 0x40,
             ForceUserDefined = 0x80,
             ForceAll = 0xF0,
+        };
+
+        [Flags]
+        public enum CommandOptions
+        {
+            Center = 0x4000,
+            RebootDevice = 0x8000,
         };
 
         public FccHandeler(ushort _VID = 0x1029, ushort _PID = 0xF16C)
@@ -264,15 +319,6 @@ namespace Fcc3_configurator
                     stream.Read(buff);
                     RunTimeOptions = (ConfigOptions)buff[7];
                     CurrentCustomForce = (Int16)((buff[9] << 8) | buff[8]);
-                    short test = (short)(CurrentCustomForce & 0x8000);
-                    if ((CurrentCustomForce & 0x8000) != 0) {
-                      CurrentFccGain = true;
-                        unchecked {
-                            CurrentCustomForce &= ~((Int16)0x8000);
-                        }
-                    } else {
-                      CurrentFccGain = false;
-                    }
                     return true;
                 }
                 device = null;
@@ -309,18 +355,19 @@ namespace Fcc3_configurator
 
         public void Center()
         {
-            SendToStick((byte)ConfigOptions.CenterStick, 0);
+            SendToStick(0x00, (Int16)CommandOptions.Center);
         }
 
         public void Reboot()
         {
-            SendToStick((byte)ConfigOptions.RebootDevice, 0);
+            SendToStick(0x00, unchecked((short)CommandOptions.RebootDevice));
         }
 
         public bool ApplyChanges()
         {
             if (isConnected)
             {
+                //return SendToStick((byte)ConfigOptions.RotatedSensors, 640);
                 return SendToStick((byte)RequestedOptions, RequestedCustomeForce);
             }
             return false;
@@ -333,7 +380,7 @@ namespace Fcc3_configurator
             // Middle Voltage: 2.5V
 
             float DeltaVol = 1.5F;
-            if (RequestedFccGain)
+            if (isFccWhGains)
             {
                 DeltaVol = 2.0F;
             }
@@ -352,10 +399,6 @@ namespace Fcc3_configurator
             float Retval = ((AdcMax / Vref) * voltage) - (AdcMax / 2);
 
             RequestedCustomeForce = (Int16)Retval;
-            if (RequestedFccGain) {
-              RequestedCustomeForce = (short)(RequestedCustomeForce | 0x8000);
-            }
-
         }
 
         public decimal GetCurrentForce(bool UseKg = true)
@@ -366,7 +409,7 @@ namespace Fcc3_configurator
 
 
             float DeltaVol = 1.5F;
-            if (isUseNewFccGain) {
+            if (isFccWhGains) {
               DeltaVol = 2.0F;
             }
             const float ForceRef = 9.0F;
@@ -420,7 +463,7 @@ namespace Fcc3_configurator
             // Trigger reboot for COM port to appear
             if (isConnected)
             {
-                SendToStick((byte)ConfigOptions.RebootDevice, 0);
+                SendToStick(0x00, unchecked((short)CommandOptions.RebootDevice));
             }
             device = null;
 

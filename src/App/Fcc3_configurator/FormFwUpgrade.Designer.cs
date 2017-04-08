@@ -164,10 +164,10 @@
             // toolStripStatusLabelUploadStatus
             // 
             this.toolStripStatusLabelUploadStatus.Name = "toolStripStatusLabelUploadStatus";
+            this.toolStripStatusLabelUploadStatus.Size = new System.Drawing.Size(265, 17);
+            this.toolStripStatusLabelUploadStatus.Spring = true;
             this.toolStripStatusLabelUploadStatus.Text = "Upgrade N/A";
             this.toolStripStatusLabelUploadStatus.Visible = false;
-            this.toolStripStatusLabelUploadStatus.Spring = true;
-            this.toolStripStatusLabelUploadStatus.Size = new System.Drawing.Size(50, 17);
             // 
             // buttonClose
             // 
@@ -191,7 +191,7 @@
             this.Controls.Add(this.groupBoxControllerUpdate);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormManualFirmwareUpgrade";
-            this.Text = "Manual Firmware Upgrade";
+            this.Text = "Firmware Upgrade";
             this.groupBoxControllerUpdate.ResumeLayout(false);
             this.groupBoxHex.ResumeLayout(false);
             this.groupBoxHex.PerformLayout();

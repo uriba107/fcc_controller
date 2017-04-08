@@ -32,7 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.buttonApply = new System.Windows.Forms.Button();
             this.checkBoxRotate = new System.Windows.Forms.CheckBox();
-            this.checkBoxForceMapping = new System.Windows.Forms.CheckBox();
+            this.checkBoxEmulateFlcs = new System.Windows.Forms.CheckBox();
             this.radioButton4Kg = new System.Windows.Forms.RadioButton();
             this.radioButton6Kg = new System.Windows.Forms.RadioButton();
             this.radioButton9Kg = new System.Windows.Forms.RadioButton();
@@ -41,6 +41,7 @@
             this.buttonDefaults = new System.Windows.Forms.Button();
             this.toolTipMainForm = new System.Windows.Forms.ToolTip(this.components);
             this.groupBoxSensitivity = new System.Windows.Forms.GroupBox();
+            this.buttonInitialSetup = new System.Windows.Forms.Button();
             this.comboBoxUnit = new System.Windows.Forms.ComboBox();
             this.labelForceUser = new System.Windows.Forms.Label();
             this.labelForce9kg = new System.Windows.Forms.Label();
@@ -48,6 +49,8 @@
             this.labelForce4Kg = new System.Windows.Forms.Label();
             this.labelCurrentUserDefined = new System.Windows.Forms.Label();
             this.groupBoxFeatures = new System.Windows.Forms.GroupBox();
+            this.radioButtonDigitalFlcs = new System.Windows.Forms.RadioButton();
+            this.radioButtonAnalogFlcs = new System.Windows.Forms.RadioButton();
             this.labelForceMapping = new System.Windows.Forms.Label();
             this.labelSensorRotation = new System.Windows.Forms.Label();
             this.buttonAdvancedFW = new System.Windows.Forms.Button();
@@ -77,7 +80,6 @@
             this.toolStripStatusLabelInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripLabelUploadStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
-            this.buttonInitialSetup = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUserDefined)).BeginInit();
             this.groupBoxSensitivity.SuspendLayout();
             this.groupBoxFeatures.SuspendLayout();
@@ -96,7 +98,7 @@
             this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonApply.Location = new System.Drawing.Point(6, 257);
+            this.buttonApply.Location = new System.Drawing.Point(6, 279);
             this.buttonApply.Name = "buttonApply";
             this.buttonApply.Size = new System.Drawing.Size(245, 43);
             this.buttonApply.TabIndex = 0;
@@ -112,17 +114,20 @@
             this.checkBoxRotate.Size = new System.Drawing.Size(151, 17);
             this.checkBoxRotate.TabIndex = 1;
             this.checkBoxRotate.Text = "Sensor &Rotation Emulation";
+            this.toolTipMainForm.SetToolTip(this.checkBoxRotate, "Emulate Sensor assembly\'s 12 degrees CW rotation");
             this.checkBoxRotate.UseVisualStyleBackColor = true;
             // 
-            // checkBoxForceMapping
+            // checkBoxEmulateFlcs
             // 
-            this.checkBoxForceMapping.AutoSize = true;
-            this.checkBoxForceMapping.Location = new System.Drawing.Point(6, 42);
-            this.checkBoxForceMapping.Name = "checkBoxForceMapping";
-            this.checkBoxForceMapping.Size = new System.Drawing.Size(156, 17);
-            this.checkBoxForceMapping.TabIndex = 2;
-            this.checkBoxForceMapping.Text = "Proportional Force &Mapping";
-            this.checkBoxForceMapping.UseVisualStyleBackColor = true;
+            this.checkBoxEmulateFlcs.AutoSize = true;
+            this.checkBoxEmulateFlcs.Location = new System.Drawing.Point(6, 42);
+            this.checkBoxEmulateFlcs.Name = "checkBoxEmulateFlcs";
+            this.checkBoxEmulateFlcs.Size = new System.Drawing.Size(101, 17);
+            this.checkBoxEmulateFlcs.TabIndex = 2;
+            this.checkBoxEmulateFlcs.Text = "&FLCS Emulation";
+            this.toolTipMainForm.SetToolTip(this.checkBoxEmulateFlcs, "Enable Proportional Force mapping based on FLCS force ratios");
+            this.checkBoxEmulateFlcs.UseVisualStyleBackColor = true;
+            this.checkBoxEmulateFlcs.CheckedChanged += new System.EventHandler(this.checkBoxEmulateFlcs_CheckedChanged);
             // 
             // radioButton4Kg
             // 
@@ -131,10 +136,11 @@
             this.radioButton4Kg.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.radioButton4Kg.Location = new System.Drawing.Point(6, 19);
             this.radioButton4Kg.Name = "radioButton4Kg";
-            this.radioButton4Kg.Size = new System.Drawing.Size(104, 17);
+            this.radioButton4Kg.Size = new System.Drawing.Size(94, 17);
             this.radioButton4Kg.TabIndex = 3;
             this.radioButton4Kg.TabStop = true;
-            this.radioButton4Kg.Text = "&4.5 Kg/f (10 lb/f)";
+            this.radioButton4Kg.Text = "&4.5 Kgf (10 lbf)";
+            this.toolTipMainForm.SetToolTip(this.radioButton4Kg, "Max value will be reached at selected force Setting");
             this.radioButton4Kg.UseVisualStyleBackColor = true;
             // 
             // radioButton6Kg
@@ -142,9 +148,10 @@
             this.radioButton6Kg.AutoSize = true;
             this.radioButton6Kg.Location = new System.Drawing.Point(6, 42);
             this.radioButton6Kg.Name = "radioButton6Kg";
-            this.radioButton6Kg.Size = new System.Drawing.Size(101, 17);
+            this.radioButton6Kg.Size = new System.Drawing.Size(91, 17);
             this.radioButton6Kg.TabIndex = 4;
-            this.radioButton6Kg.Text = "&6 Kg/f   (13 lb/f)";
+            this.radioButton6Kg.Text = "&6 Kgf   (13 lbf)";
+            this.toolTipMainForm.SetToolTip(this.radioButton6Kg, "Max value will be reached at selected force Setting");
             this.radioButton6Kg.UseVisualStyleBackColor = true;
             // 
             // radioButton9Kg
@@ -152,9 +159,10 @@
             this.radioButton9Kg.AutoSize = true;
             this.radioButton9Kg.Location = new System.Drawing.Point(6, 65);
             this.radioButton9Kg.Name = "radioButton9Kg";
-            this.radioButton9Kg.Size = new System.Drawing.Size(101, 17);
+            this.radioButton9Kg.Size = new System.Drawing.Size(91, 17);
             this.radioButton9Kg.TabIndex = 5;
-            this.radioButton9Kg.Text = "&9 Kg/f   (20 lb/f)";
+            this.radioButton9Kg.Text = "&9 Kgf   (20 lbf)";
+            this.toolTipMainForm.SetToolTip(this.radioButton9Kg, "Max value will be reached at selected force Setting");
             this.radioButton9Kg.UseVisualStyleBackColor = true;
             // 
             // radioButtonUser
@@ -165,6 +173,7 @@
             this.radioButtonUser.Size = new System.Drawing.Size(148, 17);
             this.radioButtonUser.TabIndex = 6;
             this.radioButtonUser.Text = "&User Defined force setting";
+            this.toolTipMainForm.SetToolTip(this.radioButtonUser, "Max value will be reached at selected force Setting");
             this.radioButtonUser.UseVisualStyleBackColor = true;
             // 
             // numericUserDefined
@@ -189,22 +198,25 @@
             this.numericUserDefined.Name = "numericUserDefined";
             this.numericUserDefined.Size = new System.Drawing.Size(46, 20);
             this.numericUserDefined.TabIndex = 7;
+            this.toolTipMainForm.SetToolTip(this.numericUserDefined, "Set desired force limit");
             this.numericUserDefined.Value = new decimal(new int[] {
             30,
             0,
             0,
             65536});
+            this.numericUserDefined.ValueChanged += new System.EventHandler(this.numericUserDefined_ValueChanged);
             // 
             // buttonDefaults
             // 
             this.buttonDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDefaults.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonDefaults.Location = new System.Drawing.Point(6, 306);
+            this.buttonDefaults.Location = new System.Drawing.Point(6, 328);
             this.buttonDefaults.Name = "buttonDefaults";
             this.buttonDefaults.Size = new System.Drawing.Size(111, 23);
             this.buttonDefaults.TabIndex = 9;
             this.buttonDefaults.Text = "&Restore Defaults";
+            this.toolTipMainForm.SetToolTip(this.buttonDefaults, "Restore facroty defaults");
             this.buttonDefaults.UseVisualStyleBackColor = true;
             this.buttonDefaults.Click += new System.EventHandler(this.buttonDefaults_Click);
             // 
@@ -231,17 +243,30 @@
             this.groupBoxSensitivity.TabStop = false;
             this.groupBoxSensitivity.Text = "Sensitivity Settings";
             // 
+            // buttonInitialSetup
+            // 
+            this.buttonInitialSetup.Location = new System.Drawing.Point(6, 138);
+            this.buttonInitialSetup.Name = "buttonInitialSetup";
+            this.buttonInitialSetup.Size = new System.Drawing.Size(111, 23);
+            this.buttonInitialSetup.TabIndex = 17;
+            this.buttonInitialSetup.Text = "&Initial Config";
+            this.toolTipMainForm.SetToolTip(this.buttonInitialSetup, "Select Hardware gains (required only once) - please click \"restore defaults\" afte" +
+        "r changing");
+            this.buttonInitialSetup.UseVisualStyleBackColor = true;
+            this.buttonInitialSetup.Click += new System.EventHandler(this.buttonInitialSetup_Click);
+            // 
             // comboBoxUnit
             // 
             this.comboBoxUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxUnit.FormattingEnabled = true;
             this.comboBoxUnit.Items.AddRange(new object[] {
-            "Kg/f",
-            "lb/f"});
+            "Kgf",
+            "lbf"});
             this.comboBoxUnit.Location = new System.Drawing.Point(84, 111);
             this.comboBoxUnit.Name = "comboBoxUnit";
             this.comboBoxUnit.Size = new System.Drawing.Size(44, 21);
             this.comboBoxUnit.TabIndex = 16;
+            this.toolTipMainForm.SetToolTip(this.comboBoxUnit, "Select force mesurment unit");
             this.comboBoxUnit.SelectedIndexChanged += new System.EventHandler(this.comboBoxUnit_SelectedIndexChanged);
             // 
             // labelForceUser
@@ -298,36 +323,63 @@
             this.labelCurrentUserDefined.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelCurrentUserDefined.Location = new System.Drawing.Point(157, 113);
             this.labelCurrentUserDefined.Name = "labelCurrentUserDefined";
-            this.labelCurrentUserDefined.Size = new System.Drawing.Size(54, 13);
+            this.labelCurrentUserDefined.Size = new System.Drawing.Size(48, 13);
             this.labelCurrentUserDefined.TabIndex = 9;
-            this.labelCurrentUserDefined.Text = "0.0 Kg/f";
+            this.labelCurrentUserDefined.Text = "0.0 Kgf";
             this.labelCurrentUserDefined.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // groupBoxFeatures
             // 
             this.groupBoxFeatures.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxFeatures.Controls.Add(this.radioButtonDigitalFlcs);
+            this.groupBoxFeatures.Controls.Add(this.radioButtonAnalogFlcs);
             this.groupBoxFeatures.Controls.Add(this.labelForceMapping);
             this.groupBoxFeatures.Controls.Add(this.labelSensorRotation);
             this.groupBoxFeatures.Controls.Add(this.checkBoxRotate);
-            this.groupBoxFeatures.Controls.Add(this.checkBoxForceMapping);
+            this.groupBoxFeatures.Controls.Add(this.checkBoxEmulateFlcs);
             this.groupBoxFeatures.Location = new System.Drawing.Point(6, 181);
             this.groupBoxFeatures.Name = "groupBoxFeatures";
-            this.groupBoxFeatures.Size = new System.Drawing.Size(245, 70);
+            this.groupBoxFeatures.Size = new System.Drawing.Size(245, 92);
             this.groupBoxFeatures.TabIndex = 13;
             this.groupBoxFeatures.TabStop = false;
             this.groupBoxFeatures.Text = "Special Features";
+            // 
+            // radioButtonDigitalFlcs
+            // 
+            this.radioButtonDigitalFlcs.AutoSize = true;
+            this.radioButtonDigitalFlcs.Checked = true;
+            this.radioButtonDigitalFlcs.Enabled = false;
+            this.radioButtonDigitalFlcs.Location = new System.Drawing.Point(99, 66);
+            this.radioButtonDigitalFlcs.Name = "radioButtonDigitalFlcs";
+            this.radioButtonDigitalFlcs.Size = new System.Drawing.Size(83, 17);
+            this.radioButtonDigitalFlcs.TabIndex = 18;
+            this.radioButtonDigitalFlcs.TabStop = true;
+            this.radioButtonDigitalFlcs.Text = "Digital FLCS";
+            this.radioButtonDigitalFlcs.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonAnalogFlcs
+            // 
+            this.radioButtonAnalogFlcs.AutoSize = true;
+            this.radioButtonAnalogFlcs.Enabled = false;
+            this.radioButtonAnalogFlcs.Location = new System.Drawing.Point(6, 66);
+            this.radioButtonAnalogFlcs.Name = "radioButtonAnalogFlcs";
+            this.radioButtonAnalogFlcs.Size = new System.Drawing.Size(87, 17);
+            this.radioButtonAnalogFlcs.TabIndex = 17;
+            this.radioButtonAnalogFlcs.Text = "Analog FLCS";
+            this.toolTipMainForm.SetToolTip(this.radioButtonAnalogFlcs, "Analog FLCS ratios");
+            this.radioButtonAnalogFlcs.UseVisualStyleBackColor = true;
             // 
             // labelForceMapping
             // 
             this.labelForceMapping.AutoSize = true;
             this.labelForceMapping.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForceMapping.ForeColor = System.Drawing.Color.Red;
-            this.labelForceMapping.Location = new System.Drawing.Point(181, 43);
+            this.labelForceMapping.Location = new System.Drawing.Point(142, 43);
             this.labelForceMapping.Name = "labelForceMapping";
-            this.labelForceMapping.Size = new System.Drawing.Size(30, 13);
+            this.labelForceMapping.Size = new System.Drawing.Size(68, 13);
             this.labelForceMapping.TabIndex = 16;
-            this.labelForceMapping.Text = "OFF";
+            this.labelForceMapping.Text = "FLCS: OFF";
             // 
             // labelSensorRotation
             // 
@@ -360,18 +412,19 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(256, 335);
+            this.panel1.Size = new System.Drawing.Size(256, 357);
             this.panel1.TabIndex = 16;
             // 
             // buttonCenter
             // 
             this.buttonCenter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCenter.Location = new System.Drawing.Point(140, 306);
+            this.buttonCenter.Location = new System.Drawing.Point(140, 328);
             this.buttonCenter.Name = "buttonCenter";
             this.buttonCenter.Size = new System.Drawing.Size(111, 23);
             this.buttonCenter.TabIndex = 14;
             this.buttonCenter.Text = "Center";
+            this.toolTipMainForm.SetToolTip(this.buttonCenter, "Set current stick position as center");
             this.buttonCenter.UseVisualStyleBackColor = true;
             this.buttonCenter.Click += new System.EventHandler(this.buttonCenter_Click);
             // 
@@ -384,7 +437,7 @@
             this.tabPageUpdate.Location = new System.Drawing.Point(4, 22);
             this.tabPageUpdate.Name = "tabPageUpdate";
             this.tabPageUpdate.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageUpdate.Size = new System.Drawing.Size(262, 341);
+            this.tabPageUpdate.Size = new System.Drawing.Size(262, 363);
             this.tabPageUpdate.TabIndex = 1;
             this.tabPageUpdate.Text = "Updates";
             // 
@@ -523,7 +576,7 @@
             this.groupBoxManualUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxManualUpdate.Controls.Add(this.buttonAdvancedFW);
-            this.groupBoxManualUpdate.Location = new System.Drawing.Point(10, 274);
+            this.groupBoxManualUpdate.Location = new System.Drawing.Point(10, 296);
             this.groupBoxManualUpdate.Name = "groupBoxManualUpdate";
             this.groupBoxManualUpdate.Size = new System.Drawing.Size(243, 61);
             this.groupBoxManualUpdate.TabIndex = 13;
@@ -536,7 +589,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyApp);
             this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyFirmware);
-            this.groupBoxUpdater.Location = new System.Drawing.Point(10, 204);
+            this.groupBoxUpdater.Location = new System.Drawing.Point(10, 226);
             this.groupBoxUpdater.Name = "groupBoxUpdater";
             this.groupBoxUpdater.Size = new System.Drawing.Size(243, 64);
             this.groupBoxUpdater.TabIndex = 12;
@@ -572,7 +625,7 @@
             this.tabPageSettings.Location = new System.Drawing.Point(4, 22);
             this.tabPageSettings.Name = "tabPageSettings";
             this.tabPageSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings.Size = new System.Drawing.Size(262, 341);
+            this.tabPageSettings.Size = new System.Drawing.Size(262, 363);
             this.tabPageSettings.TabIndex = 0;
             this.tabPageSettings.Text = "Settings";
             // 
@@ -586,7 +639,7 @@
             this.tabControlMain.Location = new System.Drawing.Point(2, 12);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(270, 367);
+            this.tabControlMain.Size = new System.Drawing.Size(270, 389);
             this.tabControlMain.TabIndex = 14;
             // 
             // statusStripMain
@@ -595,7 +648,7 @@
             this.toolStripStatusLabelColor,
             this.toolStripStatusLabelInfo,
             this.toolStripLabelUploadStatus});
-            this.statusStripMain.Location = new System.Drawing.Point(0, 383);
+            this.statusStripMain.Location = new System.Drawing.Point(0, 404);
             this.statusStripMain.Name = "statusStripMain";
             this.statusStripMain.Size = new System.Drawing.Size(272, 24);
             this.statusStripMain.TabIndex = 15;
@@ -632,22 +685,12 @@
             this.notifyIconMain.Visible = true;
             this.notifyIconMain.BalloonTipClicked += new System.EventHandler(this.notifyIconMain_BalloonTipClicked);
             // 
-            // buttonInitialSetup
-            // 
-            this.buttonInitialSetup.Location = new System.Drawing.Point(0, 143);
-            this.buttonInitialSetup.Name = "buttonInitialSetup";
-            this.buttonInitialSetup.Size = new System.Drawing.Size(111, 23);
-            this.buttonInitialSetup.TabIndex = 17;
-            this.buttonInitialSetup.Text = "&Initial Config";
-            this.buttonInitialSetup.UseVisualStyleBackColor = true;
-            this.buttonInitialSetup.Click += new System.EventHandler(this.buttonInitialSetup_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(272, 407);
+            this.ClientSize = new System.Drawing.Size(272, 428);
             this.Controls.Add(this.statusStripMain);
             this.Controls.Add(this.tabControlMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -682,7 +725,7 @@
 
         private System.Windows.Forms.Button buttonApply;
         private System.Windows.Forms.CheckBox checkBoxRotate;
-        private System.Windows.Forms.CheckBox checkBoxForceMapping;
+        private System.Windows.Forms.CheckBox checkBoxEmulateFlcs;
         private System.Windows.Forms.RadioButton radioButton4Kg;
         private System.Windows.Forms.RadioButton radioButton6Kg;
         private System.Windows.Forms.RadioButton radioButton9Kg;
@@ -728,5 +771,7 @@
         private System.Windows.Forms.GroupBox groupBoxAutoUpdate;
         private System.Windows.Forms.Button buttonCheckUpdates;
         private System.Windows.Forms.Button buttonInitialSetup;
+        private System.Windows.Forms.RadioButton radioButtonDigitalFlcs;
+        private System.Windows.Forms.RadioButton radioButtonAnalogFlcs;
     }
 }

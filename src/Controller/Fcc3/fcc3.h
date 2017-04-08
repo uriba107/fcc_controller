@@ -11,7 +11,6 @@
 #include <avr/interrupt.h>
 #include <LUFA/Drivers/Peripheral/SPI.h>
 
-
 #include "fcc3_helpers.h"
 
 #define ROLL_CH 0
@@ -32,8 +31,9 @@ typedef struct  {
 typedef struct  {
   AxisParams X;
   AxisParams Y;
-  int16_t N180:12;
-  int16_t N80:12;
+  int16_t FlcsUp:12;
+  int16_t FlcsDn:12;
+  int16_t FlcsRoll:12;
 } StickLimit;
 
 typedef struct  {
@@ -43,14 +43,20 @@ typedef struct  {
 
 enum ConfigOptions {
     RotatedSensors = 0x01,
-    ForceMap = 0x02,
-    CenterStick = 0x04,
-    RebootDevice = 0x08,
+    AnalogFlcs = 0x02,
+	DigitalFlcs = 0x04,
+	MappingAll = 0x06,
+    FccWhGains = 0x08,
     Force4Kg = 0x10,
     Force6Kg = 0x20,
     Force9Kg = 0x40,
     ForceUserDefined = 0x80,
     ForceAll = 0xF0,
+};
+
+enum CommandOptions {
+	CenterDevice = 0x4000,
+	RebootDevice = 0x8000,
 };
 
 

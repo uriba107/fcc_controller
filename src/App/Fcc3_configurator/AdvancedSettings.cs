@@ -15,6 +15,8 @@ namespace Fcc3_configurator
         public FormAdvancedHardware()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             if (Properties.Settings.Default.UseNewFccGain)
             {
                 comboBoxFccRevision.SelectedIndex = 1;
@@ -34,6 +36,11 @@ namespace Fcc3_configurator
         private void buttonClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void FormAdvancedHardware_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

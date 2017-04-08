@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAdvancedHardware));
             this.comboBoxFccRevision = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonClose = new System.Windows.Forms.Button();
@@ -73,8 +74,10 @@
             this.Controls.Add(this.buttonClose);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxFccRevision);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormAdvancedHardware";
             this.Text = "FCC Revision";
+            this.Load += new System.EventHandler(this.FormAdvancedHardware_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

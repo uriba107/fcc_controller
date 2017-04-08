@@ -80,9 +80,16 @@ namespace Fcc3_configurator
         {
             Byte RetVal = 0;
             FccHandeler.ConfigOptions options = 0;
-            if (checkBoxForceMapping.Checked)
+            if (checkBoxEmulateFlcs.Checked)
             {
-                options |= (FccHandeler.ConfigOptions.ForceMap);
+                if (radioButtonAnalogFlcs.Checked)
+                {
+                    options |= (FccHandeler.ConfigOptions.AnaloglFlcs);
+                }
+                if (radioButtonDigitalFlcs.Checked)
+                {
+                    options |= (FccHandeler.ConfigOptions.DigitalFlcs);
+                }
             }
             if (checkBoxRotate.Checked)
             {

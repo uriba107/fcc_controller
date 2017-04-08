@@ -1,7 +1,6 @@
 #include "fcc3.h"
 
 #define STICK_DEADZONE 10
-#define NEW_FCC (gUserDefinedForce & 0x8000)
 
 // 9Kg/f
 #define FORCE_9KGF 1638
@@ -60,7 +59,8 @@ void SetupSPI(void)
 
 	// Set PF0 and PF1 to output for Axis Zero Led
 	// Done Here because ADC is check is driving those pins..
-	DDRF |= (1<<PORTF0) | (1 << PORTF1);
+	// Also set PF4&5 for pro-micro
+	DDRF |= (1<<PORTF0) | (1 << PORTF1) | (1<<PORTF4) | (1 << PORTF5);
 }
 
 void SetupLeds(void)
@@ -82,13 +82,13 @@ void setStatusLed(uint8_t power){
 	if (power == 0 ){
 		cbi(TCCR4A, COM4A1);
 		PORTC &= ~(1<<PORTC7);
-	} else if (power == 255) {
+		} else if (power == 255) {
 		cbi(TCCR4A, COM4A1);
 		PORTC |= (1<<PORTC7);
-	} else {
+		} else {
 		// set timers. pin is OC4A in PMW
-//		TCCR4A |= (1 << PWM4A) |(1 << COM4A1);
-//		TCCR4A &= ~(1 << COM4A0);
+		//		TCCR4A |= (1 << PWM4A) |(1 << COM4A1);
+		//		TCCR4A &= ~(1 << COM4A0);
 		sbi(TCCR4A, COM4A1);
 		OCR4A = power;
 	}
@@ -106,13 +106,17 @@ void WriteMem(void){
 
 	// Read EEPROM
 	VolatileOptions = eeprom_read_byte(&NonVolatileOptions);
-  VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
+	VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
+    
+	VolatileUserForce &= ~(0xF000); //Really make sure reboot and center flags don't carry over
+	gUserDefinedForce &= ~(0xF000);
 
 	// Compare values and write back
 	if (VolatileOptions != gOptions) {
-		gOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
+		//gOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
 		eeprom_write_byte(&NonVolatileOptions, gOptions);
 	}
+
 	if (gUserDefinedForce != VolatileUserForce) {
 		eeprom_write_word(&NonVolatileUserForce,gUserDefinedForce);
 	}
@@ -125,9 +129,9 @@ void ReadMem(void){
 
 	// Read EEPROM
 	VolatileOptions = eeprom_read_byte(&NonVolatileOptions);
-	VolatileOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
-  VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
-
+	//VolatileOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
+	VolatileUserForce = eeprom_read_word(&NonVolatileUserForce);
+	VolatileUserForce &= ~(0xF000); //Really make sure reboot and center flags don't carry over
 
 	// Check and place values
 	#define EEPROM_EMPTY_BYTE(b) b == 0xFF
@@ -158,17 +162,17 @@ void ChangeSensitivity(uint8_t sensitivity){
 	// now load correct config
 	if (gOptions & Force4Kg) {
 		SetCalibratedSensitivity(CalcForceDisplacement(4.5));
-	} else 	if (gOptions & Force6Kg) {
+		} else 	if (gOptions & Force6Kg) {
 		SetCalibratedSensitivity(CalcForceDisplacement(6.0));
-	} else 	if (gOptions & Force9Kg) {
+		} else 	if (gOptions & Force9Kg) {
 		SetCalibratedSensitivity(CalcForceDisplacement(9.0));
-	} else {
+		} else {
 		SetCalibratedSensitivity(gUserDefinedForce);
 	}
 }
 
 void SetCalibratedSensitivity(int16_t OffsetValue){
-	OffsetValue &= ~(0x8000);
+	OffsetValue &= ~(0xF000);
 	gStickLimits.X.max = OffsetValue;
 	gStickLimits.X.min = -OffsetValue;
 	gStickLimits.Y.max = OffsetValue;
@@ -180,32 +184,40 @@ void SetCalibratedSensitivity(int16_t OffsetValue){
 
 void CalcForceMapping(void) {
 	// do all the force calcs.
-	gStickLimits.N180 = abs(gStickLimits.Y.max);
-	gStickLimits.N80 = abs(gStickLimits.N180/2.25);
+	gStickLimits.FlcsUp = abs(gStickLimits.Y.max);
+	if (gOptions & DigitalFlcs) {
+		gStickLimits.FlcsDn = abs(gStickLimits.FlcsUp/1.5625);
+		gStickLimits.FlcsRoll = abs(gStickLimits.FlcsUp/1.4705);
+		} else {
+		gStickLimits.FlcsDn = abs(gStickLimits.FlcsUp/2.25);
+		gStickLimits.FlcsRoll = abs(gStickLimits.FlcsUp/2.25);
+
+	}
+
 }
 
 int16_t CalcForceDisplacement(float RequestedForce)
 {
-		// Hardware: 9kg/f = 2Volt Delta
-		// ADC: 5V = 4096
-		// Middle Voltage: 2.5V
+	// Hardware: 9kg/f = 2Volt Delta
+	// ADC: 5V = 4096
+	// Middle Voltage: 2.5V
 
-		float DeltaVol = 1.5;
-		if (NEW_FCC) {
-			DeltaVol = 2.0;
-		}
-		// const float DeltaVol = 2.0F;
-		// const float ForceRef = 9.0F;
-		#define FORCE_REF 9
-		#define ADC_MAX 4095
-		#define VREF 5.0
-		#define BASEVOLTAGE 2.5
+	float DeltaVol = 1.5;
+	if (gOptions & FccWhGains) {
+		DeltaVol = 2.0;
+	}
+	// const float DeltaVol = 2.0F;
+	// const float ForceRef = 9.0F;
+	#define FORCE_REF 9
+	#define ADC_MAX 4095
+	#define VREF 5.0
+	#define BASEVOLTAGE 2.5
 
-		float voltage = ((DeltaVol / FORCE_REF) * RequestedForce) + BASEVOLTAGE;
+	float voltage = ((DeltaVol / FORCE_REF) * RequestedForce) + BASEVOLTAGE;
 
-		float Retval = ((ADC_MAX / VREF) * voltage) - (ADC_MAX / 2);
+	float Retval = ((ADC_MAX / VREF) * voltage) - (ADC_MAX / 2);
 
-		return (int16_t)Retval;
+	return (int16_t)Retval;
 }
 ///////////// Actual Stick stuff ////////
 int16_t readSPIADC(uint8_t adcChannel){
@@ -218,12 +230,13 @@ int16_t readSPIADC(uint8_t adcChannel){
 	// If output is exactly 0 (i.e entered voltage, light up the correct LED on PORTF - PF0 for pitch, PF1 for roll)
 	if (abs(result) - STICK_DEADZONE*2 <= 0) {
 		PORTF |= (1<<adcChannel);// pull high (led on)
+		PORTF |= (1<<(adcChannel+4));// pull high (led on)
 	}
 	else
 	{
 		PORTF &= ~(1<<adcChannel);// pull low (led off)
+		PORTF &= ~(1<<(adcChannel+4));// pull low (led off)
 	}
-
 	return result;
 }
 
@@ -232,7 +245,7 @@ void ReadStick(AxisStore* AxisData)
 	static AxisStore StickHistory;
 	AxisStore NewData;
 	static bool isForceMapped;
-	isForceMapped = (gOptions & ForceMap)?true:false;
+	isForceMapped = (gOptions & (AnalogFlcs | DigitalFlcs))?true:false;
 
 	//store current value (not sure it works for now)
 	NewData.X = ReadRoll - gStickLimits.X.center;
@@ -313,9 +326,9 @@ int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped) {
 		if (isForceMapped) {
 			// if ForceMapping is in use, use Center+Newton
 			if (InValue > 0) {
-				inMax = gStickLimits.N180;
+				inMax = gStickLimits.FlcsUp;
 				} else {
-				inMin = -gStickLimits.N80;
+				inMin = -gStickLimits.FlcsDn;
 			}
 			} else {
 			// if "plain" mapping, use recorded limits
@@ -330,9 +343,9 @@ int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped) {
 		if (isForceMapped) {
 			// if forceMapped use Center+Newton for input range
 			if (InValue > 0) {
-				inMax = gStickLimits.N80;
+				inMax = gStickLimits.FlcsRoll;
 				} else {
-				inMin = -gStickLimits.N80;
+				inMin = -gStickLimits.FlcsRoll;
 			}
 			} else {
 			// for plain mapping use preset min/max for input range
@@ -390,20 +403,22 @@ uint8_t MapHat(uint8_t HatSwitch) {
 		case 9:  RetVal = 7; break; // UldR : 315    : hatButtons = B00001001
 	}
 	return RetVal;
-
-
 }
 
 void FccSettings(uint32_t Buttons){
 	// COnfig Options for the stick
 	//Check if we need to go into config
 	if (gIsConfig) { // if we are in config mode
-	    gPowerLed -= 2; // will dim PC7 every round, to have a pulsing light to indicate config mode
-	    setStatusLed(gPowerLed);
+		gPowerLed -= 2; // will dim PC7 every round, to have a pulsing light to indicate config mode
+		setStatusLed(gPowerLed);
 
 		//reset to defaults
 		if (Buttons & (GripTriggerFirstDetent | GripTriggerSecondDetent)) {
-			gOptions = Force4Kg;
+			if (gOptions & FccWhGains) {
+			  gOptions = FccWhGains | Force4Kg;
+			} else {
+			  gOptions = Force4Kg;
+			}
 			gUserDefinedForce = FORCE_3KGF;
 			ChangeSensitivity(gOptions);
 			exitConfig();
@@ -420,41 +435,50 @@ void FccSettings(uint32_t Buttons){
 			exitConfig();
 		}
 
-		if (Buttons & GripTmsRight) {
-			// Activate "Sensor rotation" will shift output as if sensore assembly is rotated 12.5 degrees clockwise
+		if (Buttons & GripDmsRight) {
+			// Activate "Sensor rotation" will shift output as if sensor assembly is rotated 12.5 degrees clockwise
 			gOptions |= RotatedSensors;
 			exitConfig();
 		}
 
-		if (Buttons & GripTmsLeft) {
+		if (Buttons & GripDmsLeft) {
 			// Shut down "Sensor rotation"
 			gOptions &= ~(RotatedSensors);
 			exitConfig();
 		}
 
-		if (Buttons & GripTmsFwd) {
-			// Activate "Force Mapping". Max Pitch will now be considered as "180N" and FLCS 180N/80N rules will apply on range mapping
-			gOptions |= ForceMap;
+		if (Buttons & GripTmsRight) {
+			// Activate "New Force Mapping". Max Pitch will now be considered as "180N" and FLCS 180N/80N rules will apply on range mapping
+			gOptions &= ~(MappingAll);
+			gOptions |= (DigitalFlcs);
 			CalcForceMapping();
 			exitConfig();
 		}
 
 		if (Buttons & GripTmsAft) {
 			// Turn off "Force Mapping"
-			gOptions &= ~(ForceMap);
+			gOptions &= ~(MappingAll);
+			exitConfig();
+		}
+
+		if (Buttons & GripTmsLeft) {
+			// Turn On "Old Force Mapping"
+			gOptions &= ~(MappingAll);
+			gOptions |= (AnalogFlcs);
+			CalcForceMapping();
 			exitConfig();
 		}
 
 		//if (Buttons & GripDmsRight) {
-			//gUserDefinedForce |= (0x8000);
-			//ChangeSensitivity(gOptions);
-			//exitConfig();
+		//gUserDefinedForce |= (0x8000);
+		//ChangeSensitivity(gOptions);
+		//exitConfig();
 		//}
-//
+		//
 		//if (Buttons & GripDmsLeft) {
-			//gUserDefinedForce &= ~(0x8000);
-			//ChangeSensitivity(gOptions);
-			//exitConfig();
+		//gUserDefinedForce &= ~(0x8000);
+		//ChangeSensitivity(gOptions);
+		//exitConfig();
 		//}
 
 		if (Buttons & GripCmsAft) {
@@ -484,18 +508,18 @@ void FccSettings(uint32_t Buttons){
 		if (millis() - gConfigTimer >= 15000) {
 			exitConfig();
 		}
-	} else { // if we are not in config mode
+		} else { // if we are not in config mode
 		if (gConfigTimer == 0) {
-		  if (Buttons & (GripMissleStep | GripPaddle)) {
-		    gConfigTimer = millis();
-		  }
-		} else if (millis() - gConfigTimer >= 1500) {
-			  gIsConfig = true;
-			  gConfigTimer = millis();
-		} else {
-		  if (!(Buttons & (GripMissleStep | GripPaddle))) {
-		    gConfigTimer = 0;
-		  }
+			if (Buttons & (GripMissleStep | GripPaddle)) {
+				gConfigTimer = millis();
+			}
+			} else if (millis() - gConfigTimer >= 1500) {
+				gIsConfig = true;
+				gConfigTimer = millis();
+			} else {
+			if (!(Buttons & (GripMissleStep | GripPaddle))) {
+				gConfigTimer = 0;
+			}
 		}
 	}
 }
@@ -510,27 +534,29 @@ void exitConfig(void) {
 
 void processStickOut(uint8_t inOptions, int16_t inUserForce)
 {
-  bool isReboot = (inOptions & RebootDevice)? true:false;
-	bool isCenter = inOptions & CenterStick? true:false;
+	bool isReboot = (inUserForce & RebootDevice)? true:false;
+	bool isCenter = (inUserForce & CenterDevice)? true:false;
 
-	inOptions &= ~(CenterStick | RebootDevice); //make sure RebootFlag doesn't carry over)
+	//inOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over)
+	inUserForce &= ~(0xF000); //make sure flags don't carry over
 
-  if (isReboot) {
+	if (isReboot) {
 		// then reboot.. no need to do anything as ram will be wiped.
-	  RebootToBootloader();
+		RebootToBootloader();
 		// JoystickRunning = false;
 		// return;
-  }
+	}
 
 	if (isCenter) {
 		// if centering, then do just that, don't try and change config
 		ReadStickZero();
-	} else {
-			gOptions = inOptions & ~(RebootDevice | CenterStick); //really really make sure that isn't saved
-		  if (gUserDefinedForce != inUserForce) {
-		  	gUserDefinedForce = inUserForce;
-		  }
-		  ChangeSensitivity(gOptions);
-		  exitConfig();
+		} else {
+		inUserForce &= ~(0xF000); //make sure flags don't carry over
+		if (gUserDefinedForce != inUserForce) {
+			gUserDefinedForce = inUserForce;
+		}
+		gOptions = inOptions;
+		ChangeSensitivity(gOptions);
+		exitConfig();
 	}
 }

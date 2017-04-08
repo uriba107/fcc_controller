@@ -76,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
+        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
+        "OwnerKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -475,15 +475,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FCC Controller"
-        "ProductCode" = "8:{7D97FEDB-8B92-4949-AF29-793058806849}"
-        "PackageCode" = "8:{7D1FADCC-952A-47CD-B16F-A76B33828DB6}"
+        "ProductCode" = "8:{84523D11-05D7-43B5-94CF-5BDB226D08D3}"
+        "PackageCode" = "8:{C7A24E39-E433-4B25-914B-1570DC5EDD76}"
         "UpgradeCode" = "8:{2B1592A2-23E4-493D-90C2-1B6DDADCB221}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.1.8"
+        "ProductVersion" = "8:0.1.9"
         "Manufacturer" = "8:Uri_ba"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1025,7 +1025,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BAC0E14BFF4249AC9617D1720247C6CD"
             {
-            "SourcePath" = "8:..\\Fcc3_configurator\\obj\\Publish\\FCC_configurator.exe"
+            "SourcePath" = "8:..\\Fcc3_configurator\\obj\\Debug\\FCC_configurator.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
