@@ -55,10 +55,33 @@ namespace Fcc3_configurator
 
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-            Stick.Center();
+          ReadStickSettings();
+            //Stick.Center();
         }
 
         // Functions
+        private void ReadStickSettings()
+        {
+          Properties.Settings.Default.UseNewFccGain = Stick.isFccWhGains;
+          Properties.Settings.Default.Save();
+
+            checkBoxRotate.Checked = Stick.isSensorRotated;
+          bool DigitalFlcs = Stick.isDigitalFlcs;
+          bool AnalogFlcs = Stick.isAnalogFlcs;
+          checkBoxEmulateFlcs.Checked = (AnalogFlcs || DigitalFlcs);
+          radioButtonAnalogFlcs.Checked = AnalogFlcs;
+          radioButtonDigitalFlcs.Checked = DigitalFlcs;
+
+          radioButton4Kg.Checked = Stick.Use4KgForce;
+          radioButton6Kg.Checked = Stick.Use6KgForce;
+          radioButton9Kg.Checked = Stick.Use9KgForce;
+          radioButtonUser.Checked = Stick.UseCustomForce;
+
+          bool isUnitKg = (comboBoxUnit.SelectedIndex == 0) ? true : false;
+          numericUserDefined.Value = Stick.GetCurrentForce(isUnitKg);
+
+          SaveCurrentSettings();
+        }
 
         private void SaveCurrentSettings()
         {

@@ -28,9 +28,9 @@ This software is distributed under MIT license, and is provided as is and withou
   * Sensor Rotation - Enabled
 
 #### FLCS in F-16
-There are two types of FLCS installed in F-16s.</br>
+There are two types of FLCS installed in F-16s.The controller attempts to emulate both system operational logic.</br>
 
-In both cases, force ratio is maintained by the controller. The selected force setting is used as full pitch up command, while pitch down and roll are proportional acording to the FLCS version emulated.
+In both cases, force ratio is maintained by the controller. The selected force setting is used as full pitch up command (which is the maximum required force), while pitch down and roll are proportional according to the FLCS version emulated.
 
 ###### Analog FLCS
   <b>Real life:</b><br>

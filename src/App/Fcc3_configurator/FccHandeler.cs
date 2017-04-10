@@ -45,7 +45,7 @@ namespace Fcc3_configurator
                 }
                 else
                 {
-                    return null;
+                    return "0.0.0";
                 }
             }
         }
@@ -231,7 +231,7 @@ namespace Fcc3_configurator
         public bool isFccWhGains
         {
           get {
-                if ((RunTimeOptions & ConfigOptions.FccWhGains) != 0)
+                if (((RunTimeOptions & ConfigOptions.FccWhGains) != 0) || ((RequestedOptions & ConfigOptions.FccWhGains) != 0))
                 {
                     return true;
                 }

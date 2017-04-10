@@ -40,9 +40,11 @@
             this.numericUserDefined = new System.Windows.Forms.NumericUpDown();
             this.buttonDefaults = new System.Windows.Forms.Button();
             this.toolTipMainForm = new System.Windows.Forms.ToolTip(this.components);
-            this.groupBoxSensitivity = new System.Windows.Forms.GroupBox();
             this.buttonInitialSetup = new System.Windows.Forms.Button();
             this.comboBoxUnit = new System.Windows.Forms.ComboBox();
+            this.radioButtonAnalogFlcs = new System.Windows.Forms.RadioButton();
+            this.ReadSettings = new System.Windows.Forms.Button();
+            this.groupBoxSensitivity = new System.Windows.Forms.GroupBox();
             this.labelForceUser = new System.Windows.Forms.Label();
             this.labelForce9kg = new System.Windows.Forms.Label();
             this.labelForce6kg = new System.Windows.Forms.Label();
@@ -50,12 +52,10 @@
             this.labelCurrentUserDefined = new System.Windows.Forms.Label();
             this.groupBoxFeatures = new System.Windows.Forms.GroupBox();
             this.radioButtonDigitalFlcs = new System.Windows.Forms.RadioButton();
-            this.radioButtonAnalogFlcs = new System.Windows.Forms.RadioButton();
             this.labelForceMapping = new System.Windows.Forms.Label();
             this.labelSensorRotation = new System.Windows.Forms.Label();
             this.buttonAdvancedFW = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.buttonCenter = new System.Windows.Forms.Button();
             this.tabPageUpdate = new System.Windows.Forms.TabPage();
             this.groupBoxAutoUpdate = new System.Windows.Forms.GroupBox();
             this.buttonCheckUpdates = new System.Windows.Forms.Button();
@@ -220,29 +220,6 @@
             this.buttonDefaults.UseVisualStyleBackColor = true;
             this.buttonDefaults.Click += new System.EventHandler(this.buttonDefaults_Click);
             // 
-            // groupBoxSensitivity
-            // 
-            this.groupBoxSensitivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxSensitivity.Controls.Add(this.buttonInitialSetup);
-            this.groupBoxSensitivity.Controls.Add(this.comboBoxUnit);
-            this.groupBoxSensitivity.Controls.Add(this.labelForceUser);
-            this.groupBoxSensitivity.Controls.Add(this.labelForce9kg);
-            this.groupBoxSensitivity.Controls.Add(this.labelForce6kg);
-            this.groupBoxSensitivity.Controls.Add(this.labelForce4Kg);
-            this.groupBoxSensitivity.Controls.Add(this.labelCurrentUserDefined);
-            this.groupBoxSensitivity.Controls.Add(this.radioButton4Kg);
-            this.groupBoxSensitivity.Controls.Add(this.radioButton6Kg);
-            this.groupBoxSensitivity.Controls.Add(this.radioButtonUser);
-            this.groupBoxSensitivity.Controls.Add(this.numericUserDefined);
-            this.groupBoxSensitivity.Controls.Add(this.radioButton9Kg);
-            this.groupBoxSensitivity.Location = new System.Drawing.Point(6, 3);
-            this.groupBoxSensitivity.Name = "groupBoxSensitivity";
-            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 172);
-            this.groupBoxSensitivity.TabIndex = 12;
-            this.groupBoxSensitivity.TabStop = false;
-            this.groupBoxSensitivity.Text = "Sensitivity Settings";
-            // 
             // buttonInitialSetup
             // 
             this.buttonInitialSetup.Location = new System.Drawing.Point(6, 138);
@@ -268,6 +245,54 @@
             this.comboBoxUnit.TabIndex = 16;
             this.toolTipMainForm.SetToolTip(this.comboBoxUnit, "Select force mesurment unit");
             this.comboBoxUnit.SelectedIndexChanged += new System.EventHandler(this.comboBoxUnit_SelectedIndexChanged);
+            // 
+            // radioButtonAnalogFlcs
+            // 
+            this.radioButtonAnalogFlcs.AutoSize = true;
+            this.radioButtonAnalogFlcs.Enabled = false;
+            this.radioButtonAnalogFlcs.Location = new System.Drawing.Point(6, 66);
+            this.radioButtonAnalogFlcs.Name = "radioButtonAnalogFlcs";
+            this.radioButtonAnalogFlcs.Size = new System.Drawing.Size(87, 17);
+            this.radioButtonAnalogFlcs.TabIndex = 17;
+            this.radioButtonAnalogFlcs.Text = "Analog FLCS";
+            this.toolTipMainForm.SetToolTip(this.radioButtonAnalogFlcs, "Analog FLCS ratios");
+            this.radioButtonAnalogFlcs.UseVisualStyleBackColor = true;
+            // 
+            // ReadSettings
+            // 
+            this.ReadSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ReadSettings.Location = new System.Drawing.Point(140, 328);
+            this.ReadSettings.Name = "ReadSettings";
+            this.ReadSettings.Size = new System.Drawing.Size(111, 23);
+            this.ReadSettings.TabIndex = 14;
+            this.ReadSettings.Text = "Read Settings";
+            this.toolTipMainForm.SetToolTip(this.ReadSettings, "Read current settings from stick and store them.");
+            this.ReadSettings.UseVisualStyleBackColor = true;
+            this.ReadSettings.Click += new System.EventHandler(this.buttonCenter_Click);
+            // 
+            // groupBoxSensitivity
+            // 
+            this.groupBoxSensitivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxSensitivity.Controls.Add(this.buttonInitialSetup);
+            this.groupBoxSensitivity.Controls.Add(this.comboBoxUnit);
+            this.groupBoxSensitivity.Controls.Add(this.labelForceUser);
+            this.groupBoxSensitivity.Controls.Add(this.labelForce9kg);
+            this.groupBoxSensitivity.Controls.Add(this.labelForce6kg);
+            this.groupBoxSensitivity.Controls.Add(this.labelForce4Kg);
+            this.groupBoxSensitivity.Controls.Add(this.labelCurrentUserDefined);
+            this.groupBoxSensitivity.Controls.Add(this.radioButton4Kg);
+            this.groupBoxSensitivity.Controls.Add(this.radioButton6Kg);
+            this.groupBoxSensitivity.Controls.Add(this.radioButtonUser);
+            this.groupBoxSensitivity.Controls.Add(this.numericUserDefined);
+            this.groupBoxSensitivity.Controls.Add(this.radioButton9Kg);
+            this.groupBoxSensitivity.Location = new System.Drawing.Point(6, 3);
+            this.groupBoxSensitivity.Name = "groupBoxSensitivity";
+            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 172);
+            this.groupBoxSensitivity.TabIndex = 12;
+            this.groupBoxSensitivity.TabStop = false;
+            this.groupBoxSensitivity.Text = "Sensitivity Settings";
             // 
             // labelForceUser
             // 
@@ -358,18 +383,6 @@
             this.radioButtonDigitalFlcs.Text = "Digital FLCS";
             this.radioButtonDigitalFlcs.UseVisualStyleBackColor = true;
             // 
-            // radioButtonAnalogFlcs
-            // 
-            this.radioButtonAnalogFlcs.AutoSize = true;
-            this.radioButtonAnalogFlcs.Enabled = false;
-            this.radioButtonAnalogFlcs.Location = new System.Drawing.Point(6, 66);
-            this.radioButtonAnalogFlcs.Name = "radioButtonAnalogFlcs";
-            this.radioButtonAnalogFlcs.Size = new System.Drawing.Size(87, 17);
-            this.radioButtonAnalogFlcs.TabIndex = 17;
-            this.radioButtonAnalogFlcs.Text = "Analog FLCS";
-            this.toolTipMainForm.SetToolTip(this.radioButtonAnalogFlcs, "Analog FLCS ratios");
-            this.radioButtonAnalogFlcs.UseVisualStyleBackColor = true;
-            // 
             // labelForceMapping
             // 
             this.labelForceMapping.AutoSize = true;
@@ -404,7 +417,7 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.buttonCenter);
+            this.panel1.Controls.Add(this.ReadSettings);
             this.panel1.Controls.Add(this.groupBoxSensitivity);
             this.panel1.Controls.Add(this.buttonApply);
             this.panel1.Controls.Add(this.groupBoxFeatures);
@@ -414,19 +427,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(256, 357);
             this.panel1.TabIndex = 16;
-            // 
-            // buttonCenter
-            // 
-            this.buttonCenter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCenter.Location = new System.Drawing.Point(140, 328);
-            this.buttonCenter.Name = "buttonCenter";
-            this.buttonCenter.Size = new System.Drawing.Size(111, 23);
-            this.buttonCenter.TabIndex = 14;
-            this.buttonCenter.Text = "Center";
-            this.toolTipMainForm.SetToolTip(this.buttonCenter, "Set current stick position as center");
-            this.buttonCenter.UseVisualStyleBackColor = true;
-            this.buttonCenter.Click += new System.EventHandler(this.buttonCenter_Click);
             // 
             // tabPageUpdate
             // 
@@ -750,7 +750,7 @@
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelInfo;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelColor;
-        private System.Windows.Forms.Button buttonCenter;
+        private System.Windows.Forms.Button ReadSettings;
         private System.Windows.Forms.ComboBox comboBoxUnit;
         private System.Windows.Forms.Label labelVersionDetected;
         private System.Windows.Forms.Label labelVesrion;
