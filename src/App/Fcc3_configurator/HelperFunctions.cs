@@ -80,7 +80,7 @@ namespace Fcc3_configurator
         {
             Byte RetVal = 0;
             FccHandeler.ConfigOptions options = 0;
-            if (checkBoxEmulateFlcs.Checked)
+            if (checkBoxForceMapping.Checked)
             {
                 if (radioButtonAnalogFlcs.Checked)
                 {

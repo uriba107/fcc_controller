@@ -68,7 +68,7 @@ namespace Fcc3_configurator
             checkBoxRotate.Checked = Stick.isSensorRotated;
           bool DigitalFlcs = Stick.isDigitalFlcs;
           bool AnalogFlcs = Stick.isAnalogFlcs;
-          checkBoxEmulateFlcs.Checked = (AnalogFlcs || DigitalFlcs);
+          checkBoxForceMapping.Checked = (AnalogFlcs || DigitalFlcs);
           radioButtonAnalogFlcs.Checked = AnalogFlcs;
           radioButtonDigitalFlcs.Checked = DigitalFlcs;
 
@@ -107,7 +107,7 @@ namespace Fcc3_configurator
         {
             bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
 
-            if (checkBoxEmulateFlcs.Checked)
+            if (checkBoxForceMapping.Checked)
             {
                 if (radioButtonAnalogFlcs.Checked)
                 {
@@ -145,7 +145,7 @@ namespace Fcc3_configurator
 
             bool DigitalFlcs = ((SavedOptions & (byte)FccHandeler.ConfigOptions.DigitalFlcs) != 0) ? true : false;
             bool AnalogFlcs = ((SavedOptions & (byte)FccHandeler.ConfigOptions.AnaloglFlcs) != 0) ? true : false;
-            checkBoxEmulateFlcs.Checked = (AnalogFlcs || DigitalFlcs);
+            checkBoxForceMapping.Checked = (AnalogFlcs || DigitalFlcs);
             radioButtonAnalogFlcs.Checked = AnalogFlcs;
             radioButtonDigitalFlcs.Checked = DigitalFlcs;
 
@@ -441,10 +441,10 @@ namespace Fcc3_configurator
 
         private void checkBoxEmulateFlcs_CheckedChanged(object sender, EventArgs e)
         {
-            radioButtonAnalogFlcs.Enabled = checkBoxEmulateFlcs.Checked;
-            radioButtonDigitalFlcs.Enabled = checkBoxEmulateFlcs.Checked;
+            radioButtonAnalogFlcs.Enabled = checkBoxForceMapping.Checked;
+            radioButtonDigitalFlcs.Enabled = checkBoxForceMapping.Checked;
 
-            if (checkBoxEmulateFlcs.Checked)
+            if (checkBoxForceMapping.Checked)
             {
                 byte SavedOptions = Properties.Settings.Default.gOptions;
 

@@ -32,7 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.buttonApply = new System.Windows.Forms.Button();
             this.checkBoxRotate = new System.Windows.Forms.CheckBox();
-            this.checkBoxEmulateFlcs = new System.Windows.Forms.CheckBox();
+            this.checkBoxForceMapping = new System.Windows.Forms.CheckBox();
             this.radioButton4Kg = new System.Windows.Forms.RadioButton();
             this.radioButton6Kg = new System.Windows.Forms.RadioButton();
             this.radioButton9Kg = new System.Windows.Forms.RadioButton();
@@ -98,9 +98,9 @@
             this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonApply.Location = new System.Drawing.Point(6, 279);
+            this.buttonApply.Location = new System.Drawing.Point(6, 246);
             this.buttonApply.Name = "buttonApply";
-            this.buttonApply.Size = new System.Drawing.Size(245, 43);
+            this.buttonApply.Size = new System.Drawing.Size(245, 45);
             this.buttonApply.TabIndex = 0;
             this.buttonApply.Text = "&Apply Config";
             this.buttonApply.UseVisualStyleBackColor = true;
@@ -117,17 +117,17 @@
             this.toolTipMainForm.SetToolTip(this.checkBoxRotate, "Emulate Sensor assembly\'s 12 degrees CW rotation");
             this.checkBoxRotate.UseVisualStyleBackColor = true;
             // 
-            // checkBoxEmulateFlcs
+            // checkBoxForceMapping
             // 
-            this.checkBoxEmulateFlcs.AutoSize = true;
-            this.checkBoxEmulateFlcs.Location = new System.Drawing.Point(6, 42);
-            this.checkBoxEmulateFlcs.Name = "checkBoxEmulateFlcs";
-            this.checkBoxEmulateFlcs.Size = new System.Drawing.Size(101, 17);
-            this.checkBoxEmulateFlcs.TabIndex = 2;
-            this.checkBoxEmulateFlcs.Text = "&FLCS Emulation";
-            this.toolTipMainForm.SetToolTip(this.checkBoxEmulateFlcs, "Enable Proportional Force mapping based on FLCS force ratios");
-            this.checkBoxEmulateFlcs.UseVisualStyleBackColor = true;
-            this.checkBoxEmulateFlcs.CheckedChanged += new System.EventHandler(this.checkBoxEmulateFlcs_CheckedChanged);
+            this.checkBoxForceMapping.AutoSize = true;
+            this.checkBoxForceMapping.Location = new System.Drawing.Point(6, 42);
+            this.checkBoxForceMapping.Name = "checkBoxForceMapping";
+            this.checkBoxForceMapping.Size = new System.Drawing.Size(156, 17);
+            this.checkBoxForceMapping.TabIndex = 2;
+            this.checkBoxForceMapping.Text = "Proprotional &Force Mapping";
+            this.toolTipMainForm.SetToolTip(this.checkBoxForceMapping, " Deflection force ratios are derivitive from FLCS version selected");
+            this.checkBoxForceMapping.UseVisualStyleBackColor = true;
+            this.checkBoxForceMapping.CheckedChanged += new System.EventHandler(this.checkBoxEmulateFlcs_CheckedChanged);
             // 
             // radioButton4Kg
             // 
@@ -211,9 +211,9 @@
             this.buttonDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDefaults.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonDefaults.Location = new System.Drawing.Point(6, 328);
+            this.buttonDefaults.Location = new System.Drawing.Point(6, 324);
             this.buttonDefaults.Name = "buttonDefaults";
-            this.buttonDefaults.Size = new System.Drawing.Size(111, 23);
+            this.buttonDefaults.Size = new System.Drawing.Size(115, 25);
             this.buttonDefaults.TabIndex = 9;
             this.buttonDefaults.Text = "&Restore Defaults";
             this.toolTipMainForm.SetToolTip(this.buttonDefaults, "Restore facroty defaults");
@@ -222,9 +222,9 @@
             // 
             // buttonInitialSetup
             // 
-            this.buttonInitialSetup.Location = new System.Drawing.Point(6, 138);
+            this.buttonInitialSetup.Location = new System.Drawing.Point(136, 324);
             this.buttonInitialSetup.Name = "buttonInitialSetup";
-            this.buttonInitialSetup.Size = new System.Drawing.Size(111, 23);
+            this.buttonInitialSetup.Size = new System.Drawing.Size(115, 25);
             this.buttonInitialSetup.TabIndex = 17;
             this.buttonInitialSetup.Text = "&Initial Config";
             this.toolTipMainForm.SetToolTip(this.buttonInitialSetup, "Select Hardware gains (required only once) - please click \"restore defaults\" afte" +
@@ -254,19 +254,19 @@
             this.radioButtonAnalogFlcs.Name = "radioButtonAnalogFlcs";
             this.radioButtonAnalogFlcs.Size = new System.Drawing.Size(87, 17);
             this.radioButtonAnalogFlcs.TabIndex = 17;
-            this.radioButtonAnalogFlcs.Text = "Analog FLCS";
-            this.toolTipMainForm.SetToolTip(this.radioButtonAnalogFlcs, "Analog FLCS ratios");
+            this.radioButtonAnalogFlcs.Text = "A&nalog FLCS";
+            this.toolTipMainForm.SetToolTip(this.radioButtonAnalogFlcs, "Analog FLCS ratios (P+: 180N, P-/R:80N)");
             this.radioButtonAnalogFlcs.UseVisualStyleBackColor = true;
             // 
             // ReadSettings
             // 
             this.ReadSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReadSettings.Location = new System.Drawing.Point(140, 328);
+            this.ReadSettings.Location = new System.Drawing.Point(6, 295);
             this.ReadSettings.Name = "ReadSettings";
-            this.ReadSettings.Size = new System.Drawing.Size(111, 23);
+            this.ReadSettings.Size = new System.Drawing.Size(245, 25);
             this.ReadSettings.TabIndex = 14;
-            this.ReadSettings.Text = "Read Settings";
+            this.ReadSettings.Text = "Read and Save Settings";
             this.toolTipMainForm.SetToolTip(this.ReadSettings, "Read current settings from stick and store them.");
             this.ReadSettings.UseVisualStyleBackColor = true;
             this.ReadSettings.Click += new System.EventHandler(this.buttonCenter_Click);
@@ -275,7 +275,6 @@
             // 
             this.groupBoxSensitivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxSensitivity.Controls.Add(this.buttonInitialSetup);
             this.groupBoxSensitivity.Controls.Add(this.comboBoxUnit);
             this.groupBoxSensitivity.Controls.Add(this.labelForceUser);
             this.groupBoxSensitivity.Controls.Add(this.labelForce9kg);
@@ -289,7 +288,7 @@
             this.groupBoxSensitivity.Controls.Add(this.radioButton9Kg);
             this.groupBoxSensitivity.Location = new System.Drawing.Point(6, 3);
             this.groupBoxSensitivity.Name = "groupBoxSensitivity";
-            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 172);
+            this.groupBoxSensitivity.Size = new System.Drawing.Size(245, 139);
             this.groupBoxSensitivity.TabIndex = 12;
             this.groupBoxSensitivity.TabStop = false;
             this.groupBoxSensitivity.Text = "Sensitivity Settings";
@@ -299,7 +298,7 @@
             this.labelForceUser.AutoSize = true;
             this.labelForceUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForceUser.ForeColor = System.Drawing.Color.Green;
-            this.labelForceUser.Location = new System.Drawing.Point(196, 90);
+            this.labelForceUser.Location = new System.Drawing.Point(209, 90);
             this.labelForceUser.Name = "labelForceUser";
             this.labelForceUser.Size = new System.Drawing.Size(15, 13);
             this.labelForceUser.TabIndex = 13;
@@ -311,7 +310,7 @@
             this.labelForce9kg.AutoSize = true;
             this.labelForce9kg.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForce9kg.ForeColor = System.Drawing.Color.Green;
-            this.labelForce9kg.Location = new System.Drawing.Point(196, 67);
+            this.labelForce9kg.Location = new System.Drawing.Point(209, 67);
             this.labelForce9kg.Name = "labelForce9kg";
             this.labelForce9kg.Size = new System.Drawing.Size(15, 13);
             this.labelForce9kg.TabIndex = 12;
@@ -323,7 +322,7 @@
             this.labelForce6kg.AutoSize = true;
             this.labelForce6kg.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForce6kg.ForeColor = System.Drawing.Color.Green;
-            this.labelForce6kg.Location = new System.Drawing.Point(196, 44);
+            this.labelForce6kg.Location = new System.Drawing.Point(209, 44);
             this.labelForce6kg.Name = "labelForce6kg";
             this.labelForce6kg.Size = new System.Drawing.Size(15, 13);
             this.labelForce6kg.TabIndex = 11;
@@ -335,7 +334,7 @@
             this.labelForce4Kg.AutoSize = true;
             this.labelForce4Kg.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForce4Kg.ForeColor = System.Drawing.Color.Green;
-            this.labelForce4Kg.Location = new System.Drawing.Point(196, 21);
+            this.labelForce4Kg.Location = new System.Drawing.Point(209, 21);
             this.labelForce4Kg.Name = "labelForce4Kg";
             this.labelForce4Kg.Size = new System.Drawing.Size(15, 13);
             this.labelForce4Kg.TabIndex = 10;
@@ -346,7 +345,7 @@
             // 
             this.labelCurrentUserDefined.AutoSize = true;
             this.labelCurrentUserDefined.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.labelCurrentUserDefined.Location = new System.Drawing.Point(157, 113);
+            this.labelCurrentUserDefined.Location = new System.Drawing.Point(169, 113);
             this.labelCurrentUserDefined.Name = "labelCurrentUserDefined";
             this.labelCurrentUserDefined.Size = new System.Drawing.Size(48, 13);
             this.labelCurrentUserDefined.TabIndex = 9;
@@ -362,8 +361,8 @@
             this.groupBoxFeatures.Controls.Add(this.labelForceMapping);
             this.groupBoxFeatures.Controls.Add(this.labelSensorRotation);
             this.groupBoxFeatures.Controls.Add(this.checkBoxRotate);
-            this.groupBoxFeatures.Controls.Add(this.checkBoxEmulateFlcs);
-            this.groupBoxFeatures.Location = new System.Drawing.Point(6, 181);
+            this.groupBoxFeatures.Controls.Add(this.checkBoxForceMapping);
+            this.groupBoxFeatures.Location = new System.Drawing.Point(6, 148);
             this.groupBoxFeatures.Name = "groupBoxFeatures";
             this.groupBoxFeatures.Size = new System.Drawing.Size(245, 92);
             this.groupBoxFeatures.TabIndex = 13;
@@ -380,7 +379,8 @@
             this.radioButtonDigitalFlcs.Size = new System.Drawing.Size(83, 17);
             this.radioButtonDigitalFlcs.TabIndex = 18;
             this.radioButtonDigitalFlcs.TabStop = true;
-            this.radioButtonDigitalFlcs.Text = "Digital FLCS";
+            this.radioButtonDigitalFlcs.Text = "&Digital FLCS";
+            this.toolTipMainForm.SetToolTip(this.radioButtonDigitalFlcs, "Digital FLCS ratios (P+: 25lbf, P: 16lbf, R:17lbf)");
             this.radioButtonDigitalFlcs.UseVisualStyleBackColor = true;
             // 
             // labelForceMapping
@@ -388,7 +388,7 @@
             this.labelForceMapping.AutoSize = true;
             this.labelForceMapping.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelForceMapping.ForeColor = System.Drawing.Color.Red;
-            this.labelForceMapping.Location = new System.Drawing.Point(142, 43);
+            this.labelForceMapping.Location = new System.Drawing.Point(156, 43);
             this.labelForceMapping.Name = "labelForceMapping";
             this.labelForceMapping.Size = new System.Drawing.Size(68, 13);
             this.labelForceMapping.TabIndex = 16;
@@ -399,7 +399,7 @@
             this.labelSensorRotation.AutoSize = true;
             this.labelSensorRotation.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.labelSensorRotation.ForeColor = System.Drawing.Color.Red;
-            this.labelSensorRotation.Location = new System.Drawing.Point(181, 20);
+            this.labelSensorRotation.Location = new System.Drawing.Point(194, 20);
             this.labelSensorRotation.Name = "labelSensorRotation";
             this.labelSensorRotation.Size = new System.Drawing.Size(30, 13);
             this.labelSensorRotation.TabIndex = 15;
@@ -417,6 +417,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.buttonInitialSetup);
             this.panel1.Controls.Add(this.ReadSettings);
             this.panel1.Controls.Add(this.groupBoxSensitivity);
             this.panel1.Controls.Add(this.buttonApply);
@@ -458,16 +459,16 @@
             this.groupBoxAutoUpdate.Controls.Add(this.labelAppVersionTitle);
             this.groupBoxAutoUpdate.Location = new System.Drawing.Point(10, 12);
             this.groupBoxAutoUpdate.Name = "groupBoxAutoUpdate";
-            this.groupBoxAutoUpdate.Size = new System.Drawing.Size(243, 187);
+            this.groupBoxAutoUpdate.Size = new System.Drawing.Size(243, 219);
             this.groupBoxAutoUpdate.TabIndex = 16;
             this.groupBoxAutoUpdate.TabStop = false;
             this.groupBoxAutoUpdate.Text = "Update Manager";
             // 
             // buttonCheckUpdates
             // 
-            this.buttonCheckUpdates.Location = new System.Drawing.Point(5, 145);
+            this.buttonCheckUpdates.Location = new System.Drawing.Point(5, 185);
             this.buttonCheckUpdates.Name = "buttonCheckUpdates";
-            this.buttonCheckUpdates.Size = new System.Drawing.Size(226, 23);
+            this.buttonCheckUpdates.Size = new System.Drawing.Size(226, 25);
             this.buttonCheckUpdates.TabIndex = 18;
             this.buttonCheckUpdates.Text = "Check for updates";
             this.buttonCheckUpdates.UseVisualStyleBackColor = true;
@@ -476,7 +477,7 @@
             // linkLabelLatestAppVersion
             // 
             this.linkLabelLatestAppVersion.AutoSize = true;
-            this.linkLabelLatestAppVersion.Location = new System.Drawing.Point(172, 97);
+            this.linkLabelLatestAppVersion.Location = new System.Drawing.Point(175, 112);
             this.linkLabelLatestAppVersion.Name = "linkLabelLatestAppVersion";
             this.linkLabelLatestAppVersion.Size = new System.Drawing.Size(40, 13);
             this.linkLabelLatestAppVersion.TabIndex = 16;
@@ -507,7 +508,7 @@
             // labelAppVersionCurrent
             // 
             this.labelAppVersionCurrent.AutoSize = true;
-            this.labelAppVersionCurrent.Location = new System.Drawing.Point(172, 84);
+            this.labelAppVersionCurrent.Location = new System.Drawing.Point(175, 99);
             this.labelAppVersionCurrent.Name = "labelAppVersionCurrent";
             this.labelAppVersionCurrent.Size = new System.Drawing.Size(40, 13);
             this.labelAppVersionCurrent.TabIndex = 14;
@@ -525,9 +526,9 @@
             // buttonAutoUpdateApp
             // 
             this.buttonAutoUpdateApp.Enabled = false;
-            this.buttonAutoUpdateApp.Location = new System.Drawing.Point(5, 114);
+            this.buttonAutoUpdateApp.Location = new System.Drawing.Point(5, 134);
             this.buttonAutoUpdateApp.Name = "buttonAutoUpdateApp";
-            this.buttonAutoUpdateApp.Size = new System.Drawing.Size(226, 25);
+            this.buttonAutoUpdateApp.Size = new System.Drawing.Size(226, 45);
             this.buttonAutoUpdateApp.TabIndex = 15;
             this.buttonAutoUpdateApp.Text = "Update Software";
             this.buttonAutoUpdateApp.UseVisualStyleBackColor = true;
@@ -545,9 +546,9 @@
             // buttonAutoUpdateFirmware
             // 
             this.buttonAutoUpdateFirmware.Enabled = false;
-            this.buttonAutoUpdateFirmware.Location = new System.Drawing.Point(5, 44);
+            this.buttonAutoUpdateFirmware.Location = new System.Drawing.Point(5, 47);
             this.buttonAutoUpdateFirmware.Name = "buttonAutoUpdateFirmware";
-            this.buttonAutoUpdateFirmware.Size = new System.Drawing.Size(226, 25);
+            this.buttonAutoUpdateFirmware.Size = new System.Drawing.Size(226, 45);
             this.buttonAutoUpdateFirmware.TabIndex = 12;
             this.buttonAutoUpdateFirmware.Text = "Update Firmware";
             this.buttonAutoUpdateFirmware.UseVisualStyleBackColor = true;
@@ -556,7 +557,7 @@
             // labelAvailableApp
             // 
             this.labelAvailableApp.AutoSize = true;
-            this.labelAvailableApp.Location = new System.Drawing.Point(3, 97);
+            this.labelAvailableApp.Location = new System.Drawing.Point(6, 112);
             this.labelAvailableApp.Name = "labelAvailableApp";
             this.labelAvailableApp.Size = new System.Drawing.Size(122, 13);
             this.labelAvailableApp.TabIndex = 0;
@@ -565,7 +566,7 @@
             // labelAppVersionTitle
             // 
             this.labelAppVersionTitle.AutoSize = true;
-            this.labelAppVersionTitle.Location = new System.Drawing.Point(3, 84);
+            this.labelAppVersionTitle.Location = new System.Drawing.Point(6, 99);
             this.labelAppVersionTitle.Name = "labelAppVersionTitle";
             this.labelAppVersionTitle.Size = new System.Drawing.Size(126, 13);
             this.labelAppVersionTitle.TabIndex = 13;
@@ -576,9 +577,9 @@
             this.groupBoxManualUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxManualUpdate.Controls.Add(this.buttonAdvancedFW);
-            this.groupBoxManualUpdate.Location = new System.Drawing.Point(10, 296);
+            this.groupBoxManualUpdate.Location = new System.Drawing.Point(10, 307);
             this.groupBoxManualUpdate.Name = "groupBoxManualUpdate";
-            this.groupBoxManualUpdate.Size = new System.Drawing.Size(243, 61);
+            this.groupBoxManualUpdate.Size = new System.Drawing.Size(243, 50);
             this.groupBoxManualUpdate.TabIndex = 13;
             this.groupBoxManualUpdate.TabStop = false;
             this.groupBoxManualUpdate.Text = "Manual Update";
@@ -589,7 +590,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyApp);
             this.groupBoxUpdater.Controls.Add(this.checkBoxNotifyFirmware);
-            this.groupBoxUpdater.Location = new System.Drawing.Point(10, 226);
+            this.groupBoxUpdater.Location = new System.Drawing.Point(10, 237);
             this.groupBoxUpdater.Name = "groupBoxUpdater";
             this.groupBoxUpdater.Size = new System.Drawing.Size(243, 64);
             this.groupBoxUpdater.TabIndex = 12;
@@ -725,7 +726,7 @@
 
         private System.Windows.Forms.Button buttonApply;
         private System.Windows.Forms.CheckBox checkBoxRotate;
-        private System.Windows.Forms.CheckBox checkBoxEmulateFlcs;
+        private System.Windows.Forms.CheckBox checkBoxForceMapping;
         private System.Windows.Forms.RadioButton radioButton4Kg;
         private System.Windows.Forms.RadioButton radioButton6Kg;
         private System.Windows.Forms.RadioButton radioButton9Kg;
