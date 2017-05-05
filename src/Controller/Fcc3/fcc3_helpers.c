@@ -98,9 +98,8 @@ void RebootToBootloader(void)
 	*bootKeyPtr = bootKey;
 	USB_Detach();
 	// Set a watchdog timer
-	//wdt_enable(WDTO_500MS);
-	wdt_enable(WDTO_1S);
-	
+	wdt_enable(WDTO_500MS);
+
 	while(1) {} // This infinite loop ensures nothing else
 	// happens before the watchdog reboots us
 }

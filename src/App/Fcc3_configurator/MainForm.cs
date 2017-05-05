@@ -343,7 +343,7 @@ namespace Fcc3_configurator
             linkLabelLatestAppVersion.Visible = true;
 
 
-            if (updater.CheckFirmware(Stick.FirmwareVersion))
+            if (updater.CheckFirmware(Stick.FirmwareVersion) && Stick.FirmwareVersion != "0.0.0")
             {
                 labelVersionDetected.ForeColor = Color.Red;
                 linkLabelLatestFirmwareVersion.ForeColor = SystemColors.ControlText;

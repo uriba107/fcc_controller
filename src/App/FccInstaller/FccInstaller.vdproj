@@ -15,14 +15,14 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_054C7670DBF4446086A8A69F8BE9DBCB"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
+        "MsmKey" = "8:_26DF4251D3974B3599148DC74E77F967"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -33,7 +33,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A9D1BABF18504B17AEED195260E9A734"
+        "MsmKey" = "8:_523370486F2A4FCE89F25E71153D9A3E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -45,7 +45,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DC3720EAD45B47A08083B8589709D373"
+        "MsmKey" = "8:_D4099373017344689C6BFA37DD45F56B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -76,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+        "OwnerKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4002CBEE0293F237CE1406EC059FFDA1"
+        "OwnerKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E03EC169B99AB8A461AC56E2CA62DCCC"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -224,26 +224,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_054C7670DBF4446086A8A69F8BE9DBCB"
-            {
-            "SourcePath" = "8:..\\HexUploader\\Avrdude\\avrdude.exe"
-            "TargetName" = "8:avrdude.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_4E7B3DD10429499BA6DF8242285E7951"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
             {
             "AssemblyRegister" = "3:1"
@@ -251,11 +231,6 @@
             "AssemblyAsmDisplayName" = "8:HexUploader, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-                    {
-                    "Name" = "8:HexUploader.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:HexUploader.dll"
             "TargetName" = "8:"
@@ -275,6 +250,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26DF4251D3974B3599148DC74E77F967"
+            {
+            "SourcePath" = "8:..\\HexUploader\\Avrdude\\avrdude.exe"
+            "TargetName" = "8:avrdude.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_4E7B3DD10429499BA6DF8242285E7951"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4002CBEE0293F237CE1406EC059FFDA1"
             {
             "AssemblyRegister" = "3:1"
@@ -282,11 +277,6 @@
             "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
-                    "_4002CBEE0293F237CE1406EC059FFDA1"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
@@ -306,7 +296,7 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A9D1BABF18504B17AEED195260E9A734"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_523370486F2A4FCE89F25E71153D9A3E"
             {
             "SourcePath" = "8:..\\HexUploader\\Avrdude\\libusb0.dll"
             "TargetName" = "8:libusb0.dll"
@@ -326,7 +316,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DC3720EAD45B47A08083B8589709D373"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4099373017344689C6BFA37DD45F56B"
             {
             "SourcePath" = "8:..\\HexUploader\\Avrdude\\avrdude.conf"
             "TargetName" = "8:avrdude.conf"
@@ -373,11 +363,6 @@
             "AssemblyAsmDisplayName" = "8:HidSharp, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E03EC169B99AB8A461AC56E2CA62DCCC"
-                    {
-                    "Name" = "8:HidSharp.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:HidSharp.dll"
             "TargetName" = "8:"
@@ -404,11 +389,6 @@
             "AssemblyAsmDisplayName" = "8:GithubUpdater, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_FAB26BA16A27D4BFBD9D2135D7491F8B"
-                    {
-                    "Name" = "8:GithubUpdater.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:GithubUpdater.dll"
             "TargetName" = "8:"
@@ -495,15 +475,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FCC Controller"
-        "ProductCode" = "8:{84CDB5CF-7136-4518-BE30-9FF41DED608A}"
-        "PackageCode" = "8:{1D33AAA2-B802-461E-94B3-9BB739F5BD82}"
+        "ProductCode" = "8:{05774E42-DAEE-495A-839D-70EDADC9E0CF}"
+        "PackageCode" = "8:{43E07ECE-C984-4C11-9738-D1E237E46358}"
         "UpgradeCode" = "8:{2B1592A2-23E4-493D-90C2-1B6DDADCB221}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.1.10"
+        "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Uri_ba"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -513,8 +493,8 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:FCC USB Adapter Control Software"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
-        "ARPIconIndex" = "3:0"
+        "ARPPRODUCTICON" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
+        "ARPIconIndex" = "3:32512"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
@@ -1045,7 +1025,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BAC0E14BFF4249AC9617D1720247C6CD"
             {
-            "SourcePath" = "8:..\\Fcc3_configurator\\obj\\Publish\\FCC_configurator.exe"
+            "SourcePath" = "8:..\\Fcc3_configurator\\obj\\Debug\\FCC_configurator.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"

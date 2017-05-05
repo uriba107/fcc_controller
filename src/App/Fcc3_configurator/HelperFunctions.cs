@@ -15,7 +15,7 @@ namespace Fcc3_configurator
 {
     public partial class MainForm
     {
-        private GithubUpdater updater = new GithubUpdater("uriba107", "api_testing");
+        private GithubUpdater updater = new GithubUpdater("uriba107", "fcc_controller");
         private HexUpdater uploader = new HexUpdater();
         private bool isNotified = false;
 

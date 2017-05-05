@@ -413,7 +413,7 @@ void FccSettings(uint32_t Buttons){
 		setStatusLed(gPowerLed);
 
 		//reset to defaults
-		if (Buttons & (GripTriggerFirstDetent | GripTriggerSecondDetent)) {
+		if (Buttons & GripTriggerSecondDetent) {
 			if (gOptions & FccWhGains) {
 			  gOptions = FccWhGains | Force4Kg;
 			} else {
@@ -510,14 +510,14 @@ void FccSettings(uint32_t Buttons){
 		}
 		} else { // if we are not in config mode
 		if (gConfigTimer == 0) {
-			if (Buttons & (GripMissleStep | GripPaddle)) {
+			if ((Buttons & GripMissleStep) && (Buttons & GripPaddle)) {
 				gConfigTimer = millis();
 			}
 			} else if (millis() - gConfigTimer >= 1500) {
 				gIsConfig = true;
 				gConfigTimer = millis();
 			} else {
-			if (!(Buttons & (GripMissleStep | GripPaddle))) {
+			if (!(Buttons & GripMissleStep) && !(Buttons & GripPaddle)) {
 				gConfigTimer = 0;
 			}
 		}
