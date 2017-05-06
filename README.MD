@@ -19,11 +19,11 @@ This software is distributed under MIT license, and is provided as is and withou
 #### What settings are recommended
   FLCS and SSC config had changed over the years, so depending on what type of F-16 you want to model, settings will vary.
 
-<b><u><i> Blocks 30/32 and before:
+<b><u><i> Blocks 30/32 and before: </b></u></i>
   * Analog FLCS
   * Sensor Rotation -  Disabled
 
-<b><u><i> Block 40/42 and after:
+<b><u><i> Block 40/42 and after: </b></u></i>
   * Digital FLCS
   * Sensor Rotation - Enabled
 
