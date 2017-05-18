@@ -215,11 +215,15 @@ namespace Fcc3_configurator
                 toolStripStatusLabelInfo.Text = "FCC (" + rev + ") Connected";
 
                 toolStripStatusLabelColor.ForeColor = Color.Green;
+
+                buttonTestStick.Enabled = true;
             }
             else
             {
                 toolStripStatusLabelInfo.Text = "No Device Connected";
                 toolStripStatusLabelColor.ForeColor = Color.Red;
+                buttonTestStick.Enabled = false;
+
             }
         }
 
@@ -435,6 +439,7 @@ namespace Fcc3_configurator
         private void buttonCheckUpdates_Click(object sender, EventArgs e)
         {
             RunUpdateManager();
+
         }
 
 
@@ -475,6 +480,7 @@ namespace Fcc3_configurator
         {
             var FormHardware = new FormAdvancedHardware();
             FormHardware.FormClosed += new FormClosedEventHandler(FormHardware_closed);
+            FormHardware.StartPosition = FormStartPosition.CenterParent;
             FormHardware.Show();
             this.Hide();
         }
@@ -486,6 +492,18 @@ namespace Fcc3_configurator
             this.Show();
         }
 
+        private void buttonTestStick_Click(object sender, EventArgs e)
+        {
+            var StickTracer = new FormStickTracker();
+            StickTracer.FormClosed += new FormClosedEventHandler(FormStickTracker_closed);
+            StickTracer.StartPosition = FormStartPosition.CenterParent;
+            StickTracer.Show();
+            this.Hide();
+        }
 
+        private void FormStickTracker_closed(object sender, EventArgs e)
+        {
+            this.Show();
+        }
     }
 }

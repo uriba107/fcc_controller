@@ -1,7 +1,5 @@
 #include "fcc3.h"
 
-#define STICK_DEADZONE 10
-
 // 9Kg/f
 #define FORCE_9KGF 1638
 // 6Kg/f
@@ -228,7 +226,7 @@ int16_t readSPIADC(uint8_t adcChannel){
 
 	// Add a very not streamlined thing here (might be better to move to a different place later).
 	// If output is exactly 0 (i.e entered voltage, light up the correct LED on PORTF - PF0 for pitch, PF1 for roll)
-	if (abs(result) - STICK_DEADZONE*2 <= 0) {
+	if (abs(result) - STICK_DEADZONE <= 0) {
 		PORTF |= (1<<adcChannel);// pull high (led on)
 		PORTF |= (1<<(adcChannel+4));// pull high (led on)
 	}
@@ -256,9 +254,13 @@ void ReadStick(AxisStore* AxisData)
 
 	MapStick(&NewData,isForceMapped);
 
+    // Deadzone on output
+	//AxisData->X = (int32_t)(((int32_t)((CheckDeadzone(NewData.X))*2)+(int32_t)(StickHistory.X))/3);
+	//AxisData->Y = (int32_t)(((int32_t)(CheckDeadzone((NewData.Y))*2)+(int32_t)(StickHistory.Y))/3);
 
-	AxisData->X = (int32_t)(((int32_t)((NewData.X)*2)+(int32_t)(StickHistory.X))/3);
-	AxisData->Y = (int32_t)(((int32_t)((NewData.Y)*2)+(int32_t)(StickHistory.Y))/3);
+	// no additional Deadzone
+	AxisData->X = (int32_t)(((int32_t)(NewData.X*2)+(int32_t)(StickHistory.X))/3);
+	AxisData->Y = (int32_t)(((int32_t)(NewData.Y*2)+(int32_t)(StickHistory.Y))/3);
 
 	StickHistory.Y = AxisData->Y;
 	StickHistory.X = AxisData->X;

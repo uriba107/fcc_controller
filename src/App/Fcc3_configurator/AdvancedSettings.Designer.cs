@@ -76,6 +76,7 @@
             this.Controls.Add(this.comboBoxFccRevision);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormAdvancedHardware";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FCC Revision";
             this.Load += new System.EventHandler(this.FormAdvancedHardware_Load);
             this.ResumeLayout(false);
