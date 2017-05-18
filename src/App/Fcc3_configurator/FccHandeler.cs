@@ -20,6 +20,9 @@ namespace Fcc3_configurator
         private Int16 CurrentCustomForce;
         private Int16 RequestedCustomeForce;
 
+        private Int16 Xpos;
+        private Int16 Ypos;
+
         private ConfigOptions RunTimeOptions;
         private ConfigOptions RequestedOptions;
 
@@ -251,6 +254,42 @@ namespace Fcc3_configurator
                 }
             }
         }
+
+        public Int16 X
+        {
+            get { return (Int16)(Xpos/32); }
+        }
+
+        public Int16 Y
+        {
+            get { return (Int16)(Ypos/32); }
+        }
+        public string DeviceGuid
+        {
+            get
+            {
+                string RetVal = "";
+                if (isConnected)
+                {
+                    RetVal = "{" + device.DevicePath.Split('{', '}')[1] + "}";
+                }
+                return RetVal;
+            }
+        }
+
+        public string DeviceName
+        {
+            get
+            {
+                string RetVal = "";
+                if (isConnected)
+                {
+                    RetVal = device.ProductName;
+                }
+                return RetVal;
+            }
+        }
+
         #endregion
         [Flags]
         public enum ConfigOptions
@@ -307,6 +346,7 @@ namespace Fcc3_configurator
             return isConnected;
 
         }
+
         public bool Update()
         {
 
@@ -319,6 +359,9 @@ namespace Fcc3_configurator
                     stream.Read(buff);
                     RunTimeOptions = (ConfigOptions)buff[7];
                     CurrentCustomForce = (Int16)((buff[9] << 8) | buff[8]);
+                    Ypos = (Int16)(((((Int16)(buff[3] & 0x3F) << 10)) | ((Int16)(buff[2] >> 3) << 5)));
+                    Xpos = (Int16)(((Int16)(buff[2] & 0x07) << 13) | (((Int16)buff[1]) << 5));
+
                     return true;
                 }
                 device = null;

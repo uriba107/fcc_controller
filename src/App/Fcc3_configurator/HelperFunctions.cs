@@ -61,6 +61,8 @@ namespace Fcc3_configurator
                 if (Stick == null)
                 {
                     Stick = new FccHandeler();
+                    RefreshUpdateTab();
+
                 }
                 if (!Stick.isConnected)
                 {

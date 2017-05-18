@@ -191,6 +191,7 @@
             this.Controls.Add(this.groupBoxControllerUpdate);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormManualFirmwareUpgrade";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Firmware Upgrade";
             this.groupBoxControllerUpdate.ResumeLayout(false);
             this.groupBoxHex.ResumeLayout(false);
