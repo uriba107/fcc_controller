@@ -55,8 +55,8 @@ namespace Fcc3_configurator
 
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-          ReadStickSettings();
-            //Stick.Center();
+          //ReadStickSettings();
+          Stick.Center();
         }
 
         // Functions
@@ -217,12 +217,16 @@ namespace Fcc3_configurator
                 toolStripStatusLabelColor.ForeColor = Color.Green;
 
                 buttonTestStick.Enabled = true;
+                buttonCenter.Enabled = true;
+                buttonInitialSetup.Enabled = true;
             }
             else
             {
                 toolStripStatusLabelInfo.Text = "No Device Connected";
                 toolStripStatusLabelColor.ForeColor = Color.Red;
                 buttonTestStick.Enabled = false;
+                buttonCenter.Enabled = false;
+                buttonInitialSetup.Enabled = false;
 
             }
         }
@@ -505,5 +509,6 @@ namespace Fcc3_configurator
         {
             this.Show();
         }
+
     }
 }

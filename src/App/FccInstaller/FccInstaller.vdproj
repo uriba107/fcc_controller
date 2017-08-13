@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_26DF4251D3974B3599148DC74E77F967"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,8 +27,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4781B42B71265035D90758A0EC2952EE"
+        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_523370486F2A4FCE89F25E71153D9A3E"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
+        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -63,12 +69,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_FAB26BA16A27D4BFBD9D2135D7491F8B"
-        "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_BAC0E14BFF4249AC9617D1720247C6CD"
         "MsmSig" = "8:_UNDEFINED"
@@ -82,13 +82,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FAB26BA16A27D4BFBD9D2135D7491F8B"
+        "OwnerKey" = "8:_66FCF637F9C5B50EDC53C5AED1EF920B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
+        "OwnerKey" = "8:_4781B42B71265035D90758A0EC2952EE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -224,32 +224,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1EAF7E86F4D9BFBCB2E5A99A8EF7B877"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HexUploader, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                }
-            "SourcePath" = "8:HexUploader.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26DF4251D3974B3599148DC74E77F967"
             {
             "SourcePath" = "8:..\\HexUploader\\Avrdude\\avrdude.exe"
@@ -296,6 +270,32 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4781B42B71265035D90758A0EC2952EE"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:HexUploader, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                }
+            "SourcePath" = "8:HexUploader.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_523370486F2A4FCE89F25E71153D9A3E"
             {
             "SourcePath" = "8:..\\HexUploader\\Avrdude\\libusb0.dll"
@@ -314,6 +314,32 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_66FCF637F9C5B50EDC53C5AED1EF920B"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:GithubUpdater, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                }
+            "SourcePath" = "8:GithubUpdater.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4099373017344689C6BFA37DD45F56B"
@@ -365,32 +391,6 @@
                 {
                 }
             "SourcePath" = "8:HidSharp.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FAB26BA16A27D4BFBD9D2135D7491F8B"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:GithubUpdater, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                }
-            "SourcePath" = "8:GithubUpdater.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FFCAECA7CF0240AEAB6EEEAB2C262090"
@@ -475,15 +475,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FCC Controller"
-        "ProductCode" = "8:{05774E42-DAEE-495A-839D-70EDADC9E0CF}"
-        "PackageCode" = "8:{43E07ECE-C984-4C11-9738-D1E237E46358}"
+        "ProductCode" = "8:{FA5354FA-F781-4FD7-8F9A-F4EF25383B5B}"
+        "PackageCode" = "8:{6F35F5E6-0DB1-4108-AD50-4E5FF3C80FBB}"
         "UpgradeCode" = "8:{2B1592A2-23E4-493D-90C2-1B6DDADCB221}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:Uri_ba"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

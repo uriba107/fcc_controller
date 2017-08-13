@@ -398,7 +398,7 @@ namespace Fcc3_configurator
 
         public void Center()
         {
-            SendToStick(0x00, (Int16)CommandOptions.Center);
+            SendToStick(0x00, unchecked((short)CommandOptions.Center));
         }
 
         public void Reboot()
@@ -506,7 +506,8 @@ namespace Fcc3_configurator
             // Trigger reboot for COM port to appear
             if (isConnected)
             {
-                SendToStick(0x00, unchecked((short)CommandOptions.RebootDevice));
+                Reboot();
+                //SendToStick(0x00, unchecked((short)CommandOptions.RebootDevice));
             }
             device = null;
 

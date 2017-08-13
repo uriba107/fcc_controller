@@ -85,8 +85,10 @@ namespace Fcc3_configurator
         private void textBoxHexPath_TextChanged(object sender, EventArgs e)
         {
             buttonUpdateFw.Enabled = (File.Exists(textBoxHexPath.Text) && Stick.isConnected) ? true : false;
-            buttonUploadArduino.Enabled = (File.Exists(textBoxHexPath.Text) && comboBoxSelectCom.SelectedValue.ToString() != "") ? true : false;
-
+            try
+            {
+                buttonUploadArduino.Enabled = (File.Exists(textBoxHexPath.Text) && comboBoxSelectCom.SelectedValue.ToString() != null) ? true : false;
+            } catch { }
         }
 
         private void buttonUploadArduino_Click(object sender, EventArgs e)
