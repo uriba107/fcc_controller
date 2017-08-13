@@ -175,6 +175,7 @@ void SetCalibratedSensitivity(int16_t OffsetValue){
 	gStickLimits.X.min = -OffsetValue;
 	gStickLimits.Y.max = OffsetValue;
 	gStickLimits.Y.min = -OffsetValue;
+	gStickLimits.Deadzone = 7+((float)STICK_DEADZONE * 2 * ((float)OffsetValue/2048));
 
 	// do all the force calcs.
 	CalcForceMapping();
@@ -298,19 +299,24 @@ void RotateFlcs(AxisStore* AxisData)
 }
 
 void MapStick(AxisStore* AxisData, bool isForceMapped) {
-	AxisData->X = MapAxis(AxisData->X,false,isForceMapped);
-	AxisData->Y = MapAxis(AxisData->Y,true,isForceMapped);
+	//Implement simple radial deadzone
+	// http://www.third-helix.com/2013/04/12/doing-thumbstick-dead-zones-right.html
+	//
+	uint16_t DeadzoneVectorMegnitude = sqrt(pow(AxisData->X,2)+pow(AxisData->Y,2));
+	
+	AxisData->X = MapAxis(AxisData->X,false,isForceMapped,DeadzoneVectorMegnitude);
+	AxisData->Y = MapAxis(AxisData->Y,true,isForceMapped,DeadzoneVectorMegnitude);
 }
 
 
-int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped) {
+int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped,uint16_t DeadzoneVectorMegnitude) {
 	static int16_t inMax;
 	static int16_t inMin;
 	static int16_t outMax;
 	static int16_t outMin;
 
 	// if in deadzone, just return 0
-	if (abs(InValue) < STICK_DEADZONE) {
+	if (DeadzoneVectorMegnitude < gStickLimits.Deadzone) {
 		return 0;
 	}
 	// if value is above center set all the values you can
@@ -512,14 +518,14 @@ void FccSettings(uint32_t Buttons){
 		}
 		} else { // if we are not in config mode
 		if (gConfigTimer == 0) {
-			if ((Buttons & GripMissleStep) && (Buttons & GripPaddle)) {
+			if (Buttons & GripConfigMode) {
 				gConfigTimer = millis();
 			}
 			} else if (millis() - gConfigTimer >= 1500) {
 				gIsConfig = true;
 				gConfigTimer = millis();
 			} else {
-			if (!(Buttons & GripMissleStep) && !(Buttons & GripPaddle)) {
+			if (!(Buttons & GripConfigMode) ) {
 				gConfigTimer = 0;
 			}
 		}

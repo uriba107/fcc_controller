@@ -21,7 +21,7 @@
 #define StickAllowedMax 1023
 #define StickAllowedMin -1024
 
-#define STICK_DEADZONE 20
+#define STICK_DEADZONE 25
 
 #define CheckDeadzone(x) (abs(x)>STICK_DEADZONE?(x):0)
 
@@ -38,6 +38,7 @@ typedef struct  {
   int16_t FlcsUp:12;
   int16_t FlcsDn:12;
   int16_t FlcsRoll:12;
+  uint16_t Deadzone;
 } StickLimit;
 
 typedef struct  {
@@ -88,6 +89,7 @@ enum CommandOptions {
   #define GripTrimRight 0x200000
   #define GripTrimAft 0x400000
   #define GripTrimLeft 0x800000
+  #define GripConfigMode 0x18
 
   // Mapping from Grip to proper bytes
   //Byte 1:
@@ -162,7 +164,7 @@ int16_t CalcForceDisplacement(float RequestedForce);
 
 void ReadStick(AxisStore* AxisData);
 void RotateFlcs(AxisStore* AxisData);
-int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped);
+int16_t MapAxis(int16_t InValue, bool isPitch, bool isForceMapped,uint16_t DeadzoneVectorMegnitude);
 void MapStick(AxisStore* AxisData, bool isForceMapped);
 
 // Grip

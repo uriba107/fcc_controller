@@ -79,6 +79,37 @@ int32_t mapLargeNumbers(int32_t inVal, int32_t in_min, int32_t in_max, int32_t o
 		return (((inVal - in_min) * (ratio))/FACTOR) + out_min;
 	}
 }
+//
+//int32_t DeadZoneCurve(int32_t inVal, int32_t in_min=-DEADZONE, int32_t in_max=DEADZONE, int32_t out_min=-DEADZONE, int32_t out_max=DEADZONE, float sensetivity=0)
+//{
+	///* Curve no 4 based on this source
+	//* https://github.com/achilleas-k/fs2open.github.com/blob/joystick_curves/joy_curve_notes/new_curves.md
+	//* 0 is most curved, 9 is linear, 10 will disable curve skip curve logic (linear output)
+	//*/
+//
+	//static int16_t midRange;
+	//static int32_t Factor;
+	//static float relativePos;
+	//static float CurvePos;
+	//static int32_t MappedIn;
+//
+	//midRange = (in_min+in_max)/2;
+//
+	//if (abs(inVal - midRange) < DEADZONE) {
+		//return 0;
+	//}
+//
+	//// float relativePos = (inVal - in_min)/(in_max - in_min);
+	//// make a curve with sensetivity
+	//// val = ((percent * (max - min)) + min
+//
+	//Factor =  (inVal > midRange) ? in_max:in_min;
+	//relativePos = (float)inVal/Factor;
+	//CurvePos = pow(abs(relativePos),(3-(sensetivity/4.5)));
+	//MappedIn = CurvePos * Factor;
+//
+	//return map(MappedIn,in_min,in_max,out_min,out_max);
+//}
 
 uint8_t Bit_Reverse(uint8_t x )
 {
