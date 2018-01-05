@@ -12,8 +12,8 @@
 
 // configure Global EEPROM pointers
 
-uint16_t EEMEM NonVolatileUserForce;
-uint8_t EEMEM NonVolatileOptions;
+uint16_t EEMEM NonVolatileUserForce = FORCE_3KGF;
+uint8_t EEMEM NonVolatileOptions = Force4Kg;
 
 // Global vars to store EEPROM values for runtime
 StickLimit gStickLimits;
@@ -112,11 +112,11 @@ void WriteMem(void){
 	// Compare values and write back
 	if (VolatileOptions != gOptions) {
 		//gOptions &= ~(RebootDevice); //make sure RebootFlag doesn't carry over
-		eeprom_write_byte(&NonVolatileOptions, gOptions);
+		eeprom_update_byte(&NonVolatileOptions, gOptions);
 	}
 
 	if (gUserDefinedForce != VolatileUserForce) {
-		eeprom_write_word(&NonVolatileUserForce,gUserDefinedForce);
+		eeprom_update_word(&NonVolatileUserForce,gUserDefinedForce);
 	}
 }
 
@@ -132,9 +132,10 @@ void ReadMem(void){
 	VolatileUserForce &= ~(0xF000); //Really make sure reboot and center flags don't carry over
 
 	// Check and place values
-	#define EEPROM_EMPTY_BYTE(b) b == 0xFF
-	#define EEPROM_EMPTY_WORD(w) w == 0xFFFF
-
+	//#define EEPROM_EMPTY_BYTE(b) b == 0xFF
+	//#define EEPROM_EMPTY_WORD(w) w == 0xFFFF
+	#define EEPROM_EMPTY_BYTE(b) b == 0
+	#define EEPROM_EMPTY_WORD(w) w == 0
 	// result = a > b ? x : y;
 
 	gOptions = EEPROM_EMPTY_BYTE(VolatileOptions) ? Force4Kg : VolatileOptions;
@@ -175,7 +176,7 @@ void SetCalibratedSensitivity(int16_t OffsetValue){
 	gStickLimits.X.min = -OffsetValue;
 	gStickLimits.Y.max = OffsetValue;
 	gStickLimits.Y.min = -OffsetValue;
-	gStickLimits.Deadzone = 7+((float)STICK_DEADZONE * 2 * ((float)OffsetValue/2048));
+	gStickLimits.Deadzone = 10+(2 * (float)STICK_DEADZONE * ((float)OffsetValue/2048));
 
 	// do all the force calcs.
 	CalcForceMapping();

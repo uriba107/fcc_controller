@@ -21,7 +21,7 @@
 #define StickAllowedMax 1023
 #define StickAllowedMin -1024
 
-#define STICK_DEADZONE 25
+#define STICK_DEADZONE 30
 
 #define CheckDeadzone(x) (abs(x)>STICK_DEADZONE?(x):0)
 
