@@ -27,6 +27,9 @@ This software is distributed under MIT license, and is provided as is and withou
     * Allows Joystick settings change (same as available via the grip).
     * Allows User configurable sensitivity setting to be set.
     * Handles Firmware upgrades for the stick.
+    
+**Note:** <br>
+The code was developed with the help of ViperCore, makers of the FCC3. They have also produce a compatible board which can be purchsed either as a [Standalone board](http://www.vipercore.nl/index.php/webshop/view/productdetails/virtuemart_product_id/58/virtuemart_category_id/14) or [bundled with FCW1 module](http://www.vipercore.nl/index.php/webshop/view/productdetails/virtuemart_product_id/56/virtuemart_category_id/14)
 
 ### What settings are recommended
   FLCS and SSC config had changed over the years, so depending on what type of F-16 you want to model, settings will vary.
@@ -70,3 +73,4 @@ In both cases, force ratio is maintained by the controller. The selected force s
 * Header pins, two 3 pin headers and one 5 pins header, for grip and analog sensors. Generic 0.1" headers will do the trick. But correct header will be the [ JST EH series connectors](http://www.jst-belgium.be/productSeries.php?pid=46).
 * Female Headers for the Arduino (optional)
 * DIP8 socket for the MCP3202 (optional)
+
