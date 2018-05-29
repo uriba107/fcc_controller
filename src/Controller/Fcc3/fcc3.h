@@ -23,7 +23,25 @@
 
 #define STICK_DEADZONE 30
 
+// 9Kg/f
+#define FORCE_9KGF 1638
+// 6Kg/f
+#define FORCE_6KGF 1092
+// 4.5Kg/f
+#define FORCE_4KGF 819
+// 3Kg/f
+#define FORCE_3KGF 546
+
+//Consts for rotation
+#define ROT_COS 978
+#define ROT_SIN -207
+#define ROT_FACTOR 1000
+
 #define CheckDeadzone(x) (abs(x)>STICK_DEADZONE?(x):0)
+
+#define EEPROM_EMPTY_BYTE(b) ((b) == 0 ? 1 : (b) == 0xFF ? 1 : 0)
+#define EEPROM_EMPTY_WORD(w) ((w) == 0 ? 1 : (w) == 0xFFFF ? 1 : 0)
+
 
 // Structs
 typedef struct  {
