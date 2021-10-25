@@ -180,15 +180,25 @@ void EVENT_USB_Device_ControlRequest(void)
 */
 bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 {
+	static AxisStore prevAxis = { uint16_t X,Y = 0 };
+	static uint32_t prevButtons = 0;
+	bool isChange = false;
+	
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Data_t));
-	static AxisStore Axis;
+
+	AxisStore Axis;
 	ReadStick(&Axis);
 	ReportData->X = Axis.X;
 	ReportData->Y = Axis.Y;
 
 	//// get buttons and Hat
 	uint32_t Buffer = ReadGrip();
+	
+	isChanged = (uint8_t)(prevButton ^ Buffer) | (uint8_t)(prevAxis ^ Axis);
+	prevAxis = Axis;
+	prevButtons = Buffer;
+	
 	FccSettings(Buffer);
 
 	// if config mode was set, supress button output
@@ -201,9 +211,9 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 	}
 
 	ReportData->CurrentOptions = gOptions;
-	ReportData->CurrentUserDef=gUserDefinedForce;
+	ReportData->CurrentUserDef = gUserDefinedForce;
 	/* Return whether the new report is different to the previous report or not */
-	return true;
+	return isChanged;
 }
 
 
