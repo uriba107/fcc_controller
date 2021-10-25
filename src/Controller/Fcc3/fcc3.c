@@ -617,7 +617,7 @@ void FccSettings(uint32_t Buttons)
 				gConfigTimer = millis();
 			}
 		}
-		else if (millis() - gConfigTimer >= 1500)
+		else if (millis() - gConfigTimer >= 3000)
 		{
 			gIsConfig = true;
 			gConfigTimer = millis();
