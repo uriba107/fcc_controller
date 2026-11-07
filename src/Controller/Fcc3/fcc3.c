@@ -612,7 +612,7 @@ void FccSettings(uint32_t Buttons)
 	{ // if we are not in config mode
 		if (gConfigTimer == 0)
 		{
-			if (Buttons & GripConfigMode)
+			if ((Buttons & GripConfigMode) == GripConfigMode)
 			{
 				gConfigTimer = millis();
 			}
@@ -624,7 +624,7 @@ void FccSettings(uint32_t Buttons)
 		}
 		else
 		{
-			if (!(Buttons & GripConfigMode))
+			if ((Buttons & GripConfigMode) != GripConfigMode)
 			{
 				gConfigTimer = 0;
 			}
