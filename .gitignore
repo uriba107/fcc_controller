@@ -11,3 +11,7 @@ Release
 bin
 obj
 .vs
+
+# Firmware build output
+src/Controller/Fcc3/build/
+src/Controller/Fcc3/fcc_controller_*

@@ -13,6 +13,7 @@ This software is distributed under MIT license, and is provided as is and withou
       - [Digital FLCS](#digital-flcs)
   - [Cheat sheet](#cheat-sheet)
   - [BOM](#bom)
+  - [Building the firmware](#building-the-firmware)
 
 
 ### Features
@@ -73,4 +74,25 @@ In both cases, force ratio is maintained by the controller. The selected force s
 * Header pins, two 3 pin headers and one 5 pins header, for grip and analog sensors. Generic 0.1" headers will do the trick. But correct header will be the [ JST EH series connectors](http://www.jst-belgium.be/productSeries.php?pid=46).
 * Female Headers for the Arduino (optional)
 * DIP8 socket for the MCP3202 (optional)
+
+
+### Building the firmware
+The controller firmware no longer requires Atmel Studio. It builds with a plain AVR-GCC toolchain and `make`:
+
+```sh
+# Debian/Ubuntu
+sudo apt install gcc-avr avr-libc binutils-avr make
+
+# build Release (writes src/Controller/Fcc3/build/Fcc3.hex)
+make -C src/Controller/Fcc3
+
+# other useful targets
+make -C src/Controller/Fcc3 DEBUG=1   # debug build (-Og -g3)
+make -C src/Controller/Fcc3 package   # also emits fcc_controller_<version>.hex/.eep
+make -C src/Controller/Fcc3 clean
+```
+
+On Windows, use MSYS2 (`pacman -S make mingw-w64-x86_64-avr-gcc`) or Git Bash with an AVR toolchain on `PATH`. Atmel Studio users can still open `src/Controller/Fcc3.atsln` and build as before.
+
+Prebuilt firmware is produced by GitHub Actions on every push (workflow artifact `firmware-<version>`) and attached to tagged releases as `fcc_controller_<version>.hex`, so the configurator's firmware updater can download it directly.
 

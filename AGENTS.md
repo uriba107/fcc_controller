@@ -1,0 +1,60 @@
+# FCC3 Controller — Agent Notes
+
+USB adapter firmware + Windows configurator for the FCC3 force-sensing Cougar/Warthog mod.
+Two independent stacks, no shared build, no test suite, no CI, no lint/format config. Compilation is the only verification.
+
+## Layout
+
+- `src/Controller/Fcc3/` — AVR C firmware for ATmega32U4 (16 MHz) using vendored LUFA 170418.
+  - `Joystick.c` — USB setup + main loop; `fcc3.c` — axis/force math, grip read, config mode, EEPROM; `Descriptors.c` — USB/HID descriptors and versions.
+  - `src/LUFA/**` and `src/config/LUFAConfig.h` — vendored/library code, don't hand-edit.
+- `src/App/` — .NET Framework 4.8 WinForms configurator plus helper libraries and Visual Studio installer projects.
+  - `Fcc3_configurator.sln` → `FCC_configurator` (main app), `GithubUpdater`, `HexHelper`, `WindowsInstaller` (`.vdproj`).
+  - `FccInstaller/` is a legacy installer project not in the solution.
+- `docs/` (manuals), `Schematics/` (Eagle), `misc/` (cheat sheet, drivers). README is user/behavior documentation, not build docs.
+
+## Building
+
+### Firmware
+- Primary build: `make -C src/Controller/Fcc3` (portable AVR-GCC Makefile; works on Linux/macOS/MSYS2 and with Atmel Studio's own toolchain via `AVR_PREFIX`). Output is `src/Controller/Fcc3/build/Fcc3.hex`.
+- `make DEBUG=1` = `-Og -g3 -DDEBUG`; `make package` also writes `fcc_controller_<version>.hex/.eep`; `make size`, `make clean`. Version comes from `ReleaseNumber = VERSION_BCD(...)` in `Descriptors.c`.
+- Needs only `avr-gcc` + `avr-libc` (Ubuntu/Debian: `gcc-avr avr-libc binutils-avr`). No Atmel DFP include path: `avr-libc`'s `avr/io.h` provides the ATmega32U4 headers. Device is ATmega32U4 @ 16 MHz.
+- `src/Controller/Fcc3/Makefile` is the source of truth for the source list and flags. When adding/removing a `.c` file or changing flags, update `Makefile` and `Fcc3.cproj` together (or drop the Studio project).
+- Atmel Studio (optional, still supported): open `src/Controller/Fcc3.atsln`, build Release → `src/Controller/Fcc3/Release/Fcc3.hex`. `Release/`/`Debug/` and their auto-generated Makefiles hardcode `C:\Program Files (x86)\Atmel\Studio\7.0\...` — don't edit them; they are gitignored stale artifacts.
+- Build flags that matter: `-DARCH=ARCH_AVR8 -DF_CPU=16000000UL -DF_USB=16000000UL -DBOARD=BOARD_NONE -DUSE_LUFA_CONFIG_HEADER`, `-std=gnu99`, `-Os`, `-fpack-struct -fshort-enums`, `-ffunction-sections -fdata-sections -Wl,--gc-sections`, `-mrelax`.
+- CI: `.github/workflows/firmware.yml` builds on Ubuntu (apt `gcc-avr avr-libc binutils-avr`), uploads a `firmware-<version>` artifact, and on `v*` tags attaches `fcc_controller_<version>.{hex,eep,elf,srec,map,lss}` to the GitHub release.
+
+### Configurator app
+- Use MSBuild, not `dotnet build` (old-style csproj, net48, packages.config). NuGet packages live under `src/App/packages/` (currently HidSharp 2.1.0), so restore is usually unnecessary.
+- When invoking MSBuild on the `.csproj` directly, the platform is `AnyCPU` (no space); the solution uses `Any CPU`. Build the app project, not the solution, to skip the unsupported `.vdproj`:
+  ```powershell
+  $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe"
+  & $msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /p:Configuration=Release /p:Platform=AnyCPU
+  ```
+- Requires the .NET Framework 4.8 targeting pack; without it MSBuild fails with MSB3644.
+- `.vdproj` installer projects can only be built from Visual Studio with the Installer Projects extension, not MSBuild.
+- C# is LangVersion 7.3. `*.Designer.cs` / `*.resx` are designer-generated.
+
+## Cross-component contracts (change together)
+
+- USB IDs: VID `0x1029`, PID `0xF16C`. `FccHandeler.Connect()` requires exactly one matching HID device.
+- HID IN report (endpoint size 12) is bit-packed: 11-bit X/Y, 4-bit hat, 19-bit buttons, then options and a 16-bit user-force value. `FccHandeler.Update()` decodes it manually (X/Y from buffer bytes 1–3, options at byte 7, force at bytes 8–9). The authoritative layout spans `USB_JoystickReport_Data_t` (`Joystick.h`), the report descriptor in `Descriptors.c`, and that decoder — change all three together.
+- HID OUT report is 3 bytes: `[options bitmask][force/command int16 LE]`. Commands are set in the force field's high bits: `Center = 0x4000`, `Reboot = 0x8000`.
+- The options bitmask is duplicated in `fcc3.h` (`enum ConfigOptions`) and `FccHandeler.ConfigOptions`; keep values identical (`0x01` rotated sensors, `0x02/0x04` analog/digital FLCS, `0x10/0x20/0x40/0x80` force presets).
+- Firmware version shown by the app comes from `ReleaseNumber = VERSION_BCD(...)` in `Descriptors.c`; app version comes from `AssemblyInfo.cs`.
+
+## Hardware / runtime quirks
+
+- `fcc3.h` defines `LOCAL_ADC`, selecting the ATmega internal ADC (channels 4/5, 10-bit). Undefining it switches to the external MCP3202 over SPI (12-bit) — the two paths are not compiled together, and scaling constants differ.
+- Axis centering is measured at every boot (`ReadStickZero`), not persisted. Only options, user force, and rotation sin/cos live in EEPROM; empty bytes (0/0xFF) fall back to defaults.
+- EEPROM is written only by `exitConfig()` / `processStickOut()` (`WriteMem`), and only changed values are updated.
+- Grip config mode: hold the grip config combo for 3 s; LED pulses, buttons are suppressed, 15 s inactivity exits and saves. Grip button bits are remapped to Windows HID bits in `ReadGrip()`.
+- Firmware update path: `Reboot` command → `RebootToBootloader()` writes magic `0x7777` to RAM `0x0800`, detaches USB, watchdog-resets into the Caterina/Arduino bootloader. The app waits for a new COM port and runs bundled `Avrdude\avrdude.exe -cavr109 -b57600`, so `Avrdude/` must ship next to the executable and the board needs an Arduino-compatible bootloader.
+
+## Release packaging gotcha
+
+`GithubUpdater` reads the latest release of `uriba107/fcc_controller` (hardcoded in `HelperFunctions.cs`) and picks the first asset containing `.hex` and `.msi`. Asset names are parsed as `fcc_controller_<version>` + extension, so uploads must be renamed to `fcc_controller_<version>.hex` and `fcc_controller_<version>.msi` (local MSI output is `Fcc3Controller.msi`). Bump the version in `Descriptors.c` (firmware) and `AssemblyInfo.cs` plus `WindowsInstaller.vdproj` `ProductVersion` (app).
+
+## Working-tree caution
+
+`git status` may show an in-progress HidSharp 1.5→2.1 / net48 migration under `src/App` (csproj, packages, x64/Publish configurations). Treat those diffs as user work; inspect before editing or reverting.
