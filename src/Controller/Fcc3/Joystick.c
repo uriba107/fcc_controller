@@ -176,14 +176,10 @@ void EVENT_USB_Device_ControlRequest(void)
 *
 *  \param[out] ReportData  Pointer to a HID report data structure to be filled
 *
-*  \return Boolean \c true if the new report differs from the last report, \c false otherwise
+*  \return Boolean \c true, the report is sent on every poll
 */
 bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 {
-	static AxisStore prevAxis = { uint16_t X,Y = 0 };
-	static uint32_t prevButtons = 0;
-	bool isChange = false;
-	
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Data_t));
 
@@ -194,11 +190,7 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 
 	//// get buttons and Hat
 	uint32_t Buffer = ReadGrip();
-	
-	isChanged = (uint8_t)(prevButton ^ Buffer) | (uint8_t)(prevAxis ^ Axis);
-	prevAxis = Axis;
-	prevButtons = Buffer;
-	
+
 	FccSettings(Buffer);
 
 	// if config mode was set, supress button output
@@ -212,8 +204,8 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 
 	ReportData->CurrentOptions = gOptions;
 	ReportData->CurrentUserDef = gUserDefinedForce;
-	/* Return whether the new report is different to the previous report or not */
-	return isChanged;
+	/* The report also carries the option and user-force readback, so send it on every poll */
+	return true;
 }
 
 
