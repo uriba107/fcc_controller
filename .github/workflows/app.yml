@@ -35,20 +35,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+      # .NET 10 SDK for the net10.0-windows target. PackageReference restore
+      # is implicit in `dotnet build`; no separate NuGet/MSBuild setup needed.
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
 
-      - name: Setup NuGet
-        uses: nuget/setup-nuget@v2
-
-      - name: Restore NuGet packages
-        run: nuget restore src\App\Fcc3_configurator\packages.config -PackagesDirectory src\App\packages
-
-      # The windows-latest runner ships Visual Studio Enterprise 2022, which
-      # includes the .NET Framework 4.8 targeting pack, so MSBuild works here
-      # even where plain Build Tools without the targeting pack fail (MSB3644).
+      # The app project transitively builds GithubUpdater and HexHelper.
       - name: Build
-        run: msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /p:Configuration=Release /p:Platform=AnyCPU /m /nologo /verbosity:minimal
+        run: dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
 
       - name: Read app version
         id: version
@@ -64,14 +60,15 @@ jobs:
           "short=$short"     >> $env:GITHUB_OUTPUT
           "App version: $version"
 
-      # Portable layout: files copied out of bin\Release, plus the Avrdude
-      # helper folder next to the exe (HexUpdater resolves "Avrdude" relative
-      # to the application directory).
+      # Portable layout: SDK-style framework-dependent output (app dll/exe +
+      # deps/runtimeconfig) copied out of bin\Release\net10.0-windows, plus the
+      # Avrdude helper folder next to the exe (HexUpdater resolves "Avrdude"
+      # relative to the application directory).
       - name: Stage portable bundle
         run: |
           $bundle = 'dist\configurator'
           New-Item -ItemType Directory -Force -Path $bundle, "$bundle\Avrdude" | Out-Null
-          Copy-Item 'src\App\Fcc3_configurator\bin\Release\*' $bundle -Force
+          Copy-Item 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\*' $bundle -Force
           Copy-Item 'src\App\HexUploader\Avrdude\*' "$bundle\Avrdude" -Force
           Get-ChildItem $bundle -Recurse
 
@@ -92,14 +89,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Setup NuGet
-        uses: nuget/setup-nuget@v2
-
-      - name: Restore NuGet packages
-        run: nuget restore src\App\Fcc3_configurator\packages.config -PackagesDirectory src\App\packages
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Download portable bundle
         uses: actions/download-artifact@v4
@@ -114,16 +107,17 @@ jobs:
           Compress-Archive -Path 'dist\bundle\*' -DestinationPath "dist\fcc_controller_${VERSION}.zip" -Force
           Get-ChildItem dist
 
-      # The .vdproj references ..\Fcc3_configurator\obj\Publish\FCC_configurator.exe,
-      # so the app must be built in the Publish configuration before devenv runs.
-      # Build the Release config too so the installer finds outputs under either
-      # solution mapping.
-      - name: Build app configurations
+      # PENDING MO4/MO5: the SDK project has no Publish configuration (the old
+      # vdproj referenced obj\Publish\FCC_configurator.exe); build Release only.
+      # MO4 aligns the vdproj output paths with bin\Release\net10.0-windows\ and
+      # MO5 finalizes this workflow.
+      - name: Build app (Release, for installer)
         continue-on-error: true
-        run: |
-          msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /p:Configuration=Release /p:Platform=AnyCPU /m /nologo /verbosity:minimal
-          msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /p:Configuration=Publish /p:Platform=AnyCPU /m /nologo /verbosity:minimal
+        run: dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
 
+      # PENDING MO4/MO5: the vdproj/MSI steps below are unchanged from the net48
+      # pipeline and still target the old output paths; MO4 aligns them with the
+      # SDK output and MO5 finalizes this workflow.
       # devenv refuses out-of-process .vdproj builds until DisableOutOfProcBuild
       # unlocks the registry; the tool must run from its own directory.
       - name: Enable out-of-process installer builds
