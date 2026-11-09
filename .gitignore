@@ -11,6 +11,7 @@ Release
 bin
 obj
 .vs
+src/App/UpgradeLog*.htm
 
 # Firmware build output
 src/Controller/Fcc3/build/
