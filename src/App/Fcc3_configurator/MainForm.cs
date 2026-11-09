@@ -105,6 +105,7 @@ namespace Fcc3_configurator
 
         private void AppendChanges()
         {
+            if (!Stick.isConnected) { return; }
             bool isKgSelected = (comboBoxUnit.SelectedIndex == 0) ? true : false;
 
             if (checkBoxForceMapping.Checked)
