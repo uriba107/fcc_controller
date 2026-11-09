@@ -88,34 +88,34 @@ Not parallelized (deliberately retained):
 > The static list below mirrors its initial state; keep it in sync only at major milestones.
 
 ### Phase 0 (serial)
-- [ ] **P0‑1** Resolve HidSharp working-tree diff → clean `git status`
-- [ ] **P0‑2** Baseline net48 build + smoke notes (blocks nothing else, but anchors all diffs)
-- [ ] **P0‑3** Decide gates: Chart = `WinForms.DataVisualization` port; MSI = framework-dependent with runtime prerequisite
-- [ ] **P0‑4** Branch `migration/target-net10` + per-stream worktrees created
+- [x] **P0‑1** Resolve HidSharp working-tree diff → clean `git status` (already committed; stale VS logs removed)
+- [x] **P0‑2** Baseline net48 build + smoke notes (0 errors, 1 warning; MainForm responsive)
+- [x] **P0‑3** Decide gates: Chart = `WinForms.DataVisualization` port; MSI = framework-dependent with runtime prerequisite
+- [x] **P0‑4** Branch `migration/target-net10` + per-stream worktrees created
 
 ### Phase 1 (parallel ×6)
-- [ ] **S‑A** csproj → SDK-style, deps updated (HidSharp PackageReference, System.Configuration.ConfigurationManager) — blocks MO1, S‑D
-- [ ] **S‑B** GithubUpdater → System.Text.Json — blocks MO2
-- [ ] **S‑C** HexHelper → System.IO.Ports — blocks MO2
-- [ ] **S‑D** Chart port (after S‑A) — blocks MO3
-- [ ] **S‑E** CI workflow draft (setup-dotnet + dotnet build) — blocks MO5
-- [ ] **S‑F** Regression checklist doc — blocks V‑1
-- [ ] **S‑G1** Installer research notes (read-only, no csproj edits) — supports MO4
+- [x] **S‑A** csproj → SDK-style, deps updated (HidSharp PackageReference; chart package added; `System.Configuration.ConfigurationManager` dropped as redundant in net10)
+- [x] **S‑B** GithubUpdater → System.Text.Json
+- [x] **S‑C** HexHelper → System.IO.Ports
+- [x] **S‑D** Chart port (after S‑A) — validated, no code change needed
+- [x] **S‑E** CI workflow draft (setup-dotnet + dotnet build)
+- [x] **S‑F** Regression checklist doc
+- [x] **S‑G1** Installer research notes (read-only, no csproj edits)
 
 ### Phase 2 (merge ladder)
-- [ ] **MO1** S‑A merged; app alone builds green
-- [ ] **MO2** S‑B + S‑C merged; sln (sans vdproj) builds green
-- [ ] **MO3** S‑D merged; StickTracker renders + streams OK
-- [ ] **MO4** vdproj edits (runtime prereq, path alignment), MSI builds in VS
-- [ ] **MO5** app.yml finalized for full pipeline
-- [ ] **MO6** AGENTS.md + README updated
+- [x] **MO1** S‑A merged; app alone builds green (`810cd9d`, 0 warnings)
+- [x] **MO2** S‑B + S‑C merged; full net10 build green + runtime smoke test (`7e11e66`, `c20f7e1`)
+- [x] **MO3** S‑D merged; StickTracker renders + streams OK (`3d6870b`)
+- [ ] **MO4** vdproj edits (runtime prereq, path alignment), MSI builds in VS — **BLOCKED** (needs full VS IDE + Installer Projects + .NET 10 bootstrapper; see `installer-notes.md` §5)
+- [ ] **MO5** app.yml finalized for full pipeline — build job done (S‑E); vdproj/MSI steps pending MO4
+- [x] **MO6** AGENTS.md + README updated
 
 ### Phase 3 (verify, parallel: V‑1/V‑3 me, V‑2/V‑4 agent, V‑5 reviewer)
-- [ ] **V‑1** Behavioral contract checks pass (S‑F sheet)
-- [ ] **V‑2** Updater live-check against real GitHub release
-- [ ] **V‑3** Settings migration, no crash, defaults sane
-- [ ] **V‑4** CI green (PR + release dispatch)
-- [ ] **V‑5** Diff purity audit — no scope creep
+- [ ] **V‑1** Behavioral contract checks pass (S‑F sheet) — **BLOCKED** (needs the physical FCC3 device)
+- [x] **V‑2** Updater live-check against real GitHub release
+- [x] **V‑3** Settings migration, no crash, defaults sane
+- [ ] **V‑4** CI green (PR + release dispatch) — **BLOCKED** (pending MO5/MO4)
+- [x] **V‑5** Diff purity audit — no scope creep
 
 ### Phase 4
 - [ ] **R‑1** Ride the next `app-v` release
