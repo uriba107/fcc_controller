@@ -14,6 +14,7 @@ This software is distributed under MIT license, and is provided as is and withou
   - [Cheat sheet](#cheat-sheet)
   - [BOM](#bom)
   - [Building the firmware](#building-the-firmware)
+  - [Building the configurator](#building-the-configurator)
 
 
 ### Features
@@ -95,4 +96,20 @@ make -C src/Controller/Fcc3 clean
 On Windows, use MSYS2 (`pacman -S make mingw-w64-x86_64-avr-gcc`) or Git Bash with an AVR toolchain on `PATH`. Atmel Studio users can still open `src/Controller/Fcc3.atsln` and build as before.
 
 Prebuilt firmware is produced by GitHub Actions on every push (workflow artifact `firmware-<version>`) and attached to tagged releases as `fcc_controller_<version>.hex`, so the configurator's firmware updater can download it directly.
+
+### Building the configurator
+
+The Windows configurator is a .NET 10 WinForms app. You need the .NET 10 SDK, plus Visual Studio 2026 with the Installer Projects extension if you want to build the `.msi`.
+
+```sh
+# build Release (outputs src/App/Fcc3_configurator/bin/Release/net10.0-windows/)
+dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+# run (requires the .NET 10 Windows Desktop Runtime)
+dotnet src/App/Fcc3_configurator/bin/Release/net10.0-windows/FCC_configurator.dll
+```
+
+The app is framework-dependent, so the installer chains the .NET 10 Desktop Runtime as a prerequisite instead of bundling it. The `.msi` is built from `src/App/WindowsInstaller/WindowsInstaller.vdproj` in Visual Studio; see `docs/migration/installer-notes.md` for the migration details.
+
+Prebuilt app releases are produced by GitHub Actions: run the **Configurator** workflow with **Publish release** to create an `app-v<version>` tag containing `fcc_controller_<version>.msi` (the `.hex` is carried forward from the newest release that has it).
 
