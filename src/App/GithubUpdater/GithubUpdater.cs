@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
-using System.Net;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace GithubHelper
 {
@@ -16,6 +14,8 @@ namespace GithubHelper
 
         private static string GithubAPI = "https://api.github.com";
 
+        private static readonly HttpClient client = new HttpClient();
+
         private struct Asset
         {
             public string name;
@@ -23,7 +23,7 @@ namespace GithubHelper
             public string DownloadURL;
             public Version version;
         }
-        private dynamic RepoData;
+        private JsonElement? RepoData;
         private List<Asset> Assets = new List<Asset>();
 
         private Asset Firmware = new Asset();
@@ -41,7 +41,8 @@ namespace GithubHelper
             }
         public string AppVersion
             {
-                get {
+                get
+            {
                 if (App.version == null)
                 {
                     return "0.0.0.0";
@@ -62,18 +63,19 @@ namespace GithubHelper
         {
             get
             {
-                if (RepoData != null)
+                string htmlUrl = GetReleaseString("html_url");
+                if (htmlUrl != null)
                 {
-                    return RepoData["html_url"];
+                    return htmlUrl;
                 }
                 return "https://github.com/"+ UserName+"/"+ Repository +"/releases/latest";
             }
-            
+
         }
 
         public string CurrentRelease
         {
-            get { return RepoData["tag_name"]; }
+            get { return GetReleaseString("tag_name"); }
         }
 
         public GithubUpdater(string User, string Repo)
@@ -104,17 +106,48 @@ namespace GithubHelper
             return false;
         }
 
+        private HttpRequestMessage CreateRequest(string url)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.TryAddWithoutValidation("User-Agent", Repository + "_UpdateClient");
+            return request;
+        }
+
+        private static string GetString(JsonElement element, string propertyName)
+        {
+            if ((element.ValueKind == JsonValueKind.Object) &&
+                element.TryGetProperty(propertyName, out JsonElement value) &&
+                (value.ValueKind == JsonValueKind.String))
+            {
+                return value.GetString();
+            }
+            return null;
+        }
+
+        private string GetReleaseString(string propertyName)
+        {
+            if (RepoData != null)
+            {
+                return GetString(RepoData.Value, propertyName);
+            }
+            return null;
+        }
+
         private void GetData()
         {
-            WebClient wc = new WebClient();
-            wc.Headers.Add("user-agent", Repository + "_UpdateClient");
             string URL = String.Join("/", new string[] { @GithubAPI, "repos", @UserName, @Repository, "releases/latest" });
             try
             {
-                var json = wc.DownloadString(@URL);
-
-                var jss = new JavaScriptSerializer();
-                RepoData = jss.Deserialize<dynamic>(json);
+                using (HttpRequestMessage request = CreateRequest(URL))
+                using (HttpResponseMessage response = client.Send(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    string json = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    using (JsonDocument document = JsonDocument.Parse(json))
+                    {
+                        RepoData = document.RootElement.Clone();
+                    }
+                }
             }
             catch
             { }
@@ -124,13 +157,19 @@ namespace GithubHelper
 
         private void GetAssets()
         {
-            foreach (var asset in RepoData["assets"])
+            if ((RepoData != null) &&
+                (RepoData.Value.ValueKind == JsonValueKind.Object) &&
+                RepoData.Value.TryGetProperty("assets", out JsonElement assetsElement) &&
+                (assetsElement.ValueKind == JsonValueKind.Array))
             {
-                Assets.Add(new Asset() { name = asset["name"], DownloadURL = asset["browser_download_url"], type = asset["content_type"] });
+                foreach (JsonElement asset in assetsElement.EnumerateArray())
+                {
+                    Assets.Add(new Asset() { name = GetString(asset, "name"), DownloadURL = GetString(asset, "browser_download_url"), type = GetString(asset, "content_type") });
+                }
             }
             Firmware = new Asset();
             App = new Asset();
-            Asset? firmware = Assets.Where(a => a.name.Contains(".hex")).FirstOrDefault();
+            Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).FirstOrDefault();
             if (firmware != null)
             {
                 Asset found = firmware.Value;
@@ -140,7 +179,7 @@ namespace GithubHelper
                 }
                 Firmware = found;
             }
-            Asset? app = Assets.Where(a => a.name.Contains(".msi")).FirstOrDefault();
+            Asset? app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).FirstOrDefault();
             if (app != null)
             {
                 Asset found = app.Value;
@@ -194,9 +233,13 @@ namespace GithubHelper
                 return false;
             }
 
-            WebClient wc = new WebClient();
-            wc.Headers.Add("user-agent", Repository + "_UpdateClient");
-            wc.DownloadFile(Firmware.DownloadURL, TargetPath + "\\" + Firmware.name);
+            using (HttpRequestMessage request = CreateRequest(Firmware.DownloadURL))
+            using (HttpResponseMessage response = client.Send(request))
+            {
+                response.EnsureSuccessStatusCode();
+                byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                File.WriteAllBytes(TargetPath + "\\" + Firmware.name, data);
+            }
             return true;
         }
 
@@ -211,9 +254,13 @@ namespace GithubHelper
                 return false;
             }
 
-            WebClient wc = new WebClient();
-            wc.Headers.Add("user-agent", Repository + "_UpdateClient");
-            wc.DownloadFile(App.DownloadURL, TargetPath + "\\" + App.name);
+            using (HttpRequestMessage request = CreateRequest(App.DownloadURL))
+            using (HttpResponseMessage response = client.Send(request))
+            {
+                response.EnsureSuccessStatusCode();
+                byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                File.WriteAllBytes(TargetPath + "\\" + App.name, data);
+            }
             return true;
         }
     }
