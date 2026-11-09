@@ -128,10 +128,28 @@ namespace GithubHelper
             {
                 Assets.Add(new Asset() { name = asset["name"], DownloadURL = asset["browser_download_url"], type = asset["content_type"] });
             }
-            Firmware = Assets.Where(a => a.name.Contains(".hex")).First();
-            Firmware.version = new Version(Firmware.name.Replace(".hex", "").Replace(Repository + "_", ""));
-            App = Assets.Where(a => a.name.Contains(".msi")).First();
-            App.version = new Version(App.name.Replace(".msi", "").Replace(Repository + "_", ""));
+            Firmware = new Asset();
+            App = new Asset();
+            Asset? firmware = Assets.Where(a => a.name.Contains(".hex")).FirstOrDefault();
+            if (firmware != null)
+            {
+                Asset found = firmware.Value;
+                if (Version.TryParse(found.name.Replace(".hex", "").Replace(Repository + "_", ""), out Version version))
+                {
+                    found.version = version;
+                }
+                Firmware = found;
+            }
+            Asset? app = Assets.Where(a => a.name.Contains(".msi")).FirstOrDefault();
+            if (app != null)
+            {
+                Asset found = app.Value;
+                if (Version.TryParse(found.name.Replace(".msi", "").Replace(Repository + "_", ""), out Version version))
+                {
+                    found.version = version;
+                }
+                App = found;
+            }
 
         }
 
@@ -139,6 +157,10 @@ namespace GithubHelper
 
         public bool CheckFirmware(string CurrentVersion)
         {
+            if (Firmware.version == null)
+            {
+                return false;
+            }
             if (new Version(CurrentVersion) < Firmware.version)
             {
                 return true;
@@ -149,6 +171,10 @@ namespace GithubHelper
 
         public bool CheckApp(string CurrentVersion)
         {
+            if (App.version == null)
+            {
+                return false;
+            }
             if (new Version(CurrentVersion) < App.version)
             {
                 return true;
@@ -159,6 +185,10 @@ namespace GithubHelper
 
         public bool DownloadFirmware(string TargetPath)
         {
+            if (Firmware.DownloadURL == null)
+            {
+                return false;
+            }
             if (!Directory.Exists(TargetPath))
             {
                 return false;
@@ -172,6 +202,10 @@ namespace GithubHelper
 
         public bool DownloadApp(string TargetPath)
         {
+            if (App.DownloadURL == null)
+            {
+                return false;
+            }
             if (!Directory.Exists(TargetPath))
             {
                 return false;
