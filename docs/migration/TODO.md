@@ -40,7 +40,7 @@ Status values: `TODO` / `WIP` / `BLOCKED` / `DONE` / `N.A.` (skipped, with reaso
 | S‑E | phase1 | CI workflows draft (setup-dotnet 10.0.x) | P0‑3, P0‑4 | `.github/workflows/app.yml` | TODO | | | | |
 | S‑F | phase1 | Regression checklist doc (contracts from repo AGENTS.md) | P0‑3, P0‑4 | `docs/migration/checklist.md` | TODO | | | | |
 | S‑G1 | phase1 | Installer research ← notes only, no edits | P0‑3, P0‑4 | `docs/migration/installer-notes.md` | TODO | | | | |
-| MO1 | phase2 | Merge S‑A → target branch; app builds alone | S‑A DONE | integration branch | TODO | | | | |
+| MO1 | phase2 | Merge S‑A → target branch; app builds alone | S‑A DONE | integration branch | DONE | me | 2026-11-09T20:18Z | 2026-11-09T21:08Z | Merge commit `810cd9d`. `dotnet build FCC_configurator.csproj -c Release`: **0 errors, 0 warnings**. Deviation: dropped the redundant `System.Configuration.ConfigurationManager` PackageReference (it ships in the .NET 10 Windows Desktop shared framework; NU1510). Runtime smoke test still blocked by S‑B's not-yet-migrated GithubUpdater (expected; resolved at MO2). |
 | MO2 | phase2 | Merge S‑B + S‑C → target; sln (sans vdproj) builds | MO1, S‑B, S‑C | integration branch | TODO | | | | |
 | MO3 | phase2 | Merge S‑D → target; StickTracker renders | MO2, S‑D | integration branch | TODO | | | | |
 | MO4 | phase2 | vdproj edits + MSI hand-build in VS | MO2, S‑G1 | `WindowsInstaller/WindowsInstaller.vdproj` | TODO | | | | |
@@ -85,3 +85,12 @@ buildable".
 - Note for S‑A: the plan says S‑D re-adds the chart package, but S‑D does not own the csproj, so
   S‑A must add the `WinForms.DataVisualization` PackageReference for the app to build. S‑D then
   validates the chart code/designer only.
+
+### 2026-11-09T21:08Z — orchestrator (me)
+
+- MO1 done: S‑A merged as `810cd9d`; app project builds 0 warnings / 0 errors.
+- Deviation from the plan: removed the `System.Configuration.ConfigurationManager`
+  PackageReference. It is part of the .NET 10 Windows Desktop shared framework
+  (`...\shared\Microsoft.WindowsDesktop.App\10.0.3\System.Configuration.ConfigurationManager.dll`),
+  so referencing it explicitly only produced NU1510. `Settings.Default` still works.
+- Next: MO2 (merge S‑B + S‑C, full build + runtime smoke test), then MO3 (S‑D).
