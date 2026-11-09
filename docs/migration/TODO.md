@@ -106,3 +106,17 @@ buildable".
   vdproj without the ability to build the MSI.
 - MO5 (app.yml finalization) is partially unblocked: the build job is already correct; only the
   vdproj/MSI steps depend on MO4. MO6 (docs) is unblocked.
+
+### 2026-11-09T21:35Z — orchestrator (me)
+
+- MO6 done; `AGENTS.md` + `README.MD` now describe the net10 build/run/release flow. Plan
+  checklist synced.
+- Phase 3: **V‑2, V‑3, V‑5 DONE**; **V‑1 BLOCKED** (needs the physical FCC3 device); **V‑4
+  BLOCKED** (needs MO5/MO4 + a CI run).
+- Remaining work is gated on MO4 (VS-only installer):
+  1. MO4 in VS 2026 following `docs/migration/installer-notes.md` §5.
+  2. MO5: finalize `.github/workflows/app.yml` vdproj/MSI steps after MO4.
+  3. V‑1: run `docs/migration/checklist.md` with the physical device.
+  4. V‑4: push `migration/target-net10` / open a PR to validate CI.
+- Integrated branch `migration/target-net10` builds clean (0 errors, 1 pre-existing warning) and
+  the app runs. No firmware, LUFA, or `.vdproj` files were touched.
