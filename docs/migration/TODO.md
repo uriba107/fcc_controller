@@ -37,7 +37,7 @@ Status values: `TODO` / `WIP` / `BLOCKED` / `DONE` / `N.A.` (skipped, with reaso
 | S‑B | phase1 | GithubUpdater → System.Text.Json | P0‑3, P0‑4 | `GithubUpdater.csproj`, `GithubUpdater.cs` | TODO | | | | |
 | S‑C | phase1 | HexHelper → System.IO.Ports | P0‑3, P0‑4 | `HexHelper.csproj`, `HexUpdater.cs` | TODO | | | | |
 | S‑D | phase1 | Chart port (FormStickTracker via Dv NuGet) | S‑A | `FormStickTracker.cs`, `FormStickTracker.Designer.cs` | TODO | | | | |
-| S‑E | phase1 | CI workflows draft (setup-dotnet 10.0.x) | P0‑3, P0‑4 | `.github/workflows/app.yml` | TODO | | | | |
+| S‑E | phase1 | CI workflows draft (setup-dotnet 10.0.x) | P0‑3, P0‑4 | `.github/workflows/app.yml` | DONE | subagent-s-e | 2026-11-09T20:27Z | 2026-11-09T20:31Z | Commit 9badb36. YAML sanity: PyYAML safe_load OK, no tabs. Output path confirmed with a throwaway net10.0-windows SDK build (bin\Release\net10.0-windows\). Draft: vdproj/MSI steps kept with continue-on-error, marked PENDING MO4/MO5; release builds Release only. setup-dotnet v6.1.0 is latest (2026-11-03); used v5 per task. |
 | S‑F | phase1 | Regression checklist doc (contracts from repo AGENTS.md) | P0‑3, P0‑4 | `docs/migration/checklist.md` | TODO | | | | |
 | S‑G1 | phase1 | Installer research ← notes only, no edits | P0‑3, P0‑4 | `docs/migration/installer-notes.md` | TODO | | | | |
 | MO1 | phase2 | Merge S‑A → target branch; app builds alone | S‑A DONE | integration branch | TODO | | | | |
