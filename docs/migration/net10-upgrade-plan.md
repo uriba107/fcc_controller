@@ -147,7 +147,39 @@ All MOx ──────→ Phase 3 (V-1..V-5) ──→ Phase 4 (R-1, R-2)
 
 ## Appendix — Baseline notes (P0‑2)
 
-_record net48 baseline here_
+### Toolchain state on the dev machine (2026-11-09)
+
+- Visual Studio 18 BuildTools: MSBuild `18.11.1.51303` at
+  `C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\MSBuild\Current\Bin\MSBuild.exe`.
+- No .NET SDK was installed initially; .NET SDK `10.0.403` was installed user-locally for this
+  migration at `C:\Users\me\.dotnet\dotnet.exe` (not on `PATH`).
+- No .NET Framework 4.8 Developer Pack / targeting pack is installed. The net48 baseline was
+  built against the NuGet reference assemblies
+  (`Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3) via
+  `/p:FrameworkPathOverride=<pkg>\build\.NETFramework\v4.8`.
+- ClickOnce manifest signing is enabled in the csproj but `SignTool.exe` is unavailable, so the
+  baseline build used `/p:SignManifests=false /p:SignAssembly=false`. (S‑A drops these props.)
+
+### Build result
+
+```
+msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /t:Rebuild `
+  /p:Configuration=Release /p:Platform=AnyCPU `
+  /p:FrameworkPathOverride=<net48-ref-assemblies> `
+  /p:SignManifests=false /p:SignAssembly=false /m /nologo /verbosity:minimal
+```
+
+- Result: **0 errors, 1 warning** — `CS0168` in `HexUploader/HexUpdater.cs(119,30)`
+  (`catch (Exception e)` variable never used).
+- Output: `src\App\Fcc3_configurator\bin\Release\FCC_configurator.exe` plus
+  `GithubUpdater.dll`, `HexUploader.dll`, `HidSharp.dll`, `Avrdude/`.
+
+### Smoke notes
+
+- `FCC_configurator.exe` (reported version **1.0.2.0**) starts on Win11, main window is
+  responsive (`MainWindowTitle = "FCC Configurator - 1.0.2.0"`), no startup crash.
+- StickTracker / Advanced / FwUpgrade forms were not exercised: no FCC3 device is attached in
+  this environment. Form-level regression is covered by the S‑F checklist in Phase 3.
 
 ## Appendix — Reconciliation (R‑2)
 

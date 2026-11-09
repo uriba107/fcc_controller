@@ -29,10 +29,10 @@ Status values: `TODO` / `WIP` / `BLOCKED` / `DONE` / `N.A.` (skipped, with reaso
 
 | ID | Stream | Task | Depends on | Owns (files) | Status | Owner | Started | Finished | Output / Notes |
 |----|--------|------|-----------|--------------|--------|-------|---------|----------|----------------|
-| P0‑1 | preflight | Resolve HidSharp working-tree diff (commit or stash) | — | `src/App/*` working tree | TODO | | | | |
-| P0‑2 | preflight | Baseline net48 build + smoke notes (append to plan Appendix) | — | `docs/migration/net10-upgrade-plan.md` (appendix) | TODO | | | | |
-| P0‑3 | preflight | Decide gates: Chart = Dv port; MSI = framework-dependent | — | plan §Decision Gates | TODO | | | | |
-| P0‑4 | preflight | Branch `migration/target-net10` + per-stream worktrees | P0‑1 | git/worktrees | TODO | | | | |
+| P0‑1 | preflight | Resolve HidSharp working-tree diff (commit or stash) | — | `src/App/*` working tree | DONE | me | 2026-11-09T20:02Z | 2026-11-09T20:05Z | Tracked tree was already clean (HidSharp 2.6.4/net48 work committed on `develop` as `b2c14ed`, `f40b214`). Removed stale `src/App/UpgradeLog*.htm` VS migration reports and gitignored them. Commit `3721fa6`. |
+| P0‑2 | preflight | Baseline net48 build + smoke notes (append to plan Appendix) | — | `docs/migration/net10-upgrade-plan.md` (appendix) | DONE | me | 2026-11-09T20:05Z | 2026-11-09T20:12Z | net48 Release `/t:Rebuild`: 0 errors, 1 warning (`CS0168` `HexUpdater.cs:119`). Smoke: MainForm v1.0.2.0 launches and is responsive on Win11; other forms not exercised (no device). Needs `/p:FrameworkPathOverride` (no 4.8 targeting pack) and `/p:SignManifests=false` (no SignTool). Full notes in plan Appendix. |
+| P0‑3 | preflight | Decide gates: Chart = Dv port; MSI = framework-dependent | — | plan §Decision Gates | DONE | me | 2026-11-09T20:12Z | 2026-11-09T20:12Z | Gates confirmed as written in plan §Decision Gates: chart port via `WinForms.DataVisualization`; framework-dependent MSI with .NET 10 Desktop Runtime chained prerequisite (self-contained single-file is fallback). |
+| P0‑4 | preflight | Branch `migration/target-net10` + per-stream worktrees | P0‑1 | git/worktrees | WIP | me | 2026-11-09T20:12Z | | Branch `migration/target-net10` created from `develop`; per-stream worktrees/branches being created. |
 | S‑A | phase1 | FCC_configurator csproj → SDK-style net10 + deps | P0‑3, P0‑4 | `FCC_configurator.csproj`, `packages.config`, `App.config`, `Properties/Settings*` | TODO | | | | |
 | S‑B | phase1 | GithubUpdater → System.Text.Json | P0‑3, P0‑4 | `GithubUpdater.csproj`, `GithubUpdater.cs` | TODO | | | | |
 | S‑C | phase1 | HexHelper → System.IO.Ports | P0‑3, P0‑4 | `HexHelper.csproj`, `HexUpdater.cs` | TODO | | | | |
@@ -63,3 +63,17 @@ buildable".
 ## Handoff Notes (append, newest at bottom)
 
 ---
+
+### 2026-11-09T20:12Z — orchestrator (me)
+
+- Environment setup done during P0:
+  - .NET SDK `10.0.403` installed user-locally at `C:\Users\me\.dotnet\dotnet.exe` (no admin;
+    not on `PATH`). Use the full path for all `dotnet` commands.
+  - net48 baseline needs `/p:FrameworkPathOverride=<ref-assemblies>\build\.NETFramework\v4.8`
+    (package `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 extracted under
+    `%LOCALAPPDATA%\Temp\opencode\net48-ref`) and `/p:SignManifests=false /p:SignAssembly=false`.
+- Branching model: integration branch `migration/target-net10` (from `develop`); one branch +
+  worktree per stream, merged in the MO ladder. Worktrees live under
+  `%LOCALAPPDATA%\Temp\opencode\fcc-net10\<stream>`.
+- Next agent: start Phase 1 streams S‑A/B/C/E/F/G1 (S‑D after S‑A lands), then run the MO
+  merge ladder.
