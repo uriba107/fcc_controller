@@ -38,7 +38,7 @@ Status values: `TODO` / `WIP` / `BLOCKED` / `DONE` / `N.A.` (skipped, with reaso
 | S‑C | phase1 | HexHelper → System.IO.Ports | P0‑3, P0‑4 | `HexHelper.csproj`, `HexUpdater.cs` | TODO | | | | |
 | S‑D | phase1 | Chart port (FormStickTracker via Dv NuGet) | S‑A | `FormStickTracker.cs`, `FormStickTracker.Designer.cs` | TODO | | | | |
 | S‑E | phase1 | CI workflows draft (setup-dotnet 10.0.x) | P0‑3, P0‑4 | `.github/workflows/app.yml` | TODO | | | | |
-| S‑F | phase1 | Regression checklist doc (contracts from repo AGENTS.md) | P0‑3, P0‑4 | `docs/migration/checklist.md` | WIP | subagent-s-f | 2026-11-09T20:43Z | | |
+| S‑F | phase1 | Regression checklist doc (contracts from repo AGENTS.md) | P0‑3, P0‑4 | `docs/migration/checklist.md` | DONE | subagent-s-f | 2026-11-09T20:43Z | 2026-11-09T20:48Z | Commit `da91e75` on `migration/s-f-checklist`. Added `docs/migration/checklist.md`: 15-row executable acceptance table (device connect, HID IN decode with known reports, HID OUT Center/Reboot, options bits 0x01-0x80 vs `fcc3.h`, config mode, fw-update/avrdude flow, GithubUpdater, single-instance mutex, settings/user.config, fw version). Result column left blank for tester. |
 | S‑G1 | phase1 | Installer research ← notes only, no edits | P0‑3, P0‑4 | `docs/migration/installer-notes.md` | TODO | | | | |
 | MO1 | phase2 | Merge S‑A → target branch; app builds alone | S‑A DONE | integration branch | TODO | | | | |
 | MO2 | phase2 | Merge S‑B + S‑C → target; sln (sans vdproj) builds | MO1, S‑B, S‑C | integration branch | TODO | | | | |
