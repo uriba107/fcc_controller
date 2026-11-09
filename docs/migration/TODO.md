@@ -43,7 +43,7 @@ Status values: `TODO` / `WIP` / `BLOCKED` / `DONE` / `N.A.` (skipped, with reaso
 | MO1 | phase2 | Merge S‑A → target branch; app builds alone | S‑A DONE | integration branch | DONE | me | 2026-11-09T20:18Z | 2026-11-09T21:08Z | Merge commit `810cd9d`. `dotnet build FCC_configurator.csproj -c Release`: **0 errors, 0 warnings**. Deviation: dropped the redundant `System.Configuration.ConfigurationManager` PackageReference (it ships in the .NET 10 Windows Desktop shared framework; NU1510). Runtime smoke test still blocked by S‑B's not-yet-migrated GithubUpdater (expected; resolved at MO2). |
 | MO2 | phase2 | Merge S‑B + S‑C → target; sln (sans vdproj) builds | MO1, S‑B, S‑C | integration branch | DONE | me | 2026-11-09T21:08Z | 2026-11-09T21:12Z | Merge commits `7e11e66` (S‑B) + `c20f7e1` (S‑C). Full net10 build of `FCC_configurator.csproj` (transitively builds all 3 SDK projects): **0 errors, 1 warning** (pre-existing `CS0168` `HexUpdater.cs:119`). Runtime smoke test: app starts, window `FCC Configurator - 1.0.2.0`, responsive for 8 s, no crash, no .NET Event Log errors. Note: the `.sln` still lists the `.vdproj`, so the build was done on the app project rather than the sln. |
 | MO3 | phase2 | Merge S‑D → target; StickTracker renders | MO2, S‑D | integration branch | DONE | me | 2026-11-09T21:12Z | 2026-11-09T21:15Z | Merge commit `3d6870b`. Integrated build: 0 errors, 1 warning (pre-existing `CS0168`). Re-ran S‑D's chart harness against the integrated build: ChartAreaStick axes/minor-grid Dot, SeriesCurrent=Point, SeriesTrace=Spline, 150-pt stream rendered to PNG (visually confirmed: dotted minor grid, spline trace, point marker). |
-| MO4 | phase2 | vdproj edits + MSI hand-build in VS | MO2, S‑G1 | `WindowsInstaller/WindowsInstaller.vdproj` | TODO | | | | |
+| MO4 | phase2 | vdproj edits + MSI hand-build in VS | MO2, S‑G1 | `WindowsInstaller/WindowsInstaller.vdproj` | BLOCKED | me | 2026-11-09T21:22Z | | Needs the full Visual Studio IDE with the Installer Projects extension and a .NET 10 Desktop Runtime bootstrapper package. This machine only has VS 18 **BuildTools** (no `devenv`, no `BootstrapperPackages`, no `net10desktopruntime_x64`), so the MSI cannot be built or validated here. Follow `docs/migration/installer-notes.md` §5 (MO4 checklist) in VS 2026. Edits required: add `BootstrapperCfg` `.NET Desktop Runtime 10.0.14 (x64)`, switch ProjectOutput `Built`→`PublishItems` (`obj\Release\net10.0-windows\`), delete the 4 stale `IsDependency` entries, replace the .NET Framework 4.7.2 launch condition with `IsNETCore`. Avrdude is only packaged via Publish Items. |
 | MO5 | phase2 | app.yml finalized to match real pipeline | MO3, MO4 | `.github/workflows/app.yml` | TODO | | | | |
 | MO6 | phase2 | Update repo AGENTS.md + README building/release sections | MO3 | repo `AGENTS.md`, `README.md` | TODO | | | | |
 | V‑1 | verify | Behavioral contract checks (run S‑F sheet) | MO3, MO4 | `docs/migration/checklist.md` (fill results col) | TODO | | | | |
@@ -94,3 +94,15 @@ buildable".
   (`...\shared\Microsoft.WindowsDesktop.App\10.0.3\System.Configuration.ConfigurationManager.dll`),
   so referencing it explicitly only produced NU1510. `Settings.Default` still works.
 - Next: MO2 (merge S‑B + S‑C, full build + runtime smoke test), then MO3 (S‑D).
+
+### 2026-11-09T21:22Z — orchestrator (me)
+
+- All Phase 1 streams merged: S‑A `810cd9d`, S‑B `7e11e66`, S‑C `c20f7e1`, S‑D `3d6870b`,
+  S‑E `82ad3f4`, S‑F `96537a8`, S‑G1 `3755f76`.
+- MO1/MO2/MO3 done; integrated net10 build is green (0 errors, 1 pre-existing warning).
+- **MO4 is BLOCKED** on the full VS IDE + Installer Projects + .NET 10 bootstrapper. This
+  machine has VS 18 BuildTools only (no `devenv`, no `BootstrapperPackages`). The user must
+  perform MO4 in VS 2026 using `docs/migration/installer-notes.md` §5. Do not hand-edit the
+  vdproj without the ability to build the MSI.
+- MO5 (app.yml finalization) is partially unblocked: the build job is already correct; only the
+  vdproj/MSI steps depend on MO4. MO6 (docs) is unblocked.
