@@ -51,10 +51,10 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>D5A5FDCADAE113E825E3FFEC8D03CE8AD40F7BF9</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>86A3E92290472BBEFB73D0657E875CA0EA626060</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Fcc3_configurator_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>FCC_configurator_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -154,6 +154,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="Fcc3_configurator_TemporaryKey.pfx" />
+    <None Include="FCC_configurator_TemporaryKey.pfx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
