@@ -8,7 +8,7 @@ Two independent stacks, no shared build, no test suite, no CI, no lint/format co
 - `src/Controller/Fcc3/` — AVR C firmware for ATmega32U4 (16 MHz) using vendored LUFA 170418.
   - `Joystick.c` — USB setup + main loop; `fcc3.c` — axis/force math, grip read, config mode, EEPROM; `Descriptors.c` — USB/HID descriptors and versions.
   - `src/LUFA/**` and `src/config/LUFAConfig.h` — vendored/library code, don't hand-edit.
-- `src/App/` — .NET Framework 4.8 WinForms configurator plus helper libraries and Visual Studio installer projects.
+- `src/App/` — .NET 10 (`net10.0-windows`) WinForms configurator plus helper libraries and a Visual Studio installer project.
   - `Fcc3_configurator.sln` → `FCC_configurator` (main app), `GithubUpdater`, `HexHelper`, `WindowsInstaller` (`.vdproj`).
   - `FccInstaller/` is a legacy installer project not in the solution.
 - `docs/` (manuals), `Schematics/` (Eagle), `misc/` (cheat sheet, drivers). README is user/behavior documentation, not build docs.
@@ -22,19 +22,18 @@ Two independent stacks, no shared build, no test suite, no CI, no lint/format co
 - `src/Controller/Fcc3/Makefile` is the source of truth for the source list and flags. When adding/removing a `.c` file or changing flags, update `Makefile` and `Fcc3.cproj` together (or drop the Studio project).
 - Atmel Studio (optional, still supported): open `src/Controller/Fcc3.atsln`, build Release → `src/Controller/Fcc3/Release/Fcc3.hex`. `Release/`/`Debug/` and their auto-generated Makefiles hardcode `C:\Program Files (x86)\Atmel\Studio\7.0\...` — don't edit them; they are gitignored stale artifacts.
 - Build flags that matter: `-DARCH=ARCH_AVR8 -DF_CPU=16000000UL -DF_USB=16000000UL -DBOARD=BOARD_NONE -DUSE_LUFA_CONFIG_HEADER`, `-std=gnu99`, `-Os`, `-fpack-struct -fshort-enums`, `-ffunction-sections -fdata-sections -Wl,--gc-sections`, `-mrelax`.
-- CI: `.github/workflows/firmware.yml` builds on Ubuntu (apt `gcc-avr avr-libc binutils-avr`) and uploads a `firmware-<version>` artifact on every push/PR. `.github/workflows/app.yml` builds the WinForms app on `windows-latest` (net48 targeting pack + Installer Projects extension are preinstalled on the runner). Versions are read from code, never typed: firmware from `VERSION_BCD(...)` in `Descriptors.c`, app from `AssemblyInfo.cs`.
+- CI: `.github/workflows/firmware.yml` builds on Ubuntu (apt `gcc-avr avr-libc binutils-avr`) and uploads a `firmware-<version>` artifact on every push/PR. `.github/workflows/app.yml` builds the WinForms app on `windows-latest` with `actions/setup-dotnet@v5` (10.0.x) and `dotnet build`; the `.vdproj` MSI step still needs MO4/MO5 alignment. Versions are read from code, never typed: firmware from `VERSION_BCD(...)` in `Descriptors.c`, app from `AssemblyInfo.cs`.
 - Releases: no manual tags. Run either workflow with **Run workflow → Publish release** (workflow_dispatch with `release=true`); CI names/creates the tag itself (`fw-v<version>` / `app-v<version>` at the dispatched commit) and carries the *other* component's assets forward from the newest previous release that has them, so every release still contains both `.hex` and `.msi`. Push/PR triggers are path-filtered (`src/Controller/**` vs `src/App/**`) and only build. `GithubUpdater` is null-safe on a missing component anyway (shows 0.0.0 / disables the update button).
 
 ### Configurator app
-- Use MSBuild, not `dotnet build` (old-style csproj, net48, packages.config). NuGet packages live under `src/App/packages/` (currently HidSharp 2.1.0), so restore is usually unnecessary.
-- When invoking MSBuild on the `.csproj` directly, the platform is `AnyCPU` (no space); the solution uses `Any CPU`. Build the app project, not the solution, to skip the unsupported `.vdproj`:
+- The app and its helper libraries are SDK-style projects targeting .NET 10. Build with `dotnet build` (requires the .NET 10 SDK). Build the app project, not the solution, to skip the unsupported `.vdproj` (it transitively builds `GithubUpdater` and `HexHelper`):
   ```powershell
-  $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe"
-  & $msbuild src\App\Fcc3_configurator\FCC_configurator.csproj /p:Configuration=Release /p:Platform=AnyCPU
+  dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
   ```
-- Requires the .NET Framework 4.8 targeting pack; without it MSBuild fails with MSB3644.
-- `.vdproj` installer projects can only be built from Visual Studio with the Installer Projects extension, not MSBuild.
-- C# is LangVersion 7.3. `*.Designer.cs` / `*.resx` are designer-generated.
+- Output is `src/App/Fcc3_configurator/bin/Release/net10.0-windows/`. The app is framework-dependent: running it needs the .NET 10 Windows Desktop Runtime.
+- PackageReferences live in the `.csproj` files (no `packages.config`): `HidSharp` 2.6.4 and `WinForms.DataVisualization` 1.10.2 in the app, `System.IO.Ports` 10.0.14 in `HexHelper`. `System.Configuration.ConfigurationManager` is in the .NET 10 Windows Desktop shared framework, so it is not referenced explicitly.
+- `.vdproj` installer projects can only be built from Visual Studio with the Installer Projects extension, not `dotnet build`. The installer uses Publish Items and chains the .NET 10 Desktop Runtime prerequisite; see `docs/migration/installer-notes.md` (MO4/MO5 pending).
+- C# is the default for `net10.0` (C# 14); the old explicit `LangVersion 7.3` props were removed. `*.Designer.cs` / `*.resx` are designer-generated.
 
 ## Cross-component contracts (change together)
 
@@ -58,4 +57,4 @@ Two independent stacks, no shared build, no test suite, no CI, no lint/format co
 
 ## Working-tree caution
 
-`git status` may show an in-progress HidSharp 1.5→2.1 / net48 migration under `src/App` (csproj, packages, x64/Publish configurations). Treat those diffs as user work; inspect before editing or reverting.
+The net48 → .NET 10 migration lives on the `migration/target-net10` branch (see `docs/migration/`). `git status` may show in-progress migration edits under `src/App`; treat them as user work and inspect before editing or reverting. The HidSharp 1.5→2.6.4 / net48 upgrade is already committed on `develop`.
