@@ -82,6 +82,40 @@ jobs:
           path: dist/configurator/
           if-no-files-found: error
 
+      # Validate the WiX pipeline on every push/PR, not only on a release
+      # dispatch: the MSI harvests the framework-dependent publish output, so
+      # publish first, then build the bundle (which builds the MSI). The release
+      # job repeats these steps so a release stays independent of this job's
+      # workspace/artifacts.
+      - name: Publish app (framework-dependent)
+        run: dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+      - name: Verify publish output
+        run: |
+          $publish = 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\publish'
+          foreach ($file in @(
+            "$publish\FCC_configurator.exe",
+            "$publish\Avrdude\avrdude.exe",
+            "$publish\Avrdude\avrdude.conf"
+          )) {
+            if (-not (Test-Path $file)) {
+              Write-Error "Missing from publish output: $file"
+              exit 1
+            }
+          }
+
+      - name: Build WiX MSI and Burn bundle
+        run: dotnet build src/App/Installer/Bundle.wixproj -c Release
+
+      - name: Verify installer output
+        run: |
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          if (-not $msi) { Write-Error 'Fcc3Controller.msi was not produced'; exit 1 }
+          if (-not $exe) { Write-Error 'Fcc3ControllerSetup.exe was not produced'; exit 1 }
+          "MSI:    $($msi.FullName) ($($msi.Length) bytes)"
+          "Bundle: $($exe.FullName) ($($exe.Length) bytes)"
+
   release:
     name: Build MSI and publish app release
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
