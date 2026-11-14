@@ -233,3 +233,7 @@ buildable".
   `SerialPortStream.GetPortNames()` calls with `SerialPort.GetPortNames()`. It would drop
   `Avrdude\` (≈9.7 MB) and the external process entirely, but needs bench validation on a real
   FCC3 bootloader before it can ship.
+- CI: the `build` job now also runs `dotnet publish`, verifies the `Avrdude\` payload, builds
+  `Bundle.wixproj` (which builds the MSI) and asserts both installer outputs, so every push/PR
+  exercises the WiX pipeline instead of only a release dispatch. The `release` job keeps its own
+  copies so a release does not depend on the build job's artifacts.
