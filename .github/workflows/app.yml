@@ -42,6 +42,8 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: 'src/App/**/*.csproj'
 
       # The app project transitively builds GithubUpdater and HexHelper.
       - name: Build
@@ -95,6 +97,8 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: 'src/App/**/*.csproj'
 
       - name: Download portable bundle
         uses: actions/download-artifact@v4
@@ -120,6 +124,14 @@ jobs:
       - name: Verify publish output
         run: |
           $publish = 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\publish'
+          if (-not (Test-Path $publish)) {
+            Write-Error 'Publish directory is missing'
+            exit 1
+          }
+          if (-not (Test-Path "$publish\FCC_configurator.exe")) {
+            Write-Error 'FCC_configurator.exe is missing from the publish output'
+            exit 1
+          }
           if (-not (Test-Path "$publish\Avrdude\avrdude.exe")) {
             Write-Error 'Avrdude\avrdude.exe is missing from the publish output'
             exit 1

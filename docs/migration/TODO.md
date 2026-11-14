@@ -193,3 +193,23 @@ buildable".
   `packages.lock.json` to key on), the mixed 3/4-part version in the portable zip name (the
   updater only parses `.exe`/`.msi`/`.hex`), and removing `continue-on-error` from the firmware
   carry-forward (a first release legitimately has no previous `.hex`; the updater tolerates it).
+
+### 2026-11-14T13:45Z — orchestrator (me) — third review pass
+
+- Re-ran `ocr` (9 findings) and fixed the valid ones:
+  - downloads stream `HttpContent.ReadAsStream()` straight to `File.Create` instead of buffering
+    the whole payload (`ReadAsByteArrayAsync`) in memory, and `GetData` reads the JSON through a
+    `StreamReader` — no more `GetAwaiter().GetResult()`;
+  - download guards use `string.IsNullOrEmpty` (null-safe) and the plain-file-name check moved
+    inside the try, so a null `TargetPath`/invalid name returns `false` instead of throwing;
+  - `CheckFirmware`/`CheckApp` use `Version.TryParse`, so a malformed device/app version means
+    "no update" instead of an exception on the UI timer;
+  - CI now verifies the publish directory, `FCC_configurator.exe` and `Avrdude\avrdude.exe`,
+    and enables `setup-dotnet` NuGet caching keyed on `src/App/**/*.csproj`.
+- Verified the download path for real: firmware asset downloaded (25,729 bytes) into a temp
+  dir, and a synthetic `..\evil.hex` asset name was rejected with no file written outside the
+  target directory.
+- Rejected: requiring the repo prefix on the `.msi` fallback (kept permissive for older
+  releases; an unparseable version only disables the "update available" hint).
+- Remaining low-severity items (native `runtimes\` bloat in the MSI, first-asset ordering when
+  a release has multiple `.msi` assets) are accepted as-is.

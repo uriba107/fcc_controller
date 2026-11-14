@@ -157,13 +157,17 @@ namespace GithubHelper
                 using (HttpResponseMessage response = client.Send(request))
                 {
                     response.EnsureSuccessStatusCode();
-                    string json = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    using (JsonDocument document = JsonDocument.Parse(json))
+                    using (Stream stream = response.Content.ReadAsStream())
+                    using (StreamReader reader = new StreamReader(stream))
                     {
-                        JsonElement root = document.RootElement.Clone();
-                        lock (stateLock)
+                        string json = reader.ReadToEnd();
+                        using (JsonDocument document = JsonDocument.Parse(json))
                         {
-                            RepoData = root;
+                            JsonElement root = document.RootElement.Clone();
+                            lock (stateLock)
+                            {
+                                RepoData = root;
+                            }
                         }
                     }
                 }
@@ -238,7 +242,8 @@ namespace GithubHelper
                 {
                     return false;
                 }
-                if (new Version(CurrentVersion) < Firmware.version)
+                if (Version.TryParse(CurrentVersion, out Version currentVersion) &&
+                    (currentVersion < Firmware.version))
                 {
                     return true;
                 }
@@ -255,7 +260,8 @@ namespace GithubHelper
                 {
                     return false;
                 }
-                if (new Version(CurrentVersion) < App.version)
+                if (Version.TryParse(CurrentVersion, out Version currentVersion) &&
+                    (currentVersion < App.version))
                 {
                     return true;
                 }
@@ -273,7 +279,7 @@ namespace GithubHelper
                 name = Firmware.name;
                 url = Firmware.DownloadURL;
             }
-            if ((url == null) || (name == null) || (Path.GetFileName(name) != name))
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(TargetPath))
             {
                 return false;
             }
@@ -284,18 +290,25 @@ namespace GithubHelper
 
             try
             {
+                if (Path.GetFileName(name) != name)
+                {
+                    return false;
+                }
                 using (HttpRequestMessage request = CreateRequest(url))
                 using (HttpResponseMessage response = client.Send(request))
                 {
                     response.EnsureSuccessStatusCode();
-                    byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    File.WriteAllBytes(Path.Combine(TargetPath, name), data);
+                    using (Stream content = response.Content.ReadAsStream())
+                    using (FileStream file = File.Create(Path.Combine(TargetPath, name)))
+                    {
+                        content.CopyTo(file);
+                    }
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Firmware download failed: " + ex.Message);
+                System.Diagnostics.Trace.WriteLine("Firmware download failed: " + ex.Message);
                 return false;
             }
         }
@@ -309,7 +322,7 @@ namespace GithubHelper
                 name = App.name;
                 url = App.DownloadURL;
             }
-            if ((url == null) || (name == null) || (Path.GetFileName(name) != name))
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(TargetPath))
             {
                 return false;
             }
@@ -320,18 +333,25 @@ namespace GithubHelper
 
             try
             {
+                if (Path.GetFileName(name) != name)
+                {
+                    return false;
+                }
                 using (HttpRequestMessage request = CreateRequest(url))
                 using (HttpResponseMessage response = client.Send(request))
                 {
                     response.EnsureSuccessStatusCode();
-                    byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    File.WriteAllBytes(Path.Combine(TargetPath, name), data);
+                    using (Stream content = response.Content.ReadAsStream())
+                    using (FileStream file = File.Create(Path.Combine(TargetPath, name)))
+                    {
+                        content.CopyTo(file);
+                    }
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("App download failed: " + ex.Message);
+                System.Diagnostics.Trace.WriteLine("App download failed: " + ex.Message);
                 return false;
             }
         }
