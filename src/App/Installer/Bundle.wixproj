@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Bundle</OutputType>
     <OutputName>Fcc3ControllerSetup</OutputName>
-    <ProductVersion>1.0.2</ProductVersion>
+    <ProductVersion>1.0.3</ProductVersion>
   </PropertyGroup>
 
   <PropertyGroup>

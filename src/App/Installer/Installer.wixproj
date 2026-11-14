@@ -6,9 +6,8 @@
     <InstallerPlatform>x64</InstallerPlatform>
 
     <!-- MSI ProductVersion is 3-part. Keep in sync with
-         src/App/Fcc3_configurator/Properties/AssemblyInfo.cs (1.0.2.0 -> 1.0.2).
-         Version bump is out of scope for the net10 migration. -->
-    <ProductVersion>1.0.2</ProductVersion>
+         src/App/Fcc3_configurator/Properties/AssemblyInfo.cs (1.0.3.0 -> 1.0.3). -->
+    <ProductVersion>1.0.3</ProductVersion>
 
     <!-- Framework-dependent publish output from
          `dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release`.
