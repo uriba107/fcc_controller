@@ -29,6 +29,7 @@ jobs:
   build:
     name: Build app
     runs-on: windows-latest
+    timeout-minutes: 30
     outputs:
       version: ${{ steps.version.outputs.version }}
       short: ${{ steps.version.outputs.short }}
@@ -84,6 +85,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
     needs: build
     runs-on: windows-latest
+    timeout-minutes: 45
     permissions:
       contents: write
     steps:
@@ -122,6 +124,7 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.version }}
         run: |
+          if (-not $env:VERSION) { Write-Error 'App version was not produced by the build job'; exit 1 }
           $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
           $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
           if (-not $msi) { Write-Error 'Fcc3Controller.msi was not produced'; exit 1 }

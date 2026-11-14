@@ -23,6 +23,7 @@ namespace GithubHelper
             public string DownloadURL;
             public Version version;
         }
+        private readonly object stateLock = new object();
         private JsonElement? RepoData;
         private List<Asset> Assets = new List<Asset>();
 
@@ -32,32 +33,38 @@ namespace GithubHelper
         public string FirmwareVersion
             {
                 get {
-                if (Firmware.version == null) {
-                    return "0.0.0";
+                lock (stateLock)
+                {
+                    if (Firmware.version == null) {
+                        return "0.0.0";
 
+                    }
+                    return Firmware.version.ToString();
                 }
-                return Firmware.version.ToString();
             }
             }
         public string AppVersion
             {
                 get
             {
-                if (App.version == null)
+                lock (stateLock)
                 {
-                    return "0.0.0.0";
+                    if (App.version == null)
+                    {
+                        return "0.0.0.0";
+                    }
+                    return App.version.ToString();
                 }
-                return App.version.ToString();
             }
             }
         public string FirmwareFileName
         {
-            get { return Firmware.name; }
+            get { lock (stateLock) { return Firmware.name; } }
         }
 
         public string AppFileName
         {
-            get { return App.name;  }
+            get { lock (stateLock) { return App.name; } }
         }
         public string Changelog
         {
@@ -97,7 +104,12 @@ namespace GithubHelper
             {
 
                 GetData();
-                if (RepoData != null)
+                bool hasData;
+                lock (stateLock)
+                {
+                    hasData = RepoData != null;
+                }
+                if (hasData)
                 {
                     GetAssets();
                     return true;
@@ -126,11 +138,14 @@ namespace GithubHelper
 
         private string GetReleaseString(string propertyName)
         {
-            if (RepoData != null)
+            lock (stateLock)
             {
-                return GetString(RepoData.Value, propertyName);
+                if (RepoData != null)
+                {
+                    return GetString(RepoData.Value, propertyName);
+                }
+                return null;
             }
-            return null;
         }
 
         private void GetData()
@@ -145,95 +160,117 @@ namespace GithubHelper
                     string json = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                     using (JsonDocument document = JsonDocument.Parse(json))
                     {
-                        RepoData = document.RootElement.Clone();
+                        JsonElement root = document.RootElement.Clone();
+                        lock (stateLock)
+                        {
+                            RepoData = root;
+                        }
                     }
                 }
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                // Offline, HTTP error or malformed response: no update data this time.
+                System.Diagnostics.Debug.WriteLine("Update check failed: " + ex.Message);
+            }
         }
 
 
 
         private void GetAssets()
         {
-            Assets.Clear();
-            if ((RepoData != null) &&
-                (RepoData.Value.ValueKind == JsonValueKind.Object) &&
-                RepoData.Value.TryGetProperty("assets", out JsonElement assetsElement) &&
-                (assetsElement.ValueKind == JsonValueKind.Array))
+            lock (stateLock)
             {
-                foreach (JsonElement asset in assetsElement.EnumerateArray())
+                Assets.Clear();
+                if ((RepoData != null) &&
+                    (RepoData.Value.ValueKind == JsonValueKind.Object) &&
+                    RepoData.Value.TryGetProperty("assets", out JsonElement assetsElement) &&
+                    (assetsElement.ValueKind == JsonValueKind.Array))
                 {
-                    Assets.Add(new Asset() { name = GetString(asset, "name"), DownloadURL = GetString(asset, "browser_download_url"), type = GetString(asset, "content_type") });
+                    foreach (JsonElement asset in assetsElement.EnumerateArray())
+                    {
+                        Assets.Add(new Asset() { name = GetString(asset, "name"), DownloadURL = GetString(asset, "browser_download_url"), type = GetString(asset, "content_type") });
+                    }
+                }
+                Firmware = new Asset();
+                App = new Asset();
+                Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).Select(a => (Asset?)a).FirstOrDefault();
+                if (firmware != null)
+                {
+                    Asset found = firmware.Value;
+                    if (Version.TryParse(found.name.Replace(".hex", "").Replace(Repository + "_", ""), out Version version))
+                    {
+                        found.version = version;
+                    }
+                    Firmware = found;
+                }
+                // Prefer the Burn bootstrapper (.exe), which installs the .NET 10
+                // Desktop Runtime before the MSI. Older releases only have an .msi,
+                // so fall back to that. Both are named fcc_controller_<version>.<ext>.
+                Asset? app = Assets.Where(a => (a.name != null) && a.name.StartsWith(Repository + "_") && a.name.Contains(".exe")).Select(a => (Asset?)a).FirstOrDefault();
+                if (app == null)
+                {
+                    app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).Select(a => (Asset?)a).FirstOrDefault();
+                }
+                if (app != null)
+                {
+                    Asset found = app.Value;
+                    string assetName = Path.GetFileNameWithoutExtension(found.name);
+                    if (Version.TryParse(assetName.Replace(Repository + "_", ""), out Version version))
+                    {
+                        found.version = version;
+                    }
+                    App = found;
                 }
             }
-            Firmware = new Asset();
-            App = new Asset();
-            Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).Select(a => (Asset?)a).FirstOrDefault();
-            if (firmware != null)
-            {
-                Asset found = firmware.Value;
-                if (Version.TryParse(found.name.Replace(".hex", "").Replace(Repository + "_", ""), out Version version))
-                {
-                    found.version = version;
-                }
-                Firmware = found;
-            }
-            // Prefer the Burn bootstrapper (.exe), which installs the .NET 10
-            // Desktop Runtime before the MSI. Older releases only have an .msi,
-            // so fall back to that. Both are named fcc_controller_<version>.<ext>.
-            Asset? app = Assets.Where(a => (a.name != null) && a.name.StartsWith(Repository + "_") && a.name.Contains(".exe")).Select(a => (Asset?)a).FirstOrDefault();
-            if (app == null)
-            {
-                app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).Select(a => (Asset?)a).FirstOrDefault();
-            }
-            if (app != null)
-            {
-                Asset found = app.Value;
-                string assetName = Path.GetFileNameWithoutExtension(found.name);
-                if (Version.TryParse(assetName.Replace(Repository + "_", ""), out Version version))
-                {
-                    found.version = version;
-                }
-                App = found;
-            }
-
         }
 
 
 
         public bool CheckFirmware(string CurrentVersion)
         {
-            if (Firmware.version == null)
+            lock (stateLock)
             {
+                if (Firmware.version == null)
+                {
+                    return false;
+                }
+                if (new Version(CurrentVersion) < Firmware.version)
+                {
+                    return true;
+                }
+
                 return false;
             }
-            if (new Version(CurrentVersion) < Firmware.version)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public bool CheckApp(string CurrentVersion)
         {
-            if (App.version == null)
+            lock (stateLock)
             {
+                if (App.version == null)
+                {
+                    return false;
+                }
+                if (new Version(CurrentVersion) < App.version)
+                {
+                    return true;
+                }
+
                 return false;
             }
-            if (new Version(CurrentVersion) < App.version)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public bool DownloadFirmware(string TargetPath)
         {
-            if ((Firmware.DownloadURL == null) || (Firmware.name == null))
+            string name;
+            string url;
+            lock (stateLock)
+            {
+                name = Firmware.name;
+                url = Firmware.DownloadURL;
+            }
+            if ((url == null) || (name == null))
             {
                 return false;
             }
@@ -242,19 +279,34 @@ namespace GithubHelper
                 return false;
             }
 
-            using (HttpRequestMessage request = CreateRequest(Firmware.DownloadURL))
-            using (HttpResponseMessage response = client.Send(request))
+            try
             {
-                response.EnsureSuccessStatusCode();
-                byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                File.WriteAllBytes(TargetPath + "\\" + Firmware.name, data);
+                using (HttpRequestMessage request = CreateRequest(url))
+                using (HttpResponseMessage response = client.Send(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    File.WriteAllBytes(TargetPath + "\\" + name, data);
+                }
+                return true;
             }
-            return true;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Firmware download failed: " + ex.Message);
+                return false;
+            }
         }
 
         public bool DownloadApp(string TargetPath)
         {
-            if ((App.DownloadURL == null) || (App.name == null))
+            string name;
+            string url;
+            lock (stateLock)
+            {
+                name = App.name;
+                url = App.DownloadURL;
+            }
+            if ((url == null) || (name == null))
             {
                 return false;
             }
@@ -263,14 +315,22 @@ namespace GithubHelper
                 return false;
             }
 
-            using (HttpRequestMessage request = CreateRequest(App.DownloadURL))
-            using (HttpResponseMessage response = client.Send(request))
+            try
             {
-                response.EnsureSuccessStatusCode();
-                byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                File.WriteAllBytes(TargetPath + "\\" + App.name, data);
+                using (HttpRequestMessage request = CreateRequest(url))
+                using (HttpResponseMessage response = client.Send(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    File.WriteAllBytes(TargetPath + "\\" + name, data);
+                }
+                return true;
             }
-            return true;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("App download failed: " + ex.Message);
+                return false;
+            }
         }
     }
 }

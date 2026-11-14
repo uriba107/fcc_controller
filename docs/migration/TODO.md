@@ -158,15 +158,22 @@ buildable".
 
 - Ran `ocr review --from develop --to migration/target-net10` (commit `cac0b61`); 16 findings.
   Verified each against the code before changing anything.
-- Fixed (valid): `GetAssets()` now clears `Assets` so repeated `Update()` calls cannot resolve
-  stale assets or grow the list; `DownloadFirmware`/`DownloadApp` also guard the asset `name`
-  (not just the URL) before building the target path. CI: portable staging now uses
-  `Copy-Item -Recurse` (subdirectories such as `runtimes\` and `Avrdude\` were copied empty),
-  and `dist\bundle` is removed after zipping so the release upload only sees files.
-- Rejected as false positive: the high-severity "MSI ships without Avrdude" — `HexUploader`
-  declares `Avrdude\*` as Content, so `dotnet publish` emits it; re-verified a clean publish
-  and the MSI file table (`Avrdude\avrdude.exe|conf|libusb0.dll` present, PDBs absent).
-- Rejected as pre-existing/out of scope: blocking `GetAwaiter().GetResult()` HTTP reads, the
-  empty `GetData` catch, nullable `CurrentRelease`, updater field synchronization (a lock
-  spanning the network call would stall the UI), workflow `timeout-minutes`/NuGet caching,
-  and staging-version validation (the version step already fails hard on a missing match).
+- Fixed in the first pass: `GetAssets()` clears `Assets` so repeated `Update()` calls cannot
+  resolve stale assets or grow the list; downloads also guard the asset `name`; portable
+  staging copies recursively (`runtimes\`/`Avrdude\` were copied empty); `dist\bundle` is
+  removed after zipping. The high-severity "MSI ships without Avrdude" was a **false
+  positive** — `HexUploader` declares `Avrdude\*` as Content, so `dotnet publish` emits it
+  (re-verified with a clean publish and the MSI file table).
+- Fixed in the second pass, after re-checking the rejected items:
+  - `Update()` runs on a worker thread (`RunUpdateManager`), while the UI timer reads
+    `FirmwareVersion`/`AppVersion`/`Check*`; all shared state now goes through `stateLock`.
+    The lock never wraps network I/O, so the UI cannot stall on HTTP.
+  - `DownloadFirmware`/`DownloadApp` now return `false` on HTTP/file failures instead of
+    throwing into the UI click handlers (partial files may remain, as before); `GetData` and
+    both downloads log failures via `Debug.WriteLine` instead of swallowing them silently.
+  - `app.yml`: `timeout-minutes` 30 (build) / 45 (release) and an empty-version guard before
+    staging the installer assets.
+- Rejected after re-verification: blocking `GetAwaiter().GetResult()` reads (the sync
+  `HttpClient.Send` already blocks; async is a separate redesign), nullable `CurrentRelease`
+  (not consumed by the app and `Nullable` is disabled), and NuGet caching (`cache: true`
+  needs a `packages.lock.json` or explicit dependency path; none exists here).
