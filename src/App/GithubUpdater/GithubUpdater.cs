@@ -169,7 +169,7 @@ namespace GithubHelper
             }
             Firmware = new Asset();
             App = new Asset();
-            Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).FirstOrDefault();
+            Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).Select(a => (Asset?)a).FirstOrDefault();
             if (firmware != null)
             {
                 Asset found = firmware.Value;
@@ -179,11 +179,19 @@ namespace GithubHelper
                 }
                 Firmware = found;
             }
-            Asset? app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).FirstOrDefault();
+            // Prefer the Burn bootstrapper (.exe), which installs the .NET 10
+            // Desktop Runtime before the MSI. Older releases only have an .msi,
+            // so fall back to that. Both are named fcc_controller_<version>.<ext>.
+            Asset? app = Assets.Where(a => (a.name != null) && a.name.StartsWith(Repository + "_") && a.name.Contains(".exe")).Select(a => (Asset?)a).FirstOrDefault();
+            if (app == null)
+            {
+                app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).Select(a => (Asset?)a).FirstOrDefault();
+            }
             if (app != null)
             {
                 Asset found = app.Value;
-                if (Version.TryParse(found.name.Replace(".msi", "").Replace(Repository + "_", ""), out Version version))
+                string assetName = Path.GetFileNameWithoutExtension(found.name);
+                if (Version.TryParse(assetName.Replace(Repository + "_", ""), out Version version))
                 {
                     found.version = version;
                 }

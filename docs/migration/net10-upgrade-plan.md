@@ -5,7 +5,7 @@ DONE/BLOCKED there, and leave handoff notes for the next agent. This plan is the
 is the current state. Agents may rely only on those two files for state.
 
 
-**Scope:** `src/App/**` only (FCC_configurator, GithubUpdater, HexHelper, WindowsInstaller.vdproj, app.yml). Firmware (`src/Controller/**`) is explicitly out of scope and untouched.
+**Scope:** `src/App/**` only (FCC_configurator, GithubUpdater, HexHelper, the installer project, app.yml). Firmware (`src/Controller/**`) is explicitly out of scope and untouched. The installer project is being replaced: the VS-only `WindowsInstaller.vdproj` is superseded by a VS-independent WiX project (Decision Gate 2).
 
 **Target:** `net10.0-windows` (LTS to Nov 2028), C# default (net10 → C# 14; the explicit `LangVersion 7.3` props are *deleted*, not raised).
 
@@ -24,8 +24,19 @@ is the current state. Agents may rely only on those two files for state.
 
 ### Decision Gates (P0‑3)
 
-1. **Chart:** **Port via `WinForms.DataVisualization` NuGet** (API-compatible with the Designer file) — lowest risk. Rewrite (ScottPlot) is the documented fallback if the port fails rendering/regression.
-2. **Runtime distribution:** **Framework-dependent MSI + .NET 10 Desktop Runtime chained via vdproj bootstrapper prerequisite.** Self-contained single-file is the documented fallback if vdproj chaining proves impractical. (Keeps MSI small; vdproj already ships Avrdude files the same way.)
+1. **Chart:** **Port via `WinForms.DataVisualization` NuGet** (API-compatible with the Designer file) — lowest risk. Rewrite (ScottPlot) is the documented fallback if the port fails rendering/regression. *(Decided; S‑D validated, no code change needed.)*
+2. **Runtime distribution:** **VS-independent installer via WiX Toolset v5.** Build a framework-dependent MSI from `dotnet publish` output, plus a WiX Burn bootstrapper (`Setup.exe`) that detects and installs the .NET 10 Desktop Runtime before installing the MSI. No Visual Studio, no Installer Projects extension, no VS bootstrapper packages. The Burn bundle becomes the release installer asset; `GithubUpdater` prefers it (`.exe`) with `.msi` as a fallback. **Fallback:** self-contained MSI (runtime bundled, ~150 MB) if the Burn chain proves impractical; this keeps the updater contract unchanged at the cost of a large download.
+
+> **Superseded:** the original gate was "framework-dependent MSI + .NET 10 Desktop Runtime chained via a vdproj bootstrapper prerequisite." That path requires a full Visual Studio 2026 IDE (see below) and is replaced by the WiX path.
+
+### Why Visual Studio was required (and why it is no longer)
+
+The original plan's MO4 was blocked on Visual Studio for two independent reasons:
+
+1. **`.vdproj` is a Visual Studio-only project type.** It is not an MSBuild project and cannot be built by MSBuild or VS BuildTools. It requires `devenv` (the Visual Studio IDE) with the *Microsoft Visual Studio Installer Projects* extension. This machine has VS 18 **BuildTools** only (no `devenv`, no extension), so the MSI could not be built or validated here.
+2. **The .NET 10 Desktop Runtime prerequisite ships only with Visual Studio 2026 (18.x).** The prerequisite is a bootstrapper package (`net10desktopruntime_x64`) populated from the VS install's `BootstrapperPackages` folder. VS 2022 17.14 (including the `windows-latest` CI runner) does not include it, and the Installer Projects extension does not ship bootstrapper packages. So even a full VS 2022 install cannot select the .NET 10 runtime prerequisite.
+
+**WiX removes both dependencies.** WiX v5 is a .NET tool / MSBuild SDK: `wix build` (or `dotnet build` of a `.wixproj`) runs on any machine with the .NET SDK, including CI. WiX Burn is a bootstrapper that chains prerequisites itself — `DotNetCoreSearch` detects the .NET 10 Desktop Runtime and an `ExePackage` with a `RemotePayload` (Microsoft URL + SHA-256) installs it. No VS IDE, no Installer Projects extension, no VS bootstrapper package. The result is still a real `.msi` (plus a `Setup.exe` bundle), so Add/Remove Programs and the updater's download-and-launch flow keep working.
 
 ---
 
@@ -43,8 +54,16 @@ Six independent worktrees; **no two agents touch the same file**. All subagents 
 | S‑F | **Regression harness** | explore | `docs/migration/checklist.md` (new) | Write the executable behavioral checklist from the cross-component contracts: VID `0x1029` / PID `0xF16C` single-device connect, X/Y from bytes 1–3, options at byte 7, force at bytes 8–9, OUT `[options][force+cmd]` (`Center=0x4000`, `Reboot=0x8000`), options bitmask parity with `fcc3.h` `enum ConfigOptions`, updater flow (Reboot → COM port wait → `avrdude -cavr109 -b57600`), single-instance mutex, config-mode save on exit. Acceptance sheet for Phase 3. | 0.5 d |
 
 Not parallelized (deliberately retained):
-- **S‑G (Installer/vdproj):** `.vdproj` builds only in Visual Studio with the Installer Projects extension — agents can't validate it. G is *research-only* in Phase 1 (notes into `docs/migration/installer-notes.md`), real edits happen in Phase 2 once S‑A's publish output shape is known.
+- **S‑G (Installer/vdproj):** `.vdproj` builds only in Visual Studio with the Installer Projects extension — agents can't validate it. G is *research-only* in Phase 1 (notes into `docs/migration/installer-notes.md`), real edits happen in Phase 2 once S‑A's publish output shape is known. *(Superseded by S‑G2 below: the vdproj path is abandoned in favor of a VS-independent WiX installer.)*
 - **S‑H (Docs):** README + `AGENTS.md` rewrite deferred to Phase 2 (must describe the final state, not a moving target).
+
+### Phase 1B — Installer replacement (VS-independent, new)
+
+| ID | Stream | Agent | Files owned (exclusive) | Key work | Est. |
+|----|--------|-------|-------------------------|----------|------|
+| S‑G2 | **WiX installer (VS-independent)** | general | `src/App/Installer/**` (new `.wixproj`, `Product.wxs`, `Bundle.wxs`, optional `dotnet-tools.json`), `src/App/Fcc3_configurator.sln` (remove the vdproj), `src/App/WindowsInstaller/WindowsInstaller.vdproj` (delete), `src/App/GithubUpdater/GithubUpdater.cs` (asset preference: `.exe` bundle first, `.msi` fallback), `src/App/Fcc3_configurator/MainForm.cs` (only if the launch flow needs a tweak) | Author a WiX v5 installer that builds a framework-dependent MSI from `dotnet publish` output and a Burn `Setup.exe` that chains the .NET 10 Desktop Runtime (`DotNetCoreSearch` + `ExePackage`/`RemotePayload`). Remove the vdproj from the solution and delete it. Update the updater to prefer the Burn bundle asset (`.exe`) and fall back to `.msi` for older releases; keep the version parsing (`fcc_controller_<version>` + extension) and null guards. Validate the MSI + bundle on a clean VM (no .NET 10 runtime) and confirm Avrdude is packaged. | 1 d |
+
+**Dependency:** S‑G2 builds on the merged S‑A/S‑B/S‑C/S‑D state (publish output shape and updater are known). It is the only stream that touches `GithubUpdater.cs` after S‑B; the change is limited to asset preference, not download/parse semantics. The original S‑B constraint "do not change asset-picking logic" is superseded for the installer migration only.
 
 ---
 
@@ -52,12 +71,12 @@ Not parallelized (deliberately retained):
 
 | ID | Task | Why here |
 |----|------|----------|
-| MO1 | Merge **S‑A** into `migration/target-net10`; build app project alone (`dotnet build`, not the sln). Fix before anything lands on top. | Foundation layer |
-| MO2 | Merge **S‑B** and **S‑C**; build sln without vdproj. | Leaf libs, independent of each other |
-| MO3 | Merge **S‑D**; build + launch StickTracker. | Depends on A |
-| MO4 | **S‑G1 (performed hands-on, not by agent):** vdproj edits — add `.NET 10 Desktop Runtime` bootstrapper prerequisite, align output paths with SDK convention (`bin\Release\net10.0-windows\`), confirm Avrdude + HexHelper content still included; hand-build MSI in VS. | VS-only tooling |
-| MO5 | **S‑E final:** sync `app.yml` to actual publish/installer commands (release-dispatch path builds MSI where possible). | Depends on G |
-| MO6 | **S‑H (docs):** `AGENTS.md` Building/Release sections + README; version bump is **not** part of this migration. | Final state known |
+| MO1 | Merge **S‑A** into `migration/target-net10`; build app project alone (`dotnet build`, not the sln). Fix before anything lands on top. | ✅ Done (`810cd9d`) |
+| MO2 | Merge **S‑B** and **S‑C**; build sln without vdproj. | ✅ Done (`7e11e66`, `c20f7e1`) |
+| MO3 | Merge **S‑D**; build + launch StickTracker. | ✅ Done (`3d6870b`) |
+| MO4 | **S‑G2:** merge the WiX installer stream; build the MSI + Burn bundle from the publish output; validate on a clean VM (runtime chaining, Avrdude, uninstall); re-run the updater live check. | VS-independent installer |
+| MO5 | **S‑E final:** replace the `devenv`/`DisableOutOfProcBuild` steps in `app.yml` with the WiX build (`dotnet tool restore` + `wix build`, or `dotnet build` of the `.wixproj`); stage `fcc_controller_<version>.exe` (Burn) and `.msi`; keep the firmware carry-forward. | Depends on MO4 |
+| MO6 | **S‑H (docs):** `AGENTS.md` Building/Release sections + README; version bump is **not** part of this migration. | ✅ Done (follow-up: installer references → WiX/`.exe`) |
 
 ---
 
@@ -65,11 +84,11 @@ Not parallelized (deliberately retained):
 
 | ID | Check | Agent |
 |----|-------|-------|
-| V‑1 | Run the **S‑F checklist** end-to-end on Win11 (and one Win10 LTSC instance if available): device connect, axis/force decode matches net48 build side-by-side, config mode write/reboot, fw-upgrade flow. | me |
-| V‑2 | GithubUpdater against the real `uriba107/fcc_controller` latest release: correct version shown, both asset buttons enabled, missing-asset → 0.0.0 + disabled. | general |
+| V‑1 | Run the **S‑F checklist** end-to-end on Win11 (and one Win10 LTSC instance if available): device connect, axis/force decode matches net48 build side-by-side, config mode write/reboot, fw-upgrade flow. **Add installer checks:** clean-VM install via the Burn bundle (runtime chained), Avrdude present, uninstall clean. | me |
+| V‑2 | GithubUpdater against the real `uriba107/fcc_controller` latest release: correct version shown, both asset buttons enabled, missing-asset → 0.0.0 + disabled. **Re-run after S‑G2** (asset preference `.exe` → `.msi`). | general |
 | V‑3 | Settings: run once; user.config lands in a new profile location; saved UI defaults (gains, force presets, notify flags) reset once — expected, confirm no crash. | me |
-| V‑4 | `app.yml` green on PR; `release=true` dispatch produces `app-v` tag with the `.hex` carried forward. | general |
-| V‑5 | **Source-diff purity check:** per-stream diff gate — chart stream touches only FormStickTracker* (no unrelated `src/Controller` footage), updater logic unchanged, no sneaky refactors. | explore |
+| V‑4 | `app.yml` green on PR; `release=true` dispatch produces `app-v` tag with the `.hex` carried forward; the release contains the Burn bundle (and MSI). | general |
+| V‑5 | **Source-diff purity check:** per-stream diff gate — chart stream touches only FormStickTracker*, updater change limited to asset preference, no sneaky refactors. | explore |
 
 ---
 
@@ -86,11 +105,12 @@ Not parallelized (deliberately retained):
 
 > The authoritative live checklist is `docs/migration/TODO.md` (board with Status/Owner/timestamps).
 > The static list below mirrors its initial state; keep it in sync only at major milestones.
+> **Last synced from the board:** 2026-11-14 (Phase 1 + MO1–MO6 done; S‑G2 WiX installer authored, MSI + Burn bundle build and validated locally; V‑2/V‑3/V‑5 done; V‑1/V‑4 blocked).
 
 ### Phase 0 (serial)
 - [x] **P0‑1** Resolve HidSharp working-tree diff → clean `git status` (already committed; stale VS logs removed)
 - [x] **P0‑2** Baseline net48 build + smoke notes (0 errors, 1 warning; MainForm responsive)
-- [x] **P0‑3** Decide gates: Chart = `WinForms.DataVisualization` port; MSI = framework-dependent with runtime prerequisite
+- [x] **P0‑3** Decide gates: Chart = `WinForms.DataVisualization` port; runtime distribution = VS-independent WiX installer (framework-dependent MSI + Burn bundle; self-contained MSI fallback)
 - [x] **P0‑4** Branch `migration/target-net10` + per-stream worktrees created
 
 ### Phase 1 (parallel ×6)
@@ -102,19 +122,22 @@ Not parallelized (deliberately retained):
 - [x] **S‑F** Regression checklist doc
 - [x] **S‑G1** Installer research notes (read-only, no csproj edits)
 
+### Phase 1B (installer replacement)
+- [x] **S‑G2** VS-independent WiX installer: MSI + Burn bundle from publish output, vdproj removed, updater prefers `.exe` (fallback `.msi`)
+
 ### Phase 2 (merge ladder)
 - [x] **MO1** S‑A merged; app alone builds green (`810cd9d`, 0 warnings)
 - [x] **MO2** S‑B + S‑C merged; full net10 build green + runtime smoke test (`7e11e66`, `c20f7e1`)
 - [x] **MO3** S‑D merged; StickTracker renders + streams OK (`3d6870b`)
-- [ ] **MO4** vdproj edits (runtime prereq, path alignment), MSI builds in VS — **BLOCKED** (needs full VS IDE + Installer Projects + .NET 10 bootstrapper; see `installer-notes.md` §5)
-- [ ] **MO5** app.yml finalized for full pipeline — build job done (S‑E); vdproj/MSI steps pending MO4
-- [x] **MO6** AGENTS.md + README updated
+- [x] **MO4** WiX installer merged; MSI + Burn bundle build and locally validated (MSI admin-install, Avrdude packaged, bundle `/layout` fetches the runtime) — **replaces the VS-only vdproj MO4**. Clean-VM install/uninstall remains in V‑1.
+- [x] **MO5** app.yml finalized with the WiX build (no `devenv`); stages `fcc_controller_<version>.exe` + `.msi`
+- [x] **MO6** AGENTS.md + README updated (follow-up: installer references → WiX/`.exe`)
 
 ### Phase 3 (verify, parallel: V‑1/V‑3 me, V‑2/V‑4 agent, V‑5 reviewer)
-- [ ] **V‑1** Behavioral contract checks pass (S‑F sheet) — **BLOCKED** (needs the physical FCC3 device)
-- [x] **V‑2** Updater live-check against real GitHub release
+- [ ] **V‑1** Behavioral contract checks pass (S‑F sheet) + installer clean-VM checks — **BLOCKED** (needs the physical FCC3 device)
+- [x] **V‑2** Updater live-check against real GitHub release — re-run after S‑G2: live picks `.msi` fallback `1.0.2.0`, synthetic `.exe` wins (`9.9.9`), missing-asset guards hold
 - [x] **V‑3** Settings migration, no crash, defaults sane
-- [ ] **V‑4** CI green (PR + release dispatch) — **BLOCKED** (pending MO5/MO4)
+- [ ] **V‑4** CI green (PR + release dispatch) — **BLOCKED** (MO4/MO5 implemented, needs a CI run)
 - [x] **V‑5** Diff purity audit — no scope creep
 
 ### Phase 4
@@ -130,8 +153,8 @@ P0-4 ──┬── S-A ──┬── MO1 ──┬── S-D ── MO3
        ├── S-C ──┤
        ├── S-E ──┤
        ├── S-F ──┼────────┬── V-1
-       └── S-G1 ─┼── MO4 ─┴── MO5 ── V-4
-                 └── MO6
+       └── S-G2 ─┴── MO4 ──┴── MO5 ── V-4
+                 └── MO6 (docs follow-up)
 All MOx ──────→ Phase 3 (V-1..V-5) ──→ Phase 4 (R-1, R-2)
 ```
 
@@ -139,8 +162,8 @@ All MOx ──────→ Phase 3 (V-1..V-5) ──→ Phase 4 (R-1, R-2)
 
 ## Parallelism summary
 
-- **Max concurrent subagents = 6** in Phase 1 (S‑A/B/C/D/E/F, with S‑D layered on S‑A once A's csproj is functional), 4 in Phase 3 (V‑1/V‑2/V‑3/V‑4, V‑5 as reviewer).
-- **Wall-clock estimate ≈ 2–3 days** (gated by S‑A + MO1, the foundation merge), vs. ~5 days serial.
+- **Max concurrent subagents = 6** in Phase 1 (S‑A/B/C/D/E/F, with S‑D layered on S‑A once A's csproj is functional), 1 in Phase 1B (S‑G2), 4 in Phase 3 (V‑1/V‑2/V‑3/V‑4, V‑5 as reviewer).
+- **Wall-clock estimate ≈ 2–3 days** for the original migration (gated by S‑A + MO1, the foundation merge); the VS-independent installer adds ~1 day (S‑G2 + MO4/MO5).
 - Conflict avoidance is by **file ownership** (each stream touches disjoint files) + `worktree`-based branches with a fixed merge ladder.
 
 ---
@@ -151,8 +174,14 @@ All MOx ──────→ Phase 3 (V-1..V-5) ──→ Phase 4 (R-1, R-2)
 
 - Visual Studio 18 BuildTools: MSBuild `18.11.1.51303` at
   `C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\MSBuild\Current\Bin\MSBuild.exe`.
-- No .NET SDK was installed initially; .NET SDK `10.0.403` was installed user-locally for this
-  migration at `C:\Users\me\.dotnet\dotnet.exe` (not on `PATH`).
+  Not needed for the installer anymore (WiX is a .NET tool); retained only as the net48
+  baseline / reference-assembly build path.
+- .NET SDK `10.0.403` is on `PATH` at `C:\Program Files\dotnet\dotnet.exe` (an earlier
+  user-local install at `C:\Users\me\.dotnet\dotnet.exe` was used during preflight).
+- No WiX Toolset is installed yet. S‑G2 installs it as a .NET tool
+  (`dotnet tool install --global wix`, or `dotnet tool restore` from a committed
+  `dotnet-tools.json` for CI). Pin **WiX v5** (the last release with public binaries);
+  WiX 6+ requires a commercial license for official binaries.
 - No .NET Framework 4.8 Developer Pack / targeting pack is installed. The net48 baseline was
   built against the NuGet reference assemblies
   (`Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3) via

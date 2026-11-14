@@ -1,16 +1,17 @@
 # FCC3 Controller — Agent Notes
 
 USB adapter firmware + Windows configurator for the FCC3 force-sensing Cougar/Warthog mod.
-Two independent stacks, no shared build, no test suite, no CI, no lint/format config. Compilation is the only verification.
+Two independent stacks, no shared build, no test suite, no lint/format config. Compilation is the only local verification.
 
 ## Layout
 
 - `src/Controller/Fcc3/` — AVR C firmware for ATmega32U4 (16 MHz) using vendored LUFA 170418.
   - `Joystick.c` — USB setup + main loop; `fcc3.c` — axis/force math, grip read, config mode, EEPROM; `Descriptors.c` — USB/HID descriptors and versions.
   - `src/LUFA/**` and `src/config/LUFAConfig.h` — vendored/library code, don't hand-edit.
-- `src/App/` — .NET 10 (`net10.0-windows`) WinForms configurator plus helper libraries and a Visual Studio installer project.
-  - `Fcc3_configurator.sln` → `FCC_configurator` (main app), `GithubUpdater`, `HexHelper`, `WindowsInstaller` (`.vdproj`).
-  - `FccInstaller/` is a legacy installer project not in the solution.
+- `src/App/` — .NET 10 (`net10.0-windows`) WinForms configurator plus helper libraries and a WiX installer.
+  - `Fcc3_configurator.sln` → `FCC_configurator` (main app), `GithubUpdater`, `HexHelper`.
+  - `Installer/` → WiX v5 `Installer.wixproj` (MSI) and `Bundle.wixproj` (Burn `Setup.exe`); built with `dotnet build`, no Visual Studio required.
+  - `FccInstaller/` is a legacy `.vdproj` installer not in the solution.
 - `docs/` (manuals), `Schematics/` (Eagle), `misc/` (cheat sheet, drivers). README is user/behavior documentation, not build docs.
 
 ## Building
@@ -22,17 +23,23 @@ Two independent stacks, no shared build, no test suite, no CI, no lint/format co
 - `src/Controller/Fcc3/Makefile` is the source of truth for the source list and flags. When adding/removing a `.c` file or changing flags, update `Makefile` and `Fcc3.cproj` together (or drop the Studio project).
 - Atmel Studio (optional, still supported): open `src/Controller/Fcc3.atsln`, build Release → `src/Controller/Fcc3/Release/Fcc3.hex`. `Release/`/`Debug/` and their auto-generated Makefiles hardcode `C:\Program Files (x86)\Atmel\Studio\7.0\...` — don't edit them; they are gitignored stale artifacts.
 - Build flags that matter: `-DARCH=ARCH_AVR8 -DF_CPU=16000000UL -DF_USB=16000000UL -DBOARD=BOARD_NONE -DUSE_LUFA_CONFIG_HEADER`, `-std=gnu99`, `-Os`, `-fpack-struct -fshort-enums`, `-ffunction-sections -fdata-sections -Wl,--gc-sections`, `-mrelax`.
-- CI: `.github/workflows/firmware.yml` builds on Ubuntu (apt `gcc-avr avr-libc binutils-avr`) and uploads a `firmware-<version>` artifact on every push/PR. `.github/workflows/app.yml` builds the WinForms app on `windows-latest` with `actions/setup-dotnet@v5` (10.0.x) and `dotnet build`; the `.vdproj` MSI step still needs MO4/MO5 alignment. Versions are read from code, never typed: firmware from `VERSION_BCD(...)` in `Descriptors.c`, app from `AssemblyInfo.cs`.
-- Releases: no manual tags. Run either workflow with **Run workflow → Publish release** (workflow_dispatch with `release=true`); CI names/creates the tag itself (`fw-v<version>` / `app-v<version>` at the dispatched commit) and carries the *other* component's assets forward from the newest previous release that has them, so every release still contains both `.hex` and `.msi`. Push/PR triggers are path-filtered (`src/Controller/**` vs `src/App/**`) and only build. `GithubUpdater` is null-safe on a missing component anyway (shows 0.0.0 / disables the update button).
+- CI: `.github/workflows/firmware.yml` builds on Ubuntu (apt `gcc-avr avr-libc binutils-avr`) and uploads a `firmware-<version>` artifact on every push/PR. `.github/workflows/app.yml` builds the WinForms app on `windows-latest` with `actions/setup-dotnet@v5` (10.0.x), then publishes the app and builds the WiX MSI + Burn bundle. Versions are read from code, never typed: firmware from `VERSION_BCD(...)` in `Descriptors.c`, app from `AssemblyInfo.cs`.
+- Releases: no manual tags. Run either workflow with **Run workflow → Publish release** (workflow_dispatch with `release=true`); CI names/creates the tag itself (`fw-v<version>` / `app-v<version>` at the dispatched commit) and carries the *other* component's assets forward from the newest previous release that has them, so every release still contains `.hex` plus the app installer. Push/PR triggers are path-filtered (`src/Controller/**` vs `src/App/**`) and only build. `GithubUpdater` is null-safe on a missing component anyway (shows 0.0.0 / disables the update button).
 
 ### Configurator app
-- The app and its helper libraries are SDK-style projects targeting .NET 10. Build with `dotnet build` (requires the .NET 10 SDK). Build the app project, not the solution, to skip the unsupported `.vdproj` (it transitively builds `GithubUpdater` and `HexHelper`):
+- The app and its helper libraries are SDK-style projects targeting .NET 10. Build with `dotnet build` (requires the .NET 10 SDK). Build the app project to also build `GithubUpdater` and `HexHelper`:
   ```powershell
   dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
   ```
 - Output is `src/App/Fcc3_configurator/bin/Release/net10.0-windows/`. The app is framework-dependent: running it needs the .NET 10 Windows Desktop Runtime.
 - PackageReferences live in the `.csproj` files (no `packages.config`): `HidSharp` 2.6.4 and `WinForms.DataVisualization` 1.10.2 in the app, `System.IO.Ports` 10.0.14 in `HexHelper`. `System.Configuration.ConfigurationManager` is in the .NET 10 Windows Desktop shared framework, so it is not referenced explicitly.
-- `.vdproj` installer projects can only be built from Visual Studio with the Installer Projects extension, not `dotnet build`. The installer uses Publish Items and chains the .NET 10 Desktop Runtime prerequisite; see `docs/migration/installer-notes.md` (MO4/MO5 pending).
+- Installer: `src/App/Installer/` is a WiX Toolset v5 SDK project (`WixToolset.Sdk` 5.0.2, restored via NuGet). No Visual Studio or Installer Projects extension is needed:
+  ```powershell
+  dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+  dotnet build src/App/Installer/Bundle.wixproj -c Release
+  ```
+  `Installer.wixproj` produces the framework-dependent MSI (`bin/Release/<culture>/Fcc3Controller.msi`, harvesting the publish output including `Avrdude\`); `Bundle.wixproj` chains the .NET 10 Desktop Runtime (`DotNetCoreSearch` + remote `ExePackage`) and produces the Burn bootstrapper `bin/Release/Fcc3ControllerSetup.exe`. The runtime version/URL/SHA-512 live in `Bundle.wxs`; see `docs/migration/installer-notes.md`.
+- `FccInstaller/FccInstaller.vdproj` is legacy and is not built; `.vdproj` projects require Visual Studio + the Installer Projects extension.
 - C# is the default for `net10.0` (C# 14); the old explicit `LangVersion 7.3` props were removed. `*.Designer.cs` / `*.resx` are designer-generated.
 
 ## Cross-component contracts (change together)
@@ -53,7 +60,7 @@ Two independent stacks, no shared build, no test suite, no CI, no lint/format co
 
 ## Release packaging gotcha
 
-`GithubUpdater` reads the latest release of `uriba107/fcc_controller` (hardcoded in `HelperFunctions.cs`) and picks the first asset containing `.hex` and `.msi`. Asset names are parsed as `fcc_controller_<version>` + extension, so uploads must be renamed to `fcc_controller_<version>.hex` and `fcc_controller_<version>.msi` (local MSI output is `Fcc3Controller.msi`). A release missing one component's assets no longer crashes the updater (`FirstOrDefault` + null guards in `GithubUpdater.cs`), but missing assets show as 0.0.0. Missing `FirmwareFileName`/`AppFileName` returns null, so download buttons stay disabled. Bump the version in `Descriptors.c` (firmware) and `AssemblyInfo.cs` plus `WindowsInstaller.vdproj` `ProductVersion` (app); releases are cut via the workflows' dispatch buttons and the `fw-v`/`app-v` tags are created by CI.
+`GithubUpdater` reads the latest release of `uriba107/fcc_controller` (hardcoded in `HelperFunctions.cs`): firmware is the first asset containing `.hex`; the app prefers a `fcc_controller_*` `.exe` Burn bundle and falls back to `.msi` for older releases. Asset names are parsed as `fcc_controller_<version>` + extension, so uploads must be renamed to `fcc_controller_<version>.hex`, `fcc_controller_<version>.exe` (local output `Fcc3ControllerSetup.exe`) and/or `fcc_controller_<version>.msi` (local output `Fcc3Controller.msi`). A release missing one component's assets no longer crashes the updater (`FirstOrDefault` + null guards in `GithubUpdater.cs`), but missing assets show as 0.0.0. Missing `FirmwareFileName`/`AppFileName` returns null, so download buttons stay disabled. Bump the version in `Descriptors.c` (firmware) and `AssemblyInfo.cs` plus `ProductVersion` in `Installer.wixproj`/`Bundle.wixproj` (app); releases are cut via the workflows' dispatch buttons and the `fw-v`/`app-v` tags are created by CI.
 
 ## Working-tree caution
 

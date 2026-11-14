@@ -107,57 +107,27 @@ jobs:
           Compress-Archive -Path 'dist\bundle\*' -DestinationPath "dist\fcc_controller_${VERSION}.zip" -Force
           Get-ChildItem dist
 
-      # PENDING MO4/MO5: the SDK project has no Publish configuration (the old
-      # vdproj referenced obj\Publish\FCC_configurator.exe); build Release only.
-      # MO4 aligns the vdproj output paths with bin\Release\net10.0-windows\ and
-      # MO5 finalizes this workflow.
-      - name: Build app (Release, for installer)
-        continue-on-error: true
-        run: dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+      # Framework-dependent publish output is what the WiX MSI harvests.
+      - name: Publish app (framework-dependent)
+        run: dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
 
-      # PENDING MO4/MO5: the vdproj/MSI steps below are unchanged from the net48
-      # pipeline and still target the old output paths; MO4 aligns them with the
-      # SDK output and MO5 finalizes this workflow.
-      # devenv refuses out-of-process .vdproj builds until DisableOutOfProcBuild
-      # unlocks the registry; the tool must run from its own directory.
-      - name: Enable out-of-process installer builds
-        continue-on-error: true
-        run: |
-          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          $tool = Join-Path $vsPath 'Common7\IDE\PrivateAssemblies\DisableOutOfProcBuild.exe'
-          if (Test-Path $tool) {
-            Push-Location (Split-Path $tool -Parent)
-            cmd /c DisableOutOfProcBuild.exe
-            Pop-Location
-          } else {
-            Write-Warning "DisableOutOfProcBuild.exe not found under $vsPath"
-          }
+      # WiX v5 is a NuGet/MSBuild SDK (WixToolset.Sdk 5.0.2), so no Visual
+      # Studio, Installer Projects extension or global tool is required.
+      # Bundle.wixproj builds the MSI via its ProjectReference first.
+      - name: Build WiX MSI and Burn bundle
+        run: dotnet build src/App/Installer/Bundle.wixproj -c Release
 
-      # devenv needs absolute paths (VS2022 rejects relative ones) and
-      # devenv.com (devenv.exe returns no useful output on the command line).
-      # The runner image has the VS Installer Projects extension preinstalled,
-      # so the .vdproj can be built without VS being manually installed.
-      - name: Build installer
-        continue-on-error: true
-        run: |
-          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          $devenv = Join-Path $vsPath 'Common7\IDE\devenv.com'
-          & $devenv (Join-Path $PWD 'src\App\Fcc3_configurator.sln') /Build 'Release|Any CPU' /Project (Join-Path $PWD 'src\App\WindowsInstaller\WindowsInstaller.vdproj') /Out devenv.log
-          Get-Content devenv.log
-          exit $LASTEXITCODE
-
-      - name: Stage MSI
-        continue-on-error: true
+      - name: Stage installer assets
         env:
-          VERSION: ${{ needs.build.outputs.short }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
-          $msi = Get-ChildItem src\App -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
-          if ($msi) {
-            Copy-Item $msi.FullName "dist\fcc_controller_${VERSION}.msi" -Force
-            "Found MSI at $($msi.FullName)"
-          } else {
-            Write-Warning 'No Fcc3Controller.msi produced; the release will ship the portable zip only'
-          }
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          if (-not $msi) { Write-Error 'Fcc3Controller.msi was not produced'; exit 1 }
+          if (-not $exe) { Write-Error 'Fcc3ControllerSetup.exe was not produced'; exit 1 }
+          Copy-Item $msi.FullName "dist\fcc_controller_${VERSION}.msi" -Force
+          Copy-Item $exe.FullName "dist\fcc_controller_${VERSION}.exe" -Force
+          Get-ChildItem dist
 
       # Carry the firmware assets forward from the newest release that has them,
       # so GithubUpdater always finds both a .hex and a .msi in the latest

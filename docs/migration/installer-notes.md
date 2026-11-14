@@ -1,5 +1,12 @@
 # Installer migration notes (net48 → .NET 10) — input for MO4
 
+> **Superseded (2026-11-09):** the vdproj + Visual Studio path described here is abandoned in
+> favor of a VS-independent WiX installer (see `net10-upgrade-plan.md` Decision Gate 2 and
+> "Why Visual Studio was required"). The implementation lives in `src/App/Installer/`
+> (`Installer.wixproj` + `Bundle.wixproj`; see its `README.md`). This file is retained for the
+> .NET 10 Desktop Runtime URL/hashes (§1.1 and §8) and as a record of the old vdproj contents.
+> Do not follow the VS/MO4 checklist in §5.
+
 Research only. No project/installer file was modified. Everything below is for the
 hands-on MO4 session (`src/App/WindowsInstaller/WindowsInstaller.vdproj`, edited in
 Visual Studio with the Installer Projects extension).
@@ -468,7 +475,37 @@ prerequisite is selected):
 
 ---
 
-## 7. Sources
+## 7. WiX implementation (S-G2, current)
+
+The vdproj path was replaced by WiX Toolset v5 (`WixToolset.Sdk` 5.0.2). Files:
+
+| File | Purpose |
+|------|---------|
+| `src/App/Installer/Installer.wixproj` | MSI project (`OutputType=Package`, x64, `Fcc3Controller.msi`) |
+| `src/App/Installer/Product.wxs` | Per-machine MSI; harvests the framework-dependent publish output with `<Files Include="$(var.PublishDir)**">` (keeps `Avrdude\`), excludes PDBs; `UpgradeCode` reuses the old vdproj GUID; `netfx:DotNetCompatibilityCheck` launch condition is the direct-MSI fallback |
+| `src/App/Installer/Bundle.wixproj` | Burn bundle (`OutputType=Bundle`, `Fcc3ControllerSetup.exe`), `ProjectReference` to the MSI |
+| `src/App/Installer/Bundle.wxs` | `netfx:DotNetCoreSearch` (`RuntimeType=desktop`, `Platform=x64`, `MajorVersion=10`) + `ExePackage` with a remote `.NET 10.0.14` payload; `DetectCondition` skips the install when any 10.x runtime is present |
+| `src/App/Installer/Directory.Build.props` | per-project `obj/` tree (two projects share the folder) |
+| `src/App/Installer/README.md` | build/verification instructions |
+
+Runtime payload values used in `Bundle.wxs`:
+
+| Value | 10.0.14 x64 |
+|-------|-------------|
+| File name | `windowsdesktop-runtime-10.0.14-win-x64.exe` |
+| Size (bytes) | `60035296` |
+| SHA-256 | `91C2795A7B1E2480CAA83FCE9514DC2E2D21E277D9A297311FABA6040BAD7330` |
+| SHA-512 (WiX `RemotePayload/@Hash`) | `337DACAB1636219147B3FE75E451BF5B1C17BCA2C86328266D40C4AD1FF0A1E8391C4746CA7A5B702B65B61E8BFE834566CFC1B548CC10AEF90B441357B10B69` |
+
+Validation performed locally (2026-11-14): `dotnet build src/App/Installer/Bundle.wixproj -c Release`
+produced both artifacts with 0 warnings/errors; `wix msi validate` passed; administrative
+MSI extraction contained the app, managed dependencies and `Avrdude\avrdude.exe|conf|libusb0.dll`
+with no PDBs; `Fcc3ControllerSetup.exe /layout <dir> /quiet` exited 0 and downloaded the
+runtime payload (size/hash check). Clean-VM install remains part of V-1.
+
+---
+
+## 8. Sources
 
 * Visual Studio Installer Projects and .NET (Publish Items, Prerequisites dialog):
   https://learn.microsoft.com/en-us/visualstudio/deployment/installer-projects-net-core

@@ -99,7 +99,7 @@ Prebuilt firmware is produced by GitHub Actions on every push (workflow artifact
 
 ### Building the configurator
 
-The Windows configurator is a .NET 10 WinForms app. You need the .NET 10 SDK, plus Visual Studio 2026 with the Installer Projects extension if you want to build the `.msi`.
+The Windows configurator is a .NET 10 WinForms app. You need the .NET 10 SDK; no Visual Studio is required, including for the installer.
 
 ```sh
 # build Release (outputs src/App/Fcc3_configurator/bin/Release/net10.0-windows/)
@@ -107,9 +107,13 @@ dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
 
 # run (requires the .NET 10 Windows Desktop Runtime)
 dotnet src/App/Fcc3_configurator/bin/Release/net10.0-windows/FCC_configurator.dll
+
+# build the installer: framework-dependent MSI + Burn bootstrapper
+dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+dotnet build src/App/Installer/Bundle.wixproj -c Release
 ```
 
-The app is framework-dependent, so the installer chains the .NET 10 Desktop Runtime as a prerequisite instead of bundling it. The `.msi` is built from `src/App/WindowsInstaller/WindowsInstaller.vdproj` in Visual Studio; see `docs/migration/installer-notes.md` for the migration details.
+The app is framework-dependent, so the installer chains the .NET 10 Desktop Runtime as a prerequisite instead of bundling it. The WiX v5 projects in `src/App/Installer/` build `Fcc3Controller.msi` (under `bin/Release/<culture>/`) and the Burn bootstrapper `Fcc3ControllerSetup.exe` (which installs the runtime first); see `docs/migration/installer-notes.md` for the runtime pinning details.
 
-Prebuilt app releases are produced by GitHub Actions: run the **Configurator** workflow with **Publish release** to create an `app-v<version>` tag containing `fcc_controller_<version>.msi` (the `.hex` is carried forward from the newest release that has it).
+Prebuilt app releases are produced by GitHub Actions: run the **Configurator** workflow with **Publish release** to create an `app-v<version>` tag containing `fcc_controller_<version>.exe` (Burn installer) and `fcc_controller_<version>.msi` (the `.hex` is carried forward from the newest release that has it).
 

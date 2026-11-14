@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GithubUpdater", "GithubUpda
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexHelper", "HexUploader\HexHelper.csproj", "{F34B6315-316B-4E95-AE62-C7EDD3F715A8}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WindowsInstaller", "WindowsInstaller\WindowsInstaller.vdproj", "{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,15 +76,6 @@ Global
 		{F34B6315-316B-4E95-AE62-C7EDD3F715A8}.Release|x64.Build.0 = Release|x64
 		{F34B6315-316B-4E95-AE62-C7EDD3F715A8}.Release|x86.ActiveCfg = Release|Any CPU
 		{F34B6315-316B-4E95-AE62-C7EDD3F715A8}.Release|x86.Build.0 = Release|Any CPU
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Debug|Any CPU.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Debug|x64.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Debug|x86.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Publish|Any CPU.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Publish|x64.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Publish|x86.ActiveCfg = Debug
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Release|Any CPU.ActiveCfg = Release
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Release|x64.ActiveCfg = Release
-		{CDDEC809-E62D-4C60-A81F-5EAC91813F6E}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
