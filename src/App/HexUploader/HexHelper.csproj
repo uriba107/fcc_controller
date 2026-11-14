@@ -12,16 +12,15 @@
   </ItemGroup>
 
   <!-- The SDK's default None glob already contains Avrdude\*; pull the binaries out of
-       None so they can be declared Content (Content Update alone matches nothing). -->
+       None so they can be declared Content (Content Update alone matches nothing).
+       AVRDUDE 8.3 x64 statically links libusb, so no libusb0.dll/libwinpthread is needed. -->
   <ItemGroup>
     <None Remove="Avrdude\avrdude.exe" />
-    <None Remove="Avrdude\libusb0.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Avrdude\avrdude.conf" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Avrdude\avrdude.exe" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="Avrdude\libusb0.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
