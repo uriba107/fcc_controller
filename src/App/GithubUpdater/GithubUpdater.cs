@@ -103,13 +103,13 @@ namespace GithubHelper
             if ((UserName != null) && (Repository != null))
             {
 
-                GetData();
+                bool fetched = GetData();
                 bool hasData;
                 lock (stateLock)
                 {
                     hasData = RepoData != null;
                 }
-                if (hasData)
+                if (fetched && hasData)
                 {
                     GetAssets();
                     return true;
@@ -148,7 +148,7 @@ namespace GithubHelper
             }
         }
 
-        private void GetData()
+        private bool GetData()
         {
             string URL = String.Join("/", new string[] { @GithubAPI, "repos", @UserName, @Repository, "releases/latest" });
             try
@@ -167,11 +167,14 @@ namespace GithubHelper
                         }
                     }
                 }
+                return true;
             }
             catch (Exception ex)
             {
-                // Offline, HTTP error or malformed response: no update data this time.
-                System.Diagnostics.Debug.WriteLine("Update check failed: " + ex.Message);
+                // Offline, HTTP error or malformed response: keep the last known
+                // release data but report this check as unsuccessful.
+                System.Diagnostics.Trace.WriteLine("Update check failed: " + ex.Message);
+                return false;
             }
         }
 
@@ -194,7 +197,7 @@ namespace GithubHelper
                 }
                 Firmware = new Asset();
                 App = new Asset();
-                Asset? firmware = Assets.Where(a => (a.name != null) && a.name.Contains(".hex")).Select(a => (Asset?)a).FirstOrDefault();
+                Asset? firmware = Assets.Where(a => (a.name != null) && Path.GetExtension(a.name).Equals(".hex", StringComparison.OrdinalIgnoreCase)).Select(a => (Asset?)a).FirstOrDefault();
                 if (firmware != null)
                 {
                     Asset found = firmware.Value;
@@ -207,10 +210,10 @@ namespace GithubHelper
                 // Prefer the Burn bootstrapper (.exe), which installs the .NET 10
                 // Desktop Runtime before the MSI. Older releases only have an .msi,
                 // so fall back to that. Both are named fcc_controller_<version>.<ext>.
-                Asset? app = Assets.Where(a => (a.name != null) && a.name.StartsWith(Repository + "_") && a.name.Contains(".exe")).Select(a => (Asset?)a).FirstOrDefault();
+                Asset? app = Assets.Where(a => (a.name != null) && a.name.StartsWith(Repository + "_", StringComparison.Ordinal) && Path.GetExtension(a.name).Equals(".exe", StringComparison.OrdinalIgnoreCase)).Select(a => (Asset?)a).FirstOrDefault();
                 if (app == null)
                 {
-                    app = Assets.Where(a => (a.name != null) && a.name.Contains(".msi")).Select(a => (Asset?)a).FirstOrDefault();
+                    app = Assets.Where(a => (a.name != null) && Path.GetExtension(a.name).Equals(".msi", StringComparison.OrdinalIgnoreCase)).Select(a => (Asset?)a).FirstOrDefault();
                 }
                 if (app != null)
                 {
@@ -270,7 +273,7 @@ namespace GithubHelper
                 name = Firmware.name;
                 url = Firmware.DownloadURL;
             }
-            if ((url == null) || (name == null))
+            if ((url == null) || (name == null) || (Path.GetFileName(name) != name))
             {
                 return false;
             }
@@ -286,7 +289,7 @@ namespace GithubHelper
                 {
                     response.EnsureSuccessStatusCode();
                     byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    File.WriteAllBytes(TargetPath + "\\" + name, data);
+                    File.WriteAllBytes(Path.Combine(TargetPath, name), data);
                 }
                 return true;
             }
@@ -306,7 +309,7 @@ namespace GithubHelper
                 name = App.name;
                 url = App.DownloadURL;
             }
-            if ((url == null) || (name == null))
+            if ((url == null) || (name == null) || (Path.GetFileName(name) != name))
             {
                 return false;
             }
@@ -322,7 +325,7 @@ namespace GithubHelper
                 {
                     response.EnsureSuccessStatusCode();
                     byte[] data = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    File.WriteAllBytes(TargetPath + "\\" + name, data);
+                    File.WriteAllBytes(Path.Combine(TargetPath, name), data);
                 }
                 return true;
             }

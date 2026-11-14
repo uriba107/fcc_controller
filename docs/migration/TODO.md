@@ -177,3 +177,19 @@ buildable".
   `HttpClient.Send` already blocks; async is a separate redesign), nullable `CurrentRelease`
   (not consumed by the app and `Nullable` is disabled), and NuGet caching (`cache: true`
   needs a `packages.lock.json` or explicit dependency path; none exists here).
+
+### 2026-11-14T12:30Z — orchestrator (me) — second review pass
+
+- Re-ran `ocr` on `develop..migration/target-net10` (15 findings) and fixed the valid ones:
+  - asset matching now uses `Path.GetExtension(...)` with `OrdinalIgnoreCase` instead of
+    `Contains(".hex"/".exe"/".msi")`, so `*.hex.sig` / `*.exe.txt` cannot be selected;
+  - download targets must be plain file names (`Path.GetFileName(name) == name`) and are
+    written with `Path.Combine`, closing a path-traversal route from remote asset names;
+  - `GetData()` returns success/failure and `Update()` returns `false` when a refresh failed
+    (last-known data is kept for the UI); logging uses `Trace` so it survives Release builds;
+  - workflow: the zip step has the same empty-version guard, and the release fails if
+    `Avrdude\avrdude.exe` is missing from the publish output.
+- Rejected: sync-over-async HTTP (pre-existing sync `HttpClient.Send`), NuGet caching (no
+  `packages.lock.json` to key on), the mixed 3/4-part version in the portable zip name (the
+  updater only parses `.exe`/`.msi`/`.hex`), and removing `continue-on-error` from the firmware
+  carry-forward (a first release legitimately has no previous `.hex`; the updater tolerates it).

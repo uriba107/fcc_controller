@@ -106,6 +106,7 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.short }}
         run: |
+          if (-not $env:VERSION) { Write-Error 'App version was not produced by the build job'; exit 1 }
           Compress-Archive -Path 'dist\bundle\*' -DestinationPath "dist\fcc_controller_${VERSION}.zip" -Force
           Remove-Item -Recurse -Force 'dist\bundle'
           Get-ChildItem dist
@@ -113,6 +114,16 @@ jobs:
       # Framework-dependent publish output is what the WiX MSI harvests.
       - name: Publish app (framework-dependent)
         run: dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+      # Avrdude flows in transitively from HexHelper's Content items. Fail the
+      # release if that ever regresses instead of shipping an installer without it.
+      - name: Verify publish output
+        run: |
+          $publish = 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\publish'
+          if (-not (Test-Path "$publish\Avrdude\avrdude.exe")) {
+            Write-Error 'Avrdude\avrdude.exe is missing from the publish output'
+            exit 1
+          }
 
       # WiX v5 is a NuGet/MSBuild SDK (WixToolset.Sdk 5.0.2), so no Visual
       # Studio, Installer Projects extension or global tool is required.
