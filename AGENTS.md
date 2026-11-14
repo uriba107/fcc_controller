@@ -56,7 +56,7 @@ Two independent stacks, no shared build, no test suite, no lint/format config. C
 - Axis centering is measured at every boot (`ReadStickZero`), not persisted. Only options, user force, and rotation sin/cos live in EEPROM; empty bytes (0/0xFF) fall back to defaults.
 - EEPROM is written only by `exitConfig()` / `processStickOut()` (`WriteMem`), and only changed values are updated.
 - Grip config mode: hold the grip config combo for 3 s; LED pulses, buttons are suppressed, 15 s inactivity exits and saves. Grip button bits are remapped to Windows HID bits in `ReadGrip()`.
-- Firmware update path: `Reboot` command → `RebootToBootloader()` writes magic `0x7777` to RAM `0x0800`, detaches USB, watchdog-resets into the Caterina/Arduino bootloader. The app waits for a new COM port and runs bundled `Avrdude\avrdude.exe -cavr109 -b57600` (AVRDUDE 8.3 x64, statically linked — no libusb DLL needed), so `Avrdude/` must ship next to the executable and the board needs an Arduino-compatible bootloader.
+- Firmware update path: `Reboot` command → `RebootToBootloader()` writes magic `0x7777` to RAM `0x0800`, detaches USB, watchdog-resets into the Caterina/Arduino bootloader. The app waits for a new COM port and runs bundled `Avrdude\avrdude.exe -cavr109 -b57600` (AVRDUDE 8.3 x64, statically linked — no libusb DLL needed; `avrdude.conf` is trimmed to the ATmega32U4 part chain plus the `avr109`/`avr911` programmer), so `Avrdude/` must ship next to the executable and the board needs an Arduino-compatible bootloader.
 
 ## Release packaging gotcha
 

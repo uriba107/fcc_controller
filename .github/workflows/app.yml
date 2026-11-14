@@ -136,6 +136,10 @@ jobs:
             Write-Error 'Avrdude\avrdude.exe is missing from the publish output'
             exit 1
           }
+          if (-not (Test-Path "$publish\Avrdude\avrdude.conf")) {
+            Write-Error 'Avrdude\avrdude.conf is missing from the publish output'
+            exit 1
+          }
 
       # WiX v5 is a NuGet/MSBuild SDK (WixToolset.Sdk 5.0.2), so no Visual
       # Studio, Installer Projects extension or global tool is required.
