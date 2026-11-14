@@ -68,7 +68,7 @@ jobs:
         run: |
           $bundle = 'dist\configurator'
           New-Item -ItemType Directory -Force -Path $bundle, "$bundle\Avrdude" | Out-Null
-          Copy-Item 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\*' $bundle -Force
+          Copy-Item 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\*' $bundle -Recurse -Force
           Copy-Item 'src\App\HexUploader\Avrdude\*' "$bundle\Avrdude" -Force
           Get-ChildItem $bundle -Recurse
 
@@ -105,6 +105,7 @@ jobs:
           VERSION: ${{ needs.build.outputs.short }}
         run: |
           Compress-Archive -Path 'dist\bundle\*' -DestinationPath "dist\fcc_controller_${VERSION}.zip" -Force
+          Remove-Item -Recurse -Force 'dist\bundle'
           Get-ChildItem dist
 
       # Framework-dependent publish output is what the WiX MSI harvests.

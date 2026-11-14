@@ -153,3 +153,20 @@ buildable".
   (unsigned MSI/bundle, same as the previous vdproj release).
 - Next: commit the implementation + docs, run the review pass, then push/PR for V‑4 and run
   V‑1 with the device + a clean VM.
+
+### 2026-11-14T11:30Z — orchestrator (me) — review pass
+
+- Ran `ocr review --from develop --to migration/target-net10` (commit `cac0b61`); 16 findings.
+  Verified each against the code before changing anything.
+- Fixed (valid): `GetAssets()` now clears `Assets` so repeated `Update()` calls cannot resolve
+  stale assets or grow the list; `DownloadFirmware`/`DownloadApp` also guard the asset `name`
+  (not just the URL) before building the target path. CI: portable staging now uses
+  `Copy-Item -Recurse` (subdirectories such as `runtimes\` and `Avrdude\` were copied empty),
+  and `dist\bundle` is removed after zipping so the release upload only sees files.
+- Rejected as false positive: the high-severity "MSI ships without Avrdude" — `HexUploader`
+  declares `Avrdude\*` as Content, so `dotnet publish` emits it; re-verified a clean publish
+  and the MSI file table (`Avrdude\avrdude.exe|conf|libusb0.dll` present, PDBs absent).
+- Rejected as pre-existing/out of scope: blocking `GetAwaiter().GetResult()` HTTP reads, the
+  empty `GetData` catch, nullable `CurrentRelease`, updater field synchronization (a lock
+  spanning the network call would stall the UI), workflow `timeout-minutes`/NuGet caching,
+  and staging-version validation (the version step already fails hard on a missing match).

@@ -157,6 +157,7 @@ namespace GithubHelper
 
         private void GetAssets()
         {
+            Assets.Clear();
             if ((RepoData != null) &&
                 (RepoData.Value.ValueKind == JsonValueKind.Object) &&
                 RepoData.Value.TryGetProperty("assets", out JsonElement assetsElement) &&
@@ -232,7 +233,7 @@ namespace GithubHelper
 
         public bool DownloadFirmware(string TargetPath)
         {
-            if (Firmware.DownloadURL == null)
+            if ((Firmware.DownloadURL == null) || (Firmware.name == null))
             {
                 return false;
             }
@@ -253,7 +254,7 @@ namespace GithubHelper
 
         public bool DownloadApp(string TargetPath)
         {
-            if (App.DownloadURL == null)
+            if ((App.DownloadURL == null) || (App.name == null))
             {
                 return false;
             }
