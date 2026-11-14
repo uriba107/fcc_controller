@@ -34,12 +34,12 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       short: ${{ steps.version.outputs.short }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # .NET 10 SDK for the net10.0-windows target. PackageReference restore
       # is implicit in `dotnet build`; no separate NuGet/MSBuild setup needed.
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
           cache: true
@@ -76,7 +76,7 @@ jobs:
           Get-ChildItem $bundle -Recurse
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: configurator-${{ steps.version.outputs.short }}
           path: dist/configurator/
@@ -91,17 +91,17 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
           cache: true
           cache-dependency-path: 'src/App/**/*.csproj'
 
       - name: Download portable bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: configurator-${{ needs.build.outputs.short }}
           path: dist\bundle
