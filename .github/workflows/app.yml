@@ -116,6 +116,26 @@ jobs:
           "MSI:    $($msi.FullName) ($($msi.Length) bytes)"
           "Bundle: $($exe.FullName) ($($exe.Length) bytes)"
 
+      # Same names the release job uses, so an artifact can be installed and
+      # exercised on real hardware without cutting a release.
+      - name: Stage installer artifacts
+        run: |
+          $dest = 'dist\installer'
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          $version = '${{ steps.version.outputs.short }}'
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          Copy-Item $msi.FullName "$dest\fcc_controller_$version.msi" -Force
+          Copy-Item $exe.FullName "$dest\fcc_controller_$version.exe" -Force
+          Get-ChildItem $dest
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ steps.version.outputs.short }}
+          path: dist/installer/
+          if-no-files-found: error
+
   release:
     name: Build MSI and publish app release
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
