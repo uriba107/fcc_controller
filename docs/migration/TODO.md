@@ -213,3 +213,23 @@ buildable".
   releases; an unparseable version only disables the "update available" hint).
 - Remaining low-severity items (native `runtimes\` bloat in the MSI, first-asset ordering when
   a release has multiple `.msi` assets) are accepted as-is.
+
+### 2026-11-14T15:20Z — orchestrator (me) — AVRDUDE 8.3, trimmed conf, backend question
+
+- Bundled AVRDUDE 6.0.1 (2015) → **8.3** (official MSVC x64, statically linked: no VC++ redist,
+  no `libusb0.dll`). `libusb0.dll` deleted, `HexHelper.csproj` content list updated.
+- `avrdude.conf` trimmed from upstream 24,865 lines / 931 KB to 262 lines / 9,431 B: only the
+  `avr109`/`avr911` programmer plus the `.classic-nocal → .classic → m16u4 → m32u4` part chain.
+  Verified with AVRDUDE's `dryrun` programmer: identical memory table to upstream (flash 32768/128,
+  eeprom 1024/4, sram 2560, signature `1E 95 87`) and `Fcc3.hex` writes + verifies.
+- Checked whether the configurator ever used `uriba107/32u4_hexuploader` /
+  `uriba107/ArduinoSketchUploader` as the upload backend: **it never did**. The only trace is a
+  commented-out `ArduinoSketchUploader` snippet in the initial commit `1ee8291` (2017-03-25),
+  removed in `9d13401` (2017-04-01); no branch, worktree, csproj or package reference has it.
+- Deferred (user decision: keep avrdude for now): swapping the `Process.Start` avrdude path for
+  the managed AVR109 implementation. Feasibility already proven in a scratch build — the fork's
+  `master` (upstream + `TriggerBootloader` flag, `10cea83a`) builds on `net10.0-windows` with
+  `RJCP.SerialPortStream 3.0.5` + `IntelHexFormatReader 2.2.3` after replacing 4
+  `SerialPortStream.GetPortNames()` calls with `SerialPort.GetPortNames()`. It would drop
+  `Avrdude\` (≈9.7 MB) and the external process entirely, but needs bench validation on a real
+  FCC3 bootloader before it can ship.
