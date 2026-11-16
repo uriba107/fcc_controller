@@ -34,13 +34,13 @@
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormStickTracker));
             this.panelData = new System.Windows.Forms.Panel();
+            this.buttonCenter = new System.Windows.Forms.Button();
             this.labelPosY = new System.Windows.Forms.Label();
             this.labelPosX = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.chartStick = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.buttonCenter = new System.Windows.Forms.Button();
             this.panelData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartStick)).BeginInit();
             this.SuspendLayout();
@@ -56,19 +56,32 @@
             this.panelData.Controls.Add(this.label3);
             this.panelData.Controls.Add(this.label2);
             this.panelData.Controls.Add(this.label1);
-            this.panelData.Location = new System.Drawing.Point(-2, 655);
+            this.panelData.Location = new System.Drawing.Point(-1, 426);
+            this.panelData.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.panelData.Name = "panelData";
-            this.panelData.Size = new System.Drawing.Size(650, 49);
+            this.panelData.Size = new System.Drawing.Size(433, 32);
             this.panelData.TabIndex = 2;
+            // 
+            // buttonCenter
+            // 
+            this.buttonCenter.Location = new System.Drawing.Point(301, 6);
+            this.buttonCenter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonCenter.Name = "buttonCenter";
+            this.buttonCenter.Size = new System.Drawing.Size(125, 23);
+            this.buttonCenter.TabIndex = 5;
+            this.buttonCenter.Text = "Center";
+            this.buttonCenter.UseVisualStyleBackColor = true;
+            this.buttonCenter.Click += new System.EventHandler(this.buttonCenter_Click);
             // 
             // labelPosY
             // 
             this.labelPosY.AutoSize = true;
             this.labelPosY.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelPosY.ForeColor = System.Drawing.Color.White;
-            this.labelPosY.Location = new System.Drawing.Point(350, 14);
+            this.labelPosY.Location = new System.Drawing.Point(233, 9);
+            this.labelPosY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelPosY.Name = "labelPosY";
-            this.labelPosY.Size = new System.Drawing.Size(63, 25);
+            this.labelPosY.Size = new System.Drawing.Size(45, 17);
             this.labelPosY.TabIndex = 4;
             this.labelPosY.Text = "-1000";
             this.labelPosY.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -78,9 +91,10 @@
             this.labelPosX.AutoSize = true;
             this.labelPosX.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelPosX.ForeColor = System.Drawing.Color.White;
-            this.labelPosX.Location = new System.Drawing.Point(231, 14);
+            this.labelPosX.Location = new System.Drawing.Point(154, 9);
+            this.labelPosX.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelPosX.Name = "labelPosX";
-            this.labelPosX.Size = new System.Drawing.Size(63, 25);
+            this.labelPosX.Size = new System.Drawing.Size(45, 17);
             this.labelPosX.TabIndex = 3;
             this.labelPosX.Text = "-1000";
             // 
@@ -89,9 +103,10 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(304, 9);
+            this.label3.Location = new System.Drawing.Point(203, 6);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(37, 29);
+            this.label3.Size = new System.Drawing.Size(26, 20);
             this.label3.TabIndex = 2;
             this.label3.Text = "Y:";
             // 
@@ -100,9 +115,10 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(194, 9);
+            this.label2.Location = new System.Drawing.Point(129, 6);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 29);
+            this.label2.Size = new System.Drawing.Size(26, 20);
             this.label2.TabIndex = 1;
             this.label2.Text = "X:";
             // 
@@ -111,9 +127,10 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(3, 9);
+            this.label1.Location = new System.Drawing.Point(2, 6);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(179, 29);
+            this.label1.Size = new System.Drawing.Size(123, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Stick Position:";
             // 
@@ -142,7 +159,8 @@
             chartArea1.AxisY2.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
             chartArea1.Name = "ChartAreaStick";
             this.chartStick.ChartAreas.Add(chartArea1);
-            this.chartStick.Location = new System.Drawing.Point(-2, 0);
+            this.chartStick.Location = new System.Drawing.Point(-1, 0);
+            this.chartStick.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chartStick.Name = "chartStick";
             series1.ChartArea = "ChartAreaStick";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
@@ -158,36 +176,27 @@
             series2.Name = "SeriesTrace";
             this.chartStick.Series.Add(series1);
             this.chartStick.Series.Add(series2);
-            this.chartStick.Size = new System.Drawing.Size(650, 649);
+            this.chartStick.Size = new System.Drawing.Size(433, 422);
             this.chartStick.TabIndex = 0;
             this.chartStick.Text = "chart1";
             // 
-            // buttonCenter
-            // 
-            this.buttonCenter.Location = new System.Drawing.Point(451, 9);
-            this.buttonCenter.Name = "buttonCenter";
-            this.buttonCenter.Size = new System.Drawing.Size(187, 35);
-            this.buttonCenter.TabIndex = 5;
-            this.buttonCenter.Text = "Center";
-            this.buttonCenter.UseVisualStyleBackColor = true;
-            this.buttonCenter.Click += new System.EventHandler(this.buttonCenter_Click);
-            // 
             // FormStickTracker
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(648, 705);
+            this.ClientSize = new System.Drawing.Size(432, 458);
             this.Controls.Add(this.chartStick);
             this.Controls.Add(this.panelData);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormStickTracker";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FormStickTracker";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormStickTracker_FormClosing);
             this.panelData.ResumeLayout(false);
             this.panelData.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartStick)).EndInit();

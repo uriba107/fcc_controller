@@ -1,0 +1,36 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>Fcc3Controller</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+
+    <!-- MSI ProductVersion is 3-part. Keep in sync with
+         src/App/Fcc3_configurator/Properties/AssemblyInfo.cs (1.0.3.0 -> 1.0.3). -->
+    <ProductVersion>1.0.3</ProductVersion>
+
+    <!-- Framework-dependent publish output from
+         `dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release`.
+         Override with -p:PublishDir=<dir> when publishing elsewhere. -->
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\Fcc3_configurator\bin\Release\net10.0-windows\publish\</PublishDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$([MSBuild]::EnsureTrailingSlash('$(PublishDir)'))</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Bundle.wxs belongs to Bundle.wixproj; opt out of the default **/*.wxs glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DotNetCompatibilityCheck launch condition -->
+    <PackageReference Include="WixToolset.Netfx.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

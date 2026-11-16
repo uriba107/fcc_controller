@@ -21,6 +21,9 @@ uint32_t gConfigTimer = 0;
 void InitFCC(void)
 {
 	SetupSPI();
+	#ifdef LOCAL_ADC
+	SetupADC();
+	#endif
 
 	TimerInit();
 	SetupLeds();
@@ -63,6 +66,16 @@ void SetupLeds(void)
 	// Now turn LED on for full cycle
 	setStatusLed(gPowerLed);
 }
+
+#ifdef LOCAL_ADC
+void SetupADC(void)
+{
+	ADC_SetupChannel(ROLL_CH); // A0 - X
+	ADC_SetupChannel(PITCH_CH); // A1 - Y
+	ADMUX |= ADC_RIGHT_ADJUSTED | ADC_REFERENCE_AVCC;
+	ADC_Init(ADC_SINGLE_CONVERSION|ADC_PRESCALE_128);
+}
+#endif
 
 void setStatusLed(uint8_t power)
 {
@@ -194,7 +207,7 @@ void SetCalibratedSensitivity(int16_t OffsetValue)
 	gStickLimits.X.min = -OffsetValue;
 	gStickLimits.Y.max = OffsetValue;
 	gStickLimits.Y.min = -OffsetValue;
-	gStickLimits.Deadzone = 10 + (2 * (float)STICK_DEADZONE * ((float)OffsetValue / 2048));
+	gStickLimits.Deadzone = 10 + (2 * (float)STICK_DEADZONE * ((float)OffsetValue / ADC_MEDIAN_VALUE));
 
 	// do all the force calcs.
 	CalcForceMapping();
@@ -230,7 +243,6 @@ int16_t CalcForceDisplacement(float RequestedForce)
 // const float DeltaVol = 2.0F;
 // const float ForceRef = 9.0F;
 #define FORCE_REF 9
-#define ADC_MAX 4095
 #define VREF 5.0
 #define BASEVOLTAGE 2.5
 
@@ -245,7 +257,7 @@ int16_t readSPIADC(uint8_t adcChannel)
 {
 	PORTC &= ~(1 << PINC6); // Pull shift register CS low
 	SPI_SendByte(0x01);		//send start
-	int16_t result = (((SPI_TransferByte(0xa0 | (adcChannel << 6)) & ~(0xF0)) << 8) | (SPI_ReceiveByte())) - 2048;
+	int16_t result = (((SPI_TransferByte(0xa0 | (adcChannel << 6)) & ~(0xF0)) << 8) | (SPI_ReceiveByte())) - ADC_MEDIAN_VALUE;
 	PORTC |= (1 << PINC6); // Pull Shift register CS high
 
 	// Add a very not streamlined thing here (might be better to move to a different place later).
@@ -262,6 +274,24 @@ int16_t readSPIADC(uint8_t adcChannel)
 	}
 	return result;
 }
+
+#ifdef LOCAL_ADC
+int16_t ReadAxis(uint8_t adcChannel) {
+	int16_t result = ADC_GetChannelReading(adcChannel|ADC_RIGHT_ADJUSTED | ADC_REFERENCE_AVCC) - ADC_MEDIAN_VALUE;
+	if (abs(result) - STICK_DEADZONE <= 0)
+	{
+		PORTF |= (1 << adcChannel - LOCAL_ADC_OFFSET_CH);		  // pull high (led on)
+		PORTF |= (1 << (adcChannel)); // pull high (led on)
+	}
+	else
+	{
+		PORTF &= ~(1 << adcChannel - LOCAL_ADC_OFFSET_CH);	   // pull low (led off)
+		PORTF &= ~(1 << (adcChannel)); // pull low (led off)
+	}
+	return result;
+}
+#endif
+
 
 void ReadStick(AxisStore *AxisData)
 {
@@ -612,7 +642,7 @@ void FccSettings(uint32_t Buttons)
 	{ // if we are not in config mode
 		if (gConfigTimer == 0)
 		{
-			if (Buttons & GripConfigMode)
+			if ((Buttons & GripConfigMode) == GripConfigMode)
 			{
 				gConfigTimer = millis();
 			}
@@ -624,7 +654,7 @@ void FccSettings(uint32_t Buttons)
 		}
 		else
 		{
-			if (!(Buttons & GripConfigMode))
+			if ((Buttons & GripConfigMode) != GripConfigMode)
 			{
 				gConfigTimer = 0;
 			}

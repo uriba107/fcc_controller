@@ -1,0 +1,246 @@
+name: Configurator
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'src/App/**'
+      - '.github/workflows/app.yml'
+  pull_request:
+    paths:
+      - 'src/App/**'
+      - '.github/workflows/app.yml'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Publish release app-v<version> (version read from AssemblyInfo.cs)'
+        type: boolean
+        default: false
+        required: false
+
+concurrency:
+  group: configurator-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build app
+    runs-on: windows-latest
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      short: ${{ steps.version.outputs.short }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # .NET 10 SDK for the net10.0-windows target. PackageReference restore
+      # is implicit in `dotnet build`; no separate NuGet/MSBuild setup needed.
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: 'src/App/**/*.csproj'
+
+      # The app project transitively builds GithubUpdater and HexHelper.
+      - name: Build
+        run: dotnet build src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+      - name: Read app version
+        id: version
+        run: |
+          $match = Select-String -Path 'src\App\Fcc3_configurator\Properties\AssemblyInfo.cs' -Pattern '^\[assembly: AssemblyVersion\("(\d+(?:\.\d+)*)"\)'
+          if (-not $match) {
+            Write-Error 'Could not read AssemblyVersion from AssemblyInfo.cs'
+            exit 1
+          }
+          $version = $match.Matches[0].Groups[1].Value
+          $short = ($version -split '\.')[0..2] -join '.'
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "short=$short"     >> $env:GITHUB_OUTPUT
+          "App version: $version"
+
+      # Portable layout: SDK-style framework-dependent output (app dll/exe +
+      # deps/runtimeconfig) copied out of bin\Release\net10.0-windows, plus the
+      # Avrdude helper folder next to the exe (HexUpdater resolves "Avrdude"
+      # relative to the application directory).
+      - name: Stage portable bundle
+        run: |
+          $bundle = 'dist\configurator'
+          New-Item -ItemType Directory -Force -Path $bundle, "$bundle\Avrdude" | Out-Null
+          Copy-Item 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\*' $bundle -Recurse -Force
+          Copy-Item 'src\App\HexUploader\Avrdude\*' "$bundle\Avrdude" -Force
+          Get-ChildItem $bundle -Recurse
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: configurator-${{ steps.version.outputs.short }}
+          path: dist/configurator/
+          if-no-files-found: error
+
+      # Validate the WiX pipeline on every push/PR, not only on a release
+      # dispatch: the MSI harvests the framework-dependent publish output, so
+      # publish first, then build the bundle (which builds the MSI). The release
+      # job repeats these steps so a release stays independent of this job's
+      # workspace/artifacts.
+      - name: Publish app (framework-dependent)
+        run: dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+      - name: Verify publish output
+        run: |
+          $publish = 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\publish'
+          foreach ($file in @(
+            "$publish\FCC_configurator.exe",
+            "$publish\Avrdude\avrdude.exe",
+            "$publish\Avrdude\avrdude.conf"
+          )) {
+            if (-not (Test-Path $file)) {
+              Write-Error "Missing from publish output: $file"
+              exit 1
+            }
+          }
+
+      - name: Build WiX MSI and Burn bundle
+        run: dotnet build src/App/Installer/Bundle.wixproj -c Release
+
+      - name: Verify installer output
+        run: |
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          if (-not $msi) { Write-Error 'Fcc3Controller.msi was not produced'; exit 1 }
+          if (-not $exe) { Write-Error 'Fcc3ControllerSetup.exe was not produced'; exit 1 }
+          "MSI:    $($msi.FullName) ($($msi.Length) bytes)"
+          "Bundle: $($exe.FullName) ($($exe.Length) bytes)"
+
+      # Same names the release job uses, so an artifact can be installed and
+      # exercised on real hardware without cutting a release.
+      - name: Stage installer artifacts
+        run: |
+          $dest = 'dist\installer'
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          $version = '${{ steps.version.outputs.short }}'
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          Copy-Item $msi.FullName "$dest\fcc_controller_$version.msi" -Force
+          Copy-Item $exe.FullName "$dest\fcc_controller_$version.exe" -Force
+          Get-ChildItem $dest
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ steps.version.outputs.short }}
+          path: dist/installer/
+          if-no-files-found: error
+
+  release:
+    name: Build MSI and publish app release
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: 'src/App/**/*.csproj'
+
+      - name: Download portable bundle
+        uses: actions/download-artifact@v8
+        with:
+          name: configurator-${{ needs.build.outputs.short }}
+          path: dist\bundle
+
+      - name: Zip portable bundle
+        env:
+          VERSION: ${{ needs.build.outputs.short }}
+        run: |
+          if (-not $env:VERSION) { Write-Error 'App version was not produced by the build job'; exit 1 }
+          Compress-Archive -Path 'dist\bundle\*' -DestinationPath "dist\fcc_controller_${VERSION}.zip" -Force
+          Remove-Item -Recurse -Force 'dist\bundle'
+          Get-ChildItem dist
+
+      # Framework-dependent publish output is what the WiX MSI harvests.
+      - name: Publish app (framework-dependent)
+        run: dotnet publish src/App/Fcc3_configurator/FCC_configurator.csproj -c Release
+
+      # Avrdude flows in transitively from HexHelper's Content items. Fail the
+      # release if that ever regresses instead of shipping an installer without it.
+      - name: Verify publish output
+        run: |
+          $publish = 'src\App\Fcc3_configurator\bin\Release\net10.0-windows\publish'
+          if (-not (Test-Path $publish)) {
+            Write-Error 'Publish directory is missing'
+            exit 1
+          }
+          if (-not (Test-Path "$publish\FCC_configurator.exe")) {
+            Write-Error 'FCC_configurator.exe is missing from the publish output'
+            exit 1
+          }
+          if (-not (Test-Path "$publish\Avrdude\avrdude.exe")) {
+            Write-Error 'Avrdude\avrdude.exe is missing from the publish output'
+            exit 1
+          }
+          if (-not (Test-Path "$publish\Avrdude\avrdude.conf")) {
+            Write-Error 'Avrdude\avrdude.conf is missing from the publish output'
+            exit 1
+          }
+
+      # WiX v5 is a NuGet/MSBuild SDK (WixToolset.Sdk 5.0.2), so no Visual
+      # Studio, Installer Projects extension or global tool is required.
+      # Bundle.wixproj builds the MSI via its ProjectReference first.
+      - name: Build WiX MSI and Burn bundle
+        run: dotnet build src/App/Installer/Bundle.wixproj -c Release
+
+      - name: Stage installer assets
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if (-not $env:VERSION) { Write-Error 'App version was not produced by the build job'; exit 1 }
+          $msi = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3Controller.msi | Select-Object -First 1
+          $exe = Get-ChildItem 'src\App\Installer\bin\Release' -Recurse -Filter Fcc3ControllerSetup.exe | Select-Object -First 1
+          if (-not $msi) { Write-Error 'Fcc3Controller.msi was not produced'; exit 1 }
+          if (-not $exe) { Write-Error 'Fcc3ControllerSetup.exe was not produced'; exit 1 }
+          Copy-Item $msi.FullName "dist\fcc_controller_${VERSION}.msi" -Force
+          Copy-Item $exe.FullName "dist\fcc_controller_${VERSION}.exe" -Force
+          Get-ChildItem dist
+
+      # Carry the firmware assets forward from the newest release that has them,
+      # so GithubUpdater always finds both a .hex and a .msi in the latest
+      # release even though only the app was rebuilt for this tag.
+      - name: Reuse firmware assets from previous release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" --jq 'first(.[] | select(any(.assets[].name; endswith(".hex"))) | .tag_name)'
+          if ($tag) {
+            gh release download $tag --dir dist --pattern '*.hex' --pattern '*.eep' --pattern '*.elf' --pattern '*.srec' --pattern '*.map' --pattern '*.lss'
+            "Firmware assets reused from previous release: $tag"
+          } else {
+            Write-Warning 'No previous release with firmware (.hex) assets found'
+          }
+
+      - name: Upload assets to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: app-v${{ needs.build.outputs.short }}
+        run: |
+          if (-not (gh release view $env:TAG)) {
+            gh release create $env:TAG --target $env:GITHUB_SHA --title $env:TAG --generate-notes
+            if (-not (gh release view $env:TAG)) {
+              Write-Error 'Release does not exist and could not be created'
+              exit 1
+            }
+          }
+          gh release upload $env:TAG dist\* --clobber
+          gh release view $env:TAG --json assets --jq '.assets[].name'

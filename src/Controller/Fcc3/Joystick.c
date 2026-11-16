@@ -66,16 +66,6 @@ void SetupHardware(void)
 
 	/* Disable clock division */
 	clock_prescale_set(clock_div_1);
-	#elif (ARCH == ARCH_XMEGA)
-	/* Start the PLL to multiply the 2MHz RC oscillator to 32MHz and switch the CPU core to run from it */
-	XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000, F_CPU);
-	XMEGACLK_SetCPUClockSource(CLOCK_SRC_PLL);
-
-	/* Start the 32MHz internal RC oscillator and start the DFLL to increase it to 48MHz using the USB SOF as a reference */
-	XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC32MHZ);
-	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_INT_USBSOF, F_USB);
-
-	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 	#endif
 	//_delay_ms(2000);
 	/* Hardware Initialization */
@@ -176,14 +166,10 @@ void EVENT_USB_Device_ControlRequest(void)
 *
 *  \param[out] ReportData  Pointer to a HID report data structure to be filled
 *
-*  \return Boolean \c true if the new report differs from the last report, \c false otherwise
+*  \return Boolean \c true, the report is sent on every poll
 */
 bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 {
-	static AxisStore prevAxis = { uint16_t X,Y = 0 };
-	static uint32_t prevButtons = 0;
-	bool isChange = false;
-	
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Data_t));
 
@@ -194,14 +180,10 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 
 	//// get buttons and Hat
 	uint32_t Buffer = ReadGrip();
-	
-	isChanged = (uint8_t)(prevButton ^ Buffer) | (uint8_t)(prevAxis ^ Axis);
-	prevAxis = Axis;
-	prevButtons = Buffer;
-	
+
 	FccSettings(Buffer);
 
-	// if config mode was set, supress button output
+	// if config mode was set, suppress button output
 	if (gIsConfig) {
 		ReportData->Buttons = 0;
 		ReportData->Hat = 8;
@@ -212,8 +194,8 @@ bool GetNextReport(USB_JoystickReport_Data_t* const ReportData)
 
 	ReportData->CurrentOptions = gOptions;
 	ReportData->CurrentUserDef = gUserDefinedForce;
-	/* Return whether the new report is different to the previous report or not */
-	return isChanged;
+	/* The report also carries the option and user-force readback, so send it on every poll */
+	return true;
 }
 
 

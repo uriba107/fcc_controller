@@ -1,0 +1,117 @@
+name: Firmware
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'src/Controller/**'
+      - '.github/workflows/firmware.yml'
+  pull_request:
+    paths:
+      - 'src/Controller/**'
+      - '.github/workflows/firmware.yml'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Publish release fw-v<version> (version read from Descriptors.c)'
+        type: boolean
+        default: false
+        required: false
+
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build firmware
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install AVR toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gcc-avr avr-libc binutils-avr make
+
+      - name: Build
+        working-directory: src/Controller/Fcc3
+        run: make -j"$(nproc)"
+
+      - name: Read firmware version
+        id: version
+        working-directory: src/Controller/Fcc3
+        run: |
+          version=$(grep -oP 'ReleaseNumber\s*=\s*VERSION_BCD\(\K[0-9]+,[0-9]+,[0-9]+' Descriptors.c | tr ',' '.')
+          if [ -z "$version" ]; then
+            echo "::error::Could not read ReleaseNumber from Descriptors.c"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Firmware version: $version"
+
+      - name: Stage release assets
+        working-directory: src/Controller/Fcc3
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p dist
+          cp build/Fcc3.hex  "dist/fcc_controller_${VERSION}.hex"
+          cp build/Fcc3.eep  "dist/fcc_controller_${VERSION}.eep"
+          cp build/Fcc3.elf  "dist/fcc_controller_${VERSION}.elf"
+          cp build/Fcc3.srec "dist/fcc_controller_${VERSION}.srec"
+          cp build/Fcc3.map  "dist/fcc_controller_${VERSION}.map"
+          cp build/Fcc3.lss  "dist/fcc_controller_${VERSION}.lss"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware-${{ steps.version.outputs.version }}
+          path: src/Controller/Fcc3/dist/*
+          if-no-files-found: error
+
+  release:
+    name: Publish firmware release
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      # Carry the app assets forward from the newest release that has them, so
+      # GithubUpdater always finds both a .hex and a .msi in the latest release
+      # even though only the firmware was rebuilt for this release.
+      - name: Reuse app assets from previous release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq 'first(.[] | select(any(.assets[].name; endswith(".msi"))) | .tag_name)')
+          if [ -n "$tag" ]; then
+            gh release download "$tag" --dir dist --pattern '*.msi' --pattern '*.zip'
+            echo "App assets reused from previous release: $tag"
+          else
+            echo "::warning::No previous release with app (.msi) assets found"
+          fi
+          ls -l dist
+
+      - name: Upload assets to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: fw-v${{ needs.build.outputs.version }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" dist/* --clobber
+          gh release view "$TAG" --json assets --jq '.assets[].name'

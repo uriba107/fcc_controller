@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+
+  <!-- Framework-dependent x64 MSI. The .NET 10 Desktop Runtime is installed by
+       Bundle.wxs (Burn) before this MSI runs. The compatibility check below is a
+       fallback for anyone who launches the MSI directly. -->
+  <Package Name="FCC Configurator"
+           Manufacturer="FCC Controller"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="{917A6718-E83E-4057-BA0D-617E1FFE84B7}"
+           Scope="perMachine"
+           Compressed="yes">
+
+    <SummaryInformation Description="FCC3 Configurator installer"
+                        Manufacturer="FCC Controller" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of FCC Configurator is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <netfx:DotNetCompatibilityCheck Property="NET10DESKTOPRUNTIME"
+                                    RuntimeType="desktop"
+                                    Platform="x64"
+                                    Version="10.0.0"
+                                    RollForward="major" />
+    <Launch Condition="Installed OR NET10DESKTOPRUNTIME"
+            Message="FCC Configurator requires the .NET 10 Desktop Runtime (x64). Run Setup.exe, which installs it automatically, or install it from https://dotnet.microsoft.com/download/dotnet/10.0." />
+
+    <!-- Matches the old vdproj location:
+         C:\Program Files\FCC Controller\FCC Configurator -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ManufacturerFolder" Name="FCC Controller">
+        <Directory Id="INSTALLFOLDER" Name="FCC Configurator" />
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="ProductFeature" Title="FCC Configurator" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <!-- Harvest the publish output (app, managed dependencies and Avrdude\*).
+         Files preserves the subdirectory layout, so Avrdude ships next to the exe. -->
+    <ComponentGroup Id="ProductComponents">
+      <Files Include="$(var.PublishDir)**" Directory="INSTALLFOLDER">
+        <Exclude Files="$(var.PublishDir)**\*.pdb" />
+      </Files>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

@@ -1,0 +1,9 @@
+<Project>
+
+  <!-- Installer.wixproj and Bundle.wixproj share this folder. Give each project
+       its own obj/ tree so NuGet restore assets do not overwrite each other. -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+
+  <!-- Burn bootstrapper: installs the .NET 10 Desktop Runtime when needed, then
+       the framework-dependent MSI. This is the release asset GithubUpdater prefers. -->
+  <Bundle Name="FCC Configurator"
+          Version="$(var.ProductVersion)"
+          Manufacturer="FCC Controller"
+          UpgradeCode="{B3D2C4E1-6F7A-4B8C-9D0E-1A2B3C4D5E6F}"
+          IconSourceFile="..\Fcc3_configurator\Icon_small.ico">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication Theme="hyperlinkLicense"
+                                             LicenseUrl="https://github.com/uriba107/fcc_controller/blob/master/LICENSE" />
+    </BootstrapperApplication>
+
+    <Chain>
+      <PackageGroupRef Id="Net10DesktopRuntime" />
+      <MsiPackage SourceFile="$(var.Installer.TargetPath)" Vital="yes" />
+    </Chain>
+  </Bundle>
+
+  <Fragment>
+    <!-- Looks for the latest installed .NET 10 Desktop Runtime (x64). The variable
+         is non-empty when any 10.x runtime is present; net10 apps roll forward
+         across 10.x patches. -->
+    <netfx:DotNetCoreSearch Id="Net10DesktopRuntimeSearch"
+                            RuntimeType="desktop"
+                            Platform="x64"
+                            MajorVersion="10"
+                            Variable="Net10DesktopRuntimeVersion" />
+
+    <PackageGroup Id="Net10DesktopRuntime">
+      <ExePackage Id="Net10DesktopRuntime"
+                  Cache="keep"
+                  PerMachine="yes"
+                  Permanent="yes"
+                  Vital="yes"
+                  DetectCondition="Net10DesktopRuntimeVersion"
+                  InstallArguments="/install /quiet /norestart">
+        <!-- WiX RemotePayload hashes are SHA-512; the published SHA-256 for the
+             same file (91C2795A...7330) is recorded in docs/migration/installer-notes.md. -->
+        <ExePackagePayload Id="Net10DesktopRuntimePayload"
+                           Name="windowsdesktop-runtime-10.0.14-win-x64.exe"
+                           Description="Microsoft Windows Desktop Runtime - 10.0.14 (x64)"
+                           ProductName="Microsoft Windows Desktop Runtime - 10.0.14 (x64)"
+                           Version="10.0.14"
+                           Size="60035296"
+                           Hash="337DACAB1636219147B3FE75E451BF5B1C17BCA2C86328266D40C4AD1FF0A1E8391C4746CA7A5B702B65B61E8BFE834566CFC1B548CC10AEF90B441357B10B69"
+                           DownloadUrl="https://download.microsoft.com/download/9b53b153-e93a-4c89-8049-c7381505cf80/8de343c4-257a-40b1-9af3-3d7782328bc5/windowsdesktop-runtime-10.0.14-win-x64.exe" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

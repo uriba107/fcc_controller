@@ -45,7 +45,6 @@ namespace Fcc3_configurator
             }
         }
 
-
         private void InitPollTimer()
         {
             PollTimer = new System.Windows.Forms.Timer();
@@ -98,6 +97,11 @@ namespace Fcc3_configurator
         private void buttonCenter_Click(object sender, EventArgs e)
         {
             Stick.Center();
+        }
+
+        private void FormStickTracker_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            PollTimer.Stop();
         }
     }
 }

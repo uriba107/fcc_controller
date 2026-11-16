@@ -3,6 +3,20 @@
 
 //#define FAKE_WARTHOG
 
+// LOCAL_ADC selects the ATmega32U4 internal 10-bit ADC instead of the external
+// MCP3202 over SPI. NOT FUNCTIONAL YET - keep commented out.
+// TODO:
+//  - route the stick sensors to free ADC pins: on the shipped boards PF0/PF1 and
+//    PF4/PF5 are the axis-zero LEDs (see Schematics/eagle/FCC3_*.sch), and the
+//    sensors only reach the MCP3202.
+//  - fix ROLL_CH/PITCH_CH: ADC4/ADC5 are PF4/PF5 (Pro Micro A3/A2), not the
+//    A0/A1 named in SetupADC() - that would be ADC7/ADC6.
+//  - drop the PORTF toggling in ReadAxis(): with DDR=0 a PORT bit enables the
+//    internal pull-up on the pin being measured.
+//  - re-check scaling for 10 bit (ADC_MAX, ADC_MEDIAN_VALUE, STICK_DEADZONE).
+//  - make it a build option (Makefile / Fcc3.cproj) instead of editing a header.
+//#define LOCAL_ADC
+
 #pragma once
 
 #include <stdlib.h>
@@ -10,14 +24,29 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <LUFA/Drivers/Peripheral/SPI.h>
+#ifdef LOCAL_ADC
+#include <LUFA/Drivers/Peripheral/ADC.h>
+#endif
 
 #include "fcc3_helpers.h"
 
-#define ROLL_CH 0
-#define PITCH_CH 1
+#define LOCAL_ADC_OFFSET_CH 4
+#ifdef LOCAL_ADC
+	#define ROLL_CH 4
+	#define PITCH_CH 5
+	#define ADC_MAX 1023
+	#define ADC_MEDIAN_VALUE 512
+	#define ReadPitch ReadAxis(PITCH_CH)
+	#define ReadRoll ReadAxis(ROLL_CH)
+#else
+	#define ROLL_CH 0
+	#define PITCH_CH 1
+	#define ADC_MAX 4095
+	#define ADC_MEDIAN_VALUE 2048
+	#define ReadPitch readSPIADC(PITCH_CH)
+	#define ReadRoll readSPIADC(ROLL_CH)
+#endif
 
-#define ReadPitch readSPIADC(PITCH_CH)
-#define ReadRoll readSPIADC(ROLL_CH)
 #define StickAllowedMax 1023
 #define StickAllowedMin -1024
 
@@ -161,9 +190,11 @@ extern uint8_t gPowerLed;
 //Function decelerations
 // Hardware
 void SetupSPI(void);
+void SetupADC(void);
 void SetupLeds(void);
 void setStatusLed(uint8_t power);
 int16_t readSPIADC(uint8_t adcChannel);
+int16_t ReadAxis(uint8_t adcChannel);
 
 // Generic stuff
 void InitFCC(void);

@@ -11,3 +11,13 @@ Release
 bin
 obj
 .vs
+src/App/UpgradeLog*.htm
+
+# Firmware build output
+src/Controller/Fcc3/build/
+src/Controller/Fcc3/fcc_controller_*
+
+# Installer (vdproj) build output
+src/App/WindowsInstaller/Fcc3Controller.msi
+src/App/WindowsInstaller/setup.exe
+

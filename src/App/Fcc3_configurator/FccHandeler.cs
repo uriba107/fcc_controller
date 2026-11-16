@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using HidSharp;
 using HexHelper;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 
 namespace Fcc3_configurator
 {
@@ -44,7 +46,7 @@ namespace Fcc3_configurator
             {
                 if (isConnected)
                 {
-                    return BdcDecode(device.ProductVersion);
+                    return BdcDecode(device.ReleaseNumberBcd);
                 }
                 else
                 {
@@ -238,10 +240,7 @@ namespace Fcc3_configurator
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                };
+                return false;
           }
           set{
                 if (value)
@@ -257,12 +256,12 @@ namespace Fcc3_configurator
 
         public Int16 X
         {
-            get { return (Int16)(Xpos/32); }
+            get { return Convert.ToInt16((Xpos/32)); }
         }
 
         public Int16 Y
         {
-            get { return (Int16)(Ypos/32); }
+            get { return Convert.ToInt16((Ypos/32)); }
         }
         public string DeviceGuid
         {
@@ -284,7 +283,7 @@ namespace Fcc3_configurator
                 string RetVal = "";
                 if (isConnected)
                 {
-                    RetVal = device.ProductName;
+                    RetVal = device.GetProductName();
                 }
                 return RetVal;
             }
@@ -323,14 +322,16 @@ namespace Fcc3_configurator
 
         public bool Connect()
         {
-            var loader = new HidDeviceLoader();
-            if (loader.GetDevices(VID, PID).Count() != 1)
+            //var loader = new HidDeviceLoader();
+            var deviceList = DeviceList.Local;
+            var devices = deviceList.GetHidDevices(VID, PID);
+            if (devices.Count() != 1)
             {
                 return false;
             }
             try
             {
-                HidDevice tempDevice = new HidDeviceLoader().GetDevices(VID, PID).First();
+                HidDevice tempDevice = devices.First();
                 device = tempDevice;
                 return isConnected;
             }
@@ -353,15 +354,17 @@ namespace Fcc3_configurator
             if (isConnected)
             {
                 HidStream stream;
-                byte[] buff = new byte[device.MaxInputReportLength];
+                byte[] buff = new byte[device.GetMaxInputReportLength()];
                 if (device.TryOpen(out stream))
                 {
+                    stream.ReadTimeout = Timeout.Infinite;
                     stream.Read(buff);
                     RunTimeOptions = (ConfigOptions)buff[7];
-                    CurrentCustomForce = (Int16)((buff[9] << 8) | buff[8]);
+                    CurrentCustomForce = Convert.ToInt16(((buff[9] << 8) | buff[8]));
+                    //Ypos = Convert.ToInt16(((((Convert.ToInt16((buff[3] & 0x3F)) << 10)) | (Convert.ToInt16((buff[2] >> 3)) << 5))));
+                    //Xpos = Convert.ToInt16(((Convert.ToInt16((buff[2] & 0x07)) << 13) | ((Convert.ToInt16(buff[1])) << 5)));
                     Ypos = (Int16)(((((Int16)(buff[3] & 0x3F) << 10)) | ((Int16)(buff[2] >> 3) << 5)));
                     Xpos = (Int16)(((Int16)(buff[2] & 0x07) << 13) | (((Int16)buff[1]) << 5));
-
                     return true;
                 }
                 device = null;
@@ -378,15 +381,20 @@ namespace Fcc3_configurator
             {
                 if (isConnected)
                 {
-                    byte[] OutData = new byte[device.MaxOutputReportLength];
+                    byte[] OutData = new byte[device.GetMaxOutputReportLength()];
                     OutData[0] = 0; // Report ID
                     OutData[1] = options;
                     OutData[2] = lower;
                     OutData[3] = upper;
                     HidStream stream;
-                    device.TryOpen(out stream);
-                    stream.Write(OutData);
-                    return true;
+                    if (device.TryOpen(out stream))
+                    {
+                        stream.WriteTimeout = Timeout.Infinite;
+
+                        stream.Write(OutData);
+                        return true;
+                    }
+
                 }
             }
             catch
@@ -437,7 +445,7 @@ namespace Fcc3_configurator
             {
                 RequestedForce /= KgInLb;
             }
-            float voltage = ((DeltaVol / ForceRef) * (float)RequestedForce) + BaseVoltage;
+            float voltage = ((DeltaVol / ForceRef) * Convert.ToSingle(RequestedForce)) + BaseVoltage;
 
             float Retval = ((AdcMax / Vref) * voltage) - (AdcMax / 2);
 
@@ -462,9 +470,9 @@ namespace Fcc3_configurator
             float Retval = (((CurrentCustomForce + (AdcMax / 2)) * (Vref / AdcMax)) - BaseVoltage) * (ForceRef / DeltaVol);
             if (!UseKg)
             {
-                Retval *= (float)KgInLb;
+                Retval *= Convert.ToSingle(KgInLb);
             }
-            return (decimal)Math.Round(Retval, 1);
+            return Convert.ToDecimal(Math.Round(Retval, 1));
         }
 
 
